@@ -1,0 +1,144 @@
+﻿@{
+    ViewData["Title"] = "Create Voyage";
+}
+@model Negin.WebUI.Models.ViewModels.VoyageViewModel
+
+<div class="card mb-5 mb-xl-10">
+	<!--begin::Card header-->
+	<div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_profile_details" aria-expanded="true" aria-controls="kt_account_profile_details">
+		<!--begin::Card title-->
+		<div class="card-title m-0">
+			<h3 class="fw-bold m-0">@ViewData["Title"]</h3>
+		</div>
+		<!--end::Card title-->
+	</div>
+	<!--begin::Card header-->
+	<!--begin::Content-->
+	<div class="collapse show">
+		<!--begin::Form-->
+		<form id="kt_account_profile_details_form" class="form fv-plugins-bootstrap5 fv-plugins-framework" asp-controller="BasicInfo" asp-action="CreateVoyage" method="post">
+			<!--begin::Card body-->
+			<div class="card-body border-top p-9">
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Col-->
+					<div class="col-lg-4">
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text required">Voyage Number In</span>
+							<input type="text" asp-for="Voyage.VoyageNoIn" maxlength="20" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 hasMaxlength">
+						</div>
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div class="col-lg-4">
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text required">Vessel</span>
+							<div class="fv-row fv-plugins-icon-container overflow-hidden flex-grow-1">
+								<select type="text" asp-for="Voyage.VesselId" class="form-select form-select-solid rounded-start-0 border-start" data-control="select2" data-placeholder="Select Vessel...">
+									<option value="">Select a vessel...</option>
+									@foreach (Vessel vessel in Model.VesselList)
+									{
+										<option value="@vessel.Id">@vessel.Name</option>
+									}
+								</select>
+							</div>
+						</div>
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div class="col-lg-4">
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text required">Owner</span>
+							<div class="fv-row fv-plugins-icon-container overflow-hidden flex-grow-1">
+								<select id="owners" asp-for="Voyage.OwnerId" class="form-select form-select-solid rounded-start-0 border-start" data-control="select2" data-placeholder="Select Owner...">
+									<option value="">Select Owner...</option>
+									@foreach (ShippingLineCompany owner in Model.OwnerShippinglineList)
+									{
+										<option value="@owner.Id">@owner.ShippingLineName</option>
+									}
+								</select>
+							</div>
+						</div>
+					</div>
+					<!--end::Col-->
+
+				</div>
+				<!--end::Input group-->
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Col-->
+					<div class="col-lg-4">
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text required">Voyage Number Out</span>
+							<input type="text" asp-for="Voyage.VoyageNoOut" maxlength="20" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 hasMaxlength">
+						</div>
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div class="col-lg-4">
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div class="col-lg-4">
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text required">Agent</span>
+							<div class="fv-row fv-plugins-icon-container overflow-hidden flex-grow-1">
+								<select id="agents" disabled asp-for="Voyage.AgentId" class="form-select form-select-solid rounded-start-0 border-start" data-control="select2" data-placeholder="Select Agent..." data-hide-search="true">
+									<option value="">Select Agent...</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<!--end::Col-->
+				</div>
+				<!--end::Input group-->
+			</div>
+			<!--end::Card body-->
+			<div asp-validation-summary="All" class="text-danger"></div>
+			<!--begin::Actions-->
+			<div class="card-footer d-flex justify-content-end py-6 px-9">
+				<a href="/BasicInfo/VoyageList" class="btn btn-light btn-active-light-primary me-2">Back</a>
+				<button type="reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
+				<button type="submit" class="btn btn-primary" id="kt_account_profile_details_submit">Save Changes</button>
+			</div>
+			<!--end::Actions-->
+		</form>
+		<!--end::Form-->
+	</div>
+	<!--end::Content-->
+</div>
+
+@section Links{
+	<link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" />
+}
+
+@section Scripts{
+	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+	<script type="text/javascript">
+		$('button[type="reset"]').click(function () {
+			$('select').val(null).trigger("change");
+		});
+		$('.hasMaxlength').maxlength({
+			warningClass: "badge badge-warning",
+			limitReachedClass: "badge badge-danger"
+		});
+
+		$(document).ready(function () {
+			$('#owners').change(function(){
+				$.ajax({
+					url: '/BasicInfo/GetAgentsOfOwner',
+					type: 'GET',
+					data: { ownerId: $('#owners').val() },
+					success: function(res){
+						$('#agents').prop('disabled', false);
+						$('#agents').empty();
+						for(var i=0;i<res.length;i++){
+							$('#agents').append('<option value="' + res[i].id + '">' + res[i].shippingLineName + '</option>')
+						}
+					}
+				})
+			})
+		});
+	</script>
+}

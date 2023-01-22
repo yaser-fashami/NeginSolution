@@ -1,0 +1,131 @@
+﻿@{
+    ViewData["Title"] = "Vessel Stopages";
+}
+@model IList<Vessel>
+
+<div class="card">
+    <!--begin::Card header-->
+    <div class="card-body py-7 row">
+        <div class="col-lg-6">
+            <img data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="After select a Vessel and 'VoyageNumberIn' press show vessel stoppage button (Green button!)" src="~/assets/media/images/boat-with-containers.png" style="width:60px" />
+            <div class="mb-5">
+                <div class="fv-row fv-plugins-icon-container overflow-hidden flex-grow-1">
+                    <select id="vessels" type="text"  class="form-select form-select-solid border-start" data-control="select2" data-placeholder="Select a Vessel...">
+                        <option value="">Select a vessel...</option>
+                        @foreach (Vessel vessel in Model)
+                        {
+                            <option value="@vessel.Id">@vessel.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <img src="~/assets/media/images/123.png" style="width:50px;margin-bottom:10px" />
+            <label class="fw-bold fs-lg-4">Voyage Number In</label>
+            <div class="fv-row fv-plugins-icon-container overflow-hidden flex-grow-1">
+                <select id="voyageNumbers" disabled type="text" class="form-select form-select-solid border-start" data-control="select2" data-placeholder="Select a Voyage No In...">
+                    <option value="">Select a vessel...</option>
+                </select>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button id="show" class="btn btn-success my-5 text-end">
+                    <!--begin::Svg Icon | path: icons/duotune/arrows/arr075.svg-->
+                    <span class="svg-icon svg-icon-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-box-arrow-in-down" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M3.5 6a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-8a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 1 0-1h2A1.5 1.5 0 0 1 14 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5v-8A1.5 1.5 0 0 1 3.5 5h2a.5.5 0 0 1 0 1h-2z"/>
+                          <path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                        </svg>                   
+                    </span>
+                    <!--end::Svg Icon-->Show Vessel Stoppage
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="vesselStoppageList" style="padding:0;visibility:hidden;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+</div>
+
+@section Links{
+    <link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" />
+}
+
+@section Scripts{
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <script src="~/assets/js/custom/apps/user-management/users/list/tableVoyage.js"></script>
+
+    @*   <script src="~/js/persiandatepicker.min.js"></script>
+    <script src="~/lib/dayjs/dayjs.min.js"></script>
+    <script src="~/lib/font-awesome/js/all.min.js"></script>
+    <script src="~/js/timepicker-bs4.js"></script>
+    <script src="~/assets/js/scripts.bundle.js"></script>
+*@    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#billing').trigger("click");
+
+            $('#vessels').change(function(){
+                $.ajax({
+                    url: '/Billing/GetVoyageNoIn',
+                    type: 'GET',
+                    data:{vesselId: $('#vessels').val()},
+                    success: function(res){
+                        $('#voyageNumbers').prop('disabled', false);
+                        $('#voyageNumbers').empty();
+						for(var i=0;i<res.length;i++){
+							$('#voyageNumbers').append('<option value="' + res[i].id + '">' + res[i].voyageNoIn + '</option>')
+						}
+					}
+
+                })
+            });
+
+            $('#show').click(function(){
+                if ($('#vessels').val() != '' && $('#vessels').val() != '' && $('#voyageNumbers').val() != null) {
+                    $.ajax({
+                        url: '/Billing/VesselStoppageList',
+                        type: 'GET',
+                        data: { voyageId: $('#voyageNumbers').val() },
+                        success: function(res){
+                            $('#vesselStoppageList').html(res);
+                                  setTimeout(function () {
+                                      $('#vesselStoppageList').css('visibility', 'visible')
+                                      $('#vesselStoppageList').hide();
+                                      $('#vesselStoppageList').fadeIn();
+                                  }, 500)
+                        }
+                    });
+                }
+            });
+
+            //$('#eta').persianDatepicker({
+            //    theme: 'dark',
+            //    formatDate: "YYYY/MM/DD",
+            //    showGregorianDate: false,
+            //    persianNumbers: true,
+            //    cellWidth: 35,
+            //    cellHeight: 30,
+            //    fontSize: 16,
+            //});
+
+            //$('#eta,#ata,#etd,#atd').persianDatepicker({
+            //	theme: 'dark',
+            //	formatDate: "YYYY/MM/DD",
+            //	showGregorianDate: false,
+            //	persianNumbers:true,
+            //	cellWidth: 35,
+            //	cellHeight: 30,
+            //	fontSize: 16,
+            //});
+            //$('#etatime,#etdtime').timepicker({
+            //	step: 900
+            //});
+
+            //$("#atatime,#atdtime").timepicker({});
+
+        })
+    </script>
+
+}

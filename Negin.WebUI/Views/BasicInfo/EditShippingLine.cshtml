@@ -1,0 +1,259 @@
+﻿@{
+	ViewData["Title"] = "Edit Shipping Line Company";
+}
+@model Negin.WebUI.Models.ViewModels.ShippingLineViewModel
+
+<div class="card mb-5 mb-xl-10">
+	<!--begin::Card header-->
+	<div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_profile_details" aria-expanded="true" aria-controls="kt_account_profile_details">
+		<!--begin::Card title-->
+		<div class="card-title m-0">
+			<h3 class="fw-bold m-0">@ViewData["Title"]</h3>
+		</div>
+		<!--end::Card title-->
+	</div>
+	<!--begin::Card header-->
+	<!--begin::Content-->
+	<div class="collapse show">
+		<!--begin::Form-->
+		<form id="kt_account_profile_details_form" class="form fv-plugins-bootstrap5 fv-plugins-framework" asp-controller="BasicInfo" asp-action="EditShippingLine" method="post">
+			<!--begin::Card body-->
+			<div class="card-body border-top p-9">
+				<!--begin::Input group-->
+				<div class="row mb-4" style="min-height:69px;">
+					<!--begin::Col-->
+					<div class="col-lg-5">
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text required">Shipping Line Name</span>
+							<input type="text" asp-for="ShippingLineCompany.ShippingLineName" maxlength="50" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 hasMaxlength">
+							<input type="hidden" asp-for="ShippingLineCompany.Id"  />
+						</div>
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div class="col-lg-3">
+						<div class="input-group input-group-solid flex-nowrap">
+							<span class="input-group-text">City</span>
+							<input type="text" asp-for="ShippingLineCompany.City" maxlength="20" class="form-control hasMaxlength" aria-label="Agent" aria-describedby="basic-addon1" />
+						</div>
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div class="col-lg-1 fv-row fv-plugins-icon-container">
+						<div class="form-check form-check-custom form-check-success form-check-solid form-check-sm mb-2">
+							<input id="chk_owner" class="form-check-input" type="checkbox" asp-for="ShippingLineCompany.IsOwner"/>
+							<label class="form-check-label" for="">
+								Owner
+							</label>
+						</div>
+
+						<div class="form-check form-check-custom form-check-solid form-check-sm">
+							<input id="chk_agent" class="form-check-input" type="checkbox" asp-for="ShippingLineCompany.IsAgent"/>
+							<label class="form-check-label" for="">
+								Agent
+							</label>
+						</div>
+
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div id="agentlist" class="col-lg-3" style="display:none;position:relative;top:-20px">
+						<label class="form-label required">Agents</label>
+						<select asp-for="AgentAssigned" class="form-select form-select-lg form-select-solid" data-control="select2" data-close-on-select="false" data-placeholder="Select at least an Agent" data-allow-clear="false" multiple="multiple">
+							<option></option>
+							@if (Model.AgentList != null && Model.AgentList.Count > 0)
+							{
+								foreach (var agent in Model.AgentList)
+								{
+									<option value="@agent.Id">@agent.ShippingLineName</option>
+								}
+							}
+						</select>
+					</div>
+					<div id="agentWarn" class="col-lg-3">
+						<!--begin::Alert-->
+						<div class="alert bg-light-warning d-flex align-items-center p-5">
+							<!--begin::Icon-->
+							<i class="bi-exclamation-triangle-fill text-warning">&emsp;</i>
+							<!--end::Icon-->
+							<!--begin::Wrapper-->
+							<div class="d-flex flex-column">
+								<!--begin::Content-->
+								<span class="text-warning">This company is agent itself!</span>
+								<!--end::Content-->
+							</div>
+							<!--end::Wrapper-->
+						</div>
+						<!--end::Alert-->
+					</div>
+					<!--end::Col-->
+				</div>
+				<!--end::Input group-->
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Col-->
+					<div class="col-lg-5">
+						<div class="fv-row input-group input-group-solid mb-5">
+							<span class="input-group-text required">EconomicCode</span>
+							<input type="text" asp-for="ShippingLineCompany.EconomicCode" maxlength="20" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 hasMaxlength">
+						</div>
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text required">National Code</span>
+							<input type="text" asp-for="ShippingLineCompany.NationalCode" maxlength="20" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 hasMaxlength">
+						</div>
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div class="col-lg-7">
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text">Email</span>
+							<input type="email" asp-for="ShippingLineCompany.Email" maxlength="50" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 hasMaxlength">
+						</div>
+						<div class="input-group input-group-solid flex-nowrap">
+							<span class="input-group-text">Address</span>
+							<input type="text" asp-for="ShippingLineCompany.Address" maxlength="200" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 hasMaxlength">
+						</div>
+					</div>
+					<!--end::Col-->
+				</div>
+				<!--end::Input group-->
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Col-->
+					<div class="col-lg-8">
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text">Description</span>
+							<textarea asp-for="ShippingLineCompany.Description" maxlength="1000" rows="4" class="form-control hasMaxlength"></textarea>
+						</div>
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div class="col-lg-4 repeater">
+						<div class="form-group">
+							<div data-repeater-list="">
+								<div data-repeater-item>
+									<div class="input-group input-group-solid mb-5">
+										<span class="input-group-text">Tel</span>
+										<input type="tel" name="tel" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 Tel">
+										<a href="javascript:;" data-repeater-delete class="btn btn-md btn-light-danger">
+											<i class="bi bi-trash fs-2"></i>
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<button id="addTell" class="btn btn-sm btn-light-primary" data-repeater-create type="button">
+							<i class="la la-plus"></i> Add Tel Number
+						</button>
+					</div>
+					<!--end::Col-->
+
+				</div>
+				<!--end::Input group-->
+
+			</div>
+			<!--end::Card body-->
+			<div asp-validation-summary="All" class="text-danger"></div>
+			<!--begin::Actions-->
+			<div class="card-footer d-flex justify-content-end py-6 px-9">
+				<a href="/BasicInfo/ShippingLineList" class="btn btn-light btn-active-light-primary me-2">Back</a>
+				<button type="submit" class="btn btn-primary" id="kt_account_profile_details_submit">Save Changes</button>
+			</div>
+			<!--end::Actions-->
+		</form>
+		<!--end::Form-->
+	</div>
+	<!--end::Content-->
+</div>
+
+
+@section Links{
+	<link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" />
+}
+
+@section Scripts{
+	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+	<script src="~/assets/plugins/custom/formrepeater/formrepeater.bundle.js"></script>
+	<script type="text/javascript">
+		$('.repeater').repeater({
+			initEmpty: false,
+			show: function () {
+				telInputmask();
+				$(this).slideDown();
+			},
+
+			hide: function (deleteElement) {
+				$(this).slideUp(deleteElement);
+			},
+			isFirstItemUndeletable: true
+		});
+
+		function telInputmask() {
+			Inputmask({
+				"mask": "(999) 99999999"
+			}).mask(".Tel");
+		}
+		$('#chk_agent').click(function () {
+			$('#agentWarn').css('display', 'none');
+			if ($('#chk_agent').is(':checked') && $('#chk_owner').is(':checked')) {
+				setTimeout(function () { $('#agentWarn').css('display', 'Initial') }, 500);
+			}
+
+			if ($('#chk_agent').is(':checked') == false) {
+				$('#agentlist').slideDown(500)
+				$('#chk_owner').prop('checked', true);
+			} else {
+				$('#agentlist').slideUp(500);
+			}
+		});
+		$('#chk_owner').click(function () {
+			if ($('#chk_owner').is(':checked') == false) {
+				$('#chk_agent').prop('checked', true);
+				$('#agentWarn').slideUp(400);
+				$('#agentlist').slideUp(500);
+			}
+			if ($('#chk_agent').is(':checked') && $('#chk_owner').is(':checked')) {
+				$('#agentWarn').slideDown(500);
+			}
+		});
+		$('.hasMaxlength').maxlength({
+			warningClass: "badge badge-warning",
+			limitReachedClass: "badge badge-danger"
+		});
+		$(document).ready(function () {
+			telInputmask();
+			$('#agentWarn').css('display', 'none');
+			if('@Model.ShippingLineCompany.IsAgent' == 'True'){
+				$('#chk_agent').prop('checked', true);
+			}else if('@Model.ShippingLineCompany.IsOwner' == 'True'){
+				$('#chk_owner').prop('checked', true);
+			}
+			if ('@Model.ShippingLineCompany.IsAgent' == 'True' && '@Model.ShippingLineCompany.IsOwner' == 'True') {
+				$('#agentWarn').css('display', 'Initial');
+			}
+			if('@Model.ShippingLineCompany.Tel' != ''){
+				if ('@Model.ShippingLineCompany.Tel?.Contains(',')' == 'True') {
+					var tels = ('@Model.ShippingLineCompany.Tel').split(',');
+
+					for (var i = 0; i < tels.length; i++) {
+						$('.Tel').eq(i).val(tels[i]);
+						$('#addTell').trigger("click");
+					}
+				}else{
+					$('.Tel').first().val('@Model.ShippingLineCompany.Tel');
+				}
+			}
+			var array = [];
+			@foreach (var agent in Model.ShippingLineCompany.Agents)
+			{
+				<text>array.push(@agent.AgentShippingLineCompany.Id);</text>
+			}
+			$('select').val(array).trigger('change')
+			if(array.length > 0 && '@Model.ShippingLineCompany.IsAgent' != 'True'){
+				$('#agentlist').css('display', 'Initial')
+			}
+		})
+	</script>
+}
+

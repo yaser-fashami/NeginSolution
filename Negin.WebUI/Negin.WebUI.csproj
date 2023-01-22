@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\sass\vendors\plugins\mixins\_select2.scss" />
+    <None Include="wwwroot\sass\vendors\plugins\_datatables.scss" />
+    <None Include="wwwroot\sass\vendors\plugins\_plugins.angular.scss" />
+    <None Include="wwwroot\sass\vendors\plugins\_plugins.react.scss" />
+    <None Include="wwwroot\sass\vendors\plugins\_plugins.scss" />
+    <None Include="wwwroot\sass\vendors\plugins\_plugins.vue.scss" />
+    <None Include="wwwroot\sass\vendors\plugins\_select2.scss" />
+    <None Include="wwwroot\sass\vendors\plugins\_tiny-slider.scss" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SmartBreadcrumbs" Version="3.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Negin.Infra.Data.Sql\Negin.Infra.Data.Sql.csproj" />
+    <ProjectReference Include="..\Negin.Services\Negin.Services.csproj" />
+  </ItemGroup>
+
+</Project>
