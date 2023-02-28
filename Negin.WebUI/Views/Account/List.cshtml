@@ -164,15 +164,14 @@
                                 <td>
                                     @foreach (var role in user.Roles)
                                     {
-                                        @role.Name
-                                        ;
+                                        @role.Name;
                                         <br>
                                     }
                                 </td>
                                 <!--end::Role=-->
                                 <!--begin::Last login=-->
                                 <td data-order="@user.LastLogInDate">
-                                    <div class="badge badge-light fw-bold">@user.LastLogInDate?.MiladiToShamsi().ToShamsiDateString(user.LastLogInDate.Value.DayOfWeek)</div>
+                                    <div class="badge badge-light fw-bold">@Html.Raw(user.LastLogInDate?.MiladiToShamsi().ToShamsiDateString(user.LastLogInDate.Value.DayOfWeek))</div>
                                 </td>
                                 <!--end::Last login=-->
                                 <!--begin::Active=-->
@@ -188,7 +187,7 @@
                                 </td>
                                 <!--end::Active-->
                                 <!--begin::Joined-->
-                                <td>@(user.CreateDate.MiladiToShamsi() != null ? user.CreateDate.MiladiToShamsi().ToShamsiDateString(user.CreateDate.DayOfWeek) : "")</td>
+                                <td><div class="badge badge-light fw-bold">@(user.CreateDate.MiladiToShamsi() != null ? Html.Raw(user.CreateDate.MiladiToShamsi().ToShamsiDateString(user.CreateDate.DayOfWeek)) : "")</div></td>
                                     <!--end::Joined-->
                                 <!--begin::Action-->
                                 <td class="text-end">

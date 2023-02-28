@@ -2,7 +2,7 @@
 
 namespace Negin.Core.Domain.Entities.Basic
 {
-	public class Port: BaseBasicInformation<uint>
+	public class Port: BaseEntity<uint>
 	{
 		public ushort? CountryId { get; set; }
 		public Country? Country { get; set; }

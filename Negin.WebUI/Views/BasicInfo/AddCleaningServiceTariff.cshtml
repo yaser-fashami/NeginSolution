@@ -1,0 +1,117 @@
+﻿@{
+    Layout = null;
+}
+@model CleaningServiceTariffDetails
+
+<form class="reapeter">
+    <div id="kt_docs_repeater_basic">
+        <div class="form-group">
+            <div data-repeater-list="kt_docs_repeater_basic">
+                <div data-repeater-item>
+                    <div class="row form-group">
+                        <!--begin::Col-->
+                        <div class="col-lg-3">
+                            <div class="input-group input-group-solid mb-5">
+                                <span class="input-group-text required">Gross Weight</span>
+                                <input type="number" min="0" class="form-control form-control-solid" name="grossWeight" />
+                            </div>
+                        </div>
+                        <!--end::Col-->
+                        <!--begin::Col-->
+                        <div class="col-lg-3">
+                            <div class="input-group input-group-solid mb-5">
+                                <span class="input-group-text required">Price</span>
+                                <input type="number" min="0" class="form-control form-control-solid" name="price" />
+                            </div>
+                        </div>
+                        <!--end::Col-->
+                        <!--begin::Col-->
+                        <div class="col-lg-3">
+                            <div class="input-group input-group-solid mb-5">
+                                <span class="input-group-text">Vat</span>
+                                <input type="number" min="0" class="form-control form-control-solid" name="vat" />
+                            </div>
+                        </div>
+                        <!--end::Col-->
+                        <div class="col-md-2">
+                            <a href="javascript:;" data-repeater-delete class="btn btn-sm btn-light-danger mt-3 mb-md-8 del_btn">
+                                <i class="bi bi-trash"></i>Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--begin::Form group-->
+        <div class="form-group mb-5">
+            <a href="javascript:;" id="add_btn" data-repeater-create class="btn btn-light-primary">
+                <i class="la la-plus"></i>Add
+            </a>
+        </div>
+        <!--end::Form group-->
+        </div>
+</form>
+
+<!--begin::Actions-->
+<div class="card-footer d-flex justify-content-end py-6 px-9">
+    <a href="/BasicInfo/VesselStoppageTariffList" class="btn btn-light btn-active-light-primary me-2">Back</a>
+    <button type="reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
+    <button type="submit" class="btn btn-primary" id="kt_account_profile_details_submit">Save Changes</button>
+</div>
+<!--end::Actions-->
+<div id="validationMessage2" class="text-danger">@ViewBag.Error</div>
+<script src="~/assets/plugins/custom/formrepeater/formrepeater.bundle.js"></script>
+
+<script type="text/javascript">
+    $('#validationMessage2').text('');
+    var counter = 1;
+
+    $('.reapeter').repeater({
+        initEmpty: false,
+        show: function () {
+            $(this).slideDown();
+            counter++;
+        },
+
+        hide: function (deleteElement) {
+            $(this).slideUp(deleteElement);
+            counter--;
+        },
+        isFirstItemUndeletable: true
+    });
+
+    $(document).ready(function () {
+        $('#kt_account_profile_details_submit').click(function () {
+            var cleaningServiceTariffDetails = [];
+            for (var i = 0; i < counter; i++)
+            {
+                cleaningServiceTariffDetails.push({ cleaningServiceTariffId: @ViewBag.CleaningServiceTariffId, "grossWeight": $('input[name="kt_docs_repeater_basic[' + i + '][grossWeight]"]').val(), "price": $('input[name="kt_docs_repeater_basic[' + i + '][price]"]').val(), "vat": $('input[name="kt_docs_repeater_basic[' + i + '][vat]"]').val() == '' ? null : $('input[name="kt_docs_repeater_basic[' + i + '][vat]"]').val() })
+            }
+
+            var empty = true;
+            $.each(cleaningServiceTariffDetails, function (index, obj) {
+              if ($.isEmptyObject(obj.grossWeight) || $.isEmptyObject(obj.price)) {
+                empty = false;
+              }
+            }); 
+            if(empty){
+                $.ajax({
+                    url: '/BasicInfo/AddCleaningServiceTariffDetail',
+                    type: 'POST',
+                    data: JSON.stringify(cleaningServiceTariffDetails),
+                    contentType: 'application/json;',
+                    success: function (res) {
+                        if(res == 200){
+                            window.location.href = '/BasicInfo/CleaningServiceTariffList';
+                        }else{
+                            $('#validationMessage2').text(res);
+                        }
+                    }
+                })
+            }else{
+                $('#validationMessage2').text('GrossWeight and Price fields must be filled!');
+            }
+        });
+    });
+</script>
+

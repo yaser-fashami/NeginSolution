@@ -1,0 +1,104 @@
+﻿@{
+    Layout = null;
+}
+@model Negin.WebUI.Models.ViewModels.VesselStoppageTariffViewModel
+
+<div class="row">
+    <div class="col-lg-2 d-flex justify-content-center mb-3">
+        <label class="fs-4 fw-bold text-muted">Vessel Types</label>
+    </div>
+</div>
+<div class="separator separator-dashed mb-5"></div>
+
+@for (int i = 0; i < Model.VesselTypes.Count; i++)
+{
+    string normalHourId = "normalHour" + i;
+    string normalPrice = "normalPrice" + i;
+    string extraPrice = "extraPrice" + i;
+    <div class="row">
+        <!--begin::Col-->
+        <div class="col-lg-2">
+            <div class="d-flex align-items-center">
+                <span class="bullet bg-primary me-5"></span><label class="col-form-label fw-semibold fs-6">@Model.VesselTypes[i].Name</label>
+                <input id="vesselTypeId" type="hidden" value="@Model.VesselTypes[i].Id">
+            </div>
+        </div>
+        <!--end::Col-->
+        <!--begin::Col-->
+        <div class="col-lg-3">
+            <div class="form-floating mb-7">
+                <input type="number" min="0" class="form-control form-control-solid" placeholder="NormalHour" id="@normalHourId" />
+                <label class="required fw-bold text-gray-700">Normal Time (hour)</label>
+            </div>
+        </div>
+        <!--end::Col-->
+        <!--begin::Col-->
+        <div class="col-lg-3">
+            <div class="form-floating mb-7">
+                <input type="number" min="0" class="form-control form-control-solid" placeholder="NormalPrice" id="@normalPrice" />
+                <label class="required fw-bold text-gray-700">Normal Price ($)</label>
+            </div>
+        </div>
+        <!--end::Col-->
+        <!--begin::Col-->
+        <div class="col-lg-3">
+            <div class="form-floating mb-7">
+                <input type="number" min="0" class="form-control form-control-solid" placeholder="ExtraPrice" id="@extraPrice" />
+                <label class="required fw-bold text-gray-700">Extra Price ($)</label>
+            </div>
+        </div>
+        <!--end::Col-->
+    </div>
+}
+<!--begin::Actions-->
+<div class="card-footer d-flex justify-content-end py-6 px-9">
+    <a href="/BasicInfo/VesselStoppageTariffList" class="btn btn-light btn-active-light-primary me-2">Back</a>
+    <button type="reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
+    <button type="submit" class="btn btn-primary" id="kt_account_profile_details_submit">Save Changes</button>
+</div>
+<!--end::Actions-->
+<div id="validationMessage2" class="text-danger">@ViewBag.Error</div>
+
+
+<script type="text/javascript">
+    $('#validationMessage2').text('');
+    $(document).ready(function () {
+        $('#kt_account_profile_details_submit').click(function () {
+            var vesselStoppageTariffDetails = [];
+            @for (int i = 0; i < Model.VesselTypes.Count; i++)
+            {
+                var normalHour = "#normalHour" + i;
+                var normalPrice = "#normalPrice" + i;
+                var extraPrice = "#extraPrice" + i;
+                <text>
+                    vesselStoppageTariffDetails.push({ "vesselStoppageTarrifId": @ViewBag.VesselStoppageTariffId, "vesselTypeId": @Model.VesselTypes[i].Id, "normalHour": $('@normalHour').val(), "normalPrice": $('@normalPrice').val(), "extraPrice": $('@extraPrice').val() })
+                </text>
+            }
+            var empty = true;
+            $.each(vesselStoppageTariffDetails, function(index, obj) {
+              if ($.isEmptyObject(obj.normalHour) || $.isEmptyObject(obj.normalPrice) || $.isEmptyObject(obj.extraPrice)) {
+                empty = false;
+              }
+            }); 
+            if(empty){
+                $.ajax({
+                    url: '/BasicInfo/AddVesselStoppageTariffDetail',
+                    type: 'POST',
+                    data: JSON.stringify(vesselStoppageTariffDetails),
+                    contentType: 'application/json;',
+                    success: function (res) {
+                        debugger;
+                        if(res == 200){
+                            window.location.href = '/BasicInfo/VesselStoppageTariffList';
+                        }else{
+                            $('#validationMessage2').text(res);
+                        }
+                    }
+                })
+            }else{
+                $('#validationMessage2').text('All fields must be filled!');
+            }
+        });
+
+    });
+</script>

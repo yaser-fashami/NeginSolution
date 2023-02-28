@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -37,7 +38,7 @@ public static class DateTimeExtension
 
 	public static string ToShamsiDateString(this DateTime? dateTime, System.DayOfWeek? dayOfWeek)
 	{
-		string result = $"{dayOfWeek?.PersianDayOfWeek()} {dateTime?.Year}/{dateTime?.Month}/{dateTime?.Day}   ساعت: {dateTime?.Hour}:{dateTime?.Minute}";
+		string result = $"{dayOfWeek?.PersianDayOfWeek()} {dateTime?.Year}/{dateTime?.Month}/{dateTime?.Day} <br/>  ساعت: {dateTime?.Hour}:{dateTime?.Minute}";
 		return result;
 	}
 	public static string ToShortShamsiDateString(this DateTime dateTime)

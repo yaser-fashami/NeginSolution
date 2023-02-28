@@ -4,7 +4,13 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <SignAssembly>False</SignAssembly>
+    <AssemblyOriginatorKeyFile>C:\Yaser-Fashami.cer</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Interfaces\IVesselStoppageRepository.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="DataAnnotationsExtensions" Version="5.0.1.27" />
@@ -13,6 +19,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Negin.Framework\Negin.Framework.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Entities\Operation\" />
   </ItemGroup>
 
 </Project>

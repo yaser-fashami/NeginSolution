@@ -29,7 +29,7 @@
             <!--begin::Toolbar-->
             <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base" data-select2-id="select2-data-149-liu2">
                 <!--begin::Filter-->
-                <button style="display:none" type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+                <button style="display:none"  type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
                     <!--begin::Svg Icon | path: icons/duotune/general/gen031.svg-->
                     <span class="svg-icon svg-icon-2">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -168,8 +168,8 @@
                                     @vessel.Flag?.Name
                                 </td>
                                 <!--begin::Flag-->
-                                <td>@vessel.VesselLength</td>
-                                <td>@vessel.VesselWidth</td>
+                                <td>@vessel.VesselLength <sup>(m)</sup></td>
+                                <td>@vessel.VesselWidth <sup>(m)</sup></td>
                                 <td>@vessel.BaysQuantity</td>
                                 <td>@vessel.ActiveCraneQty</td>
                                 <td>@vessel.CallSign</td>
@@ -230,6 +230,7 @@
 @section Scripts{
     <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
     <script src="~/assets/js/custom/apps/user-management/users/list/tableVessel.js"></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $('#search').keydown(function (event) {

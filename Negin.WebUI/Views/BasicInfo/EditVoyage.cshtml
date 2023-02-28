@@ -95,82 +95,7 @@
 						</div>
 					</div>
 					<!--end::Col-->
-@*					<div class="separator separator-content my-15"><span class="w-150px">Dates and Times</span></div>
-*@					<!--begin::Input group-->
-@*					<div class="row">
-						<div class="col-lg-3">
-							<label class="form-label fw-bolder" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="ESTIMATED TIME ARRIVAL">ETA</label>
-							<input  class="form-control form-control-solid" name="Voyage.ETA" placeholder="Pick date" id="eta" />
-							<input type="text" id="etatime" name="Voyage.ETA" class="form-control form-control-solid my-3" autocomplete="off" placeholder="Pick time" />
-						</div>
-						<div class="col-lg-3">
-							<label class="form-label fw-bolder" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="ACTUAL TIME ARRIVAL">ATA</label>
-							<input class="form-control form-control-solid" name="Voyage.ATA" placeholder="Pick date" id="ata" />
-							<input type="text" id="atatime" name="Voyage.ATA" class="form-control form-control-solid my-3" autocomplete="off" placeholder="Pick time" />
-						</div>
-						<div class="col-lg-3">
-							<label class="form-label fw-bolder" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="ESTIMATED TIME DEPARTURE">ETD</label>
-							<input class="form-control form-control-solid" name="Voyage.ETD" placeholder="Pick date" id="etd" />
-							<input type="text" id="etdtime" name="Voyage.ETD" class="form-control form-control-solid my-3" autocomplete="off" placeholder="Pick time" />
-						</div>
-						<div class="col-lg-3">
-							<label class="form-label fw-bolder" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="ACTUAL TIME DEPARTURE">ATD</label>
-							<input class="form-control form-control-solid" name="Voyage.ATD" placeholder="Pick date" id="atd" />
-							<input type="text" id="atdtime" name="Voyage.ATD" class="form-control form-control-solid my-3" autocomplete="off" placeholder="Pick time" />
-						</div>
-					</div>
-*@					<!--end::Col-->
-				</div>
-				<!--end::Input group-->
-@*				<div class="separator separator-content my-15"><span class="w-50px">Ports</span></div>
-				<!--begin::Input group-->
-				<div class="row">
-					<!--begin::Col-->
-					<div class="col-lg-4">
-						<label class="form-label">Origin Port</label>
-						<div class="fv-row fv-plugins-icon-container overflow-hidden flex-grow-1">
-							<select id="kt_docs_select2_country_originPort" asp-for="Voyage.OriginPortId" class="form-select form-select-solid" data-control="select2" data-placeholder="Select a Port..." data-allow-clear="true">
-								<option value="">Select a Port...</option>
-								@foreach (Port port in Model.PortList)
-								{
-									<option value="@port.Id">@port.PortName - @port.PortSymbol</option>
-								}
-								value="@port.Id" data-kt-select2-country="../assets/media/flags/@port.Country?.FlagName"
-							</select>
-						</div>
-					</div>
-					<!--end::Col-->
-					<!--begin::Col-->
-					<div class="col-lg-4">
-						<label class="form-label">Previous Port</label>
-						<div class="fv-row fv-plugins-icon-container overflow-hidden flex-grow-1">
-							<select id="kt_docs_select2_country_previousPort" asp-for="Voyage.PreviousPortId" class="form-select form-select-solid" data-control="select2" data-placeholder="Select a Port..." data-allow-clear="true">
-								<option value="">Select a Port...</option>
-								@foreach (Port port in Model.PortList)
-								{
-									<option value="@port.Id">@port.PortName - @port.PortSymbol</option>
-								}
-							</select>
-						</div>
-					</div>
-					<!--end::Col-->
-					<!--begin::Col-->
-					<div class="col-lg-4">
-						<label class="form-label">Next Port</label>
-						<div class="fv-row fv-plugins-icon-container overflow-hidden flex-grow-1">
-							<select id="kt_docs_select2_country_nextPort" asp-for="Voyage.NextPortId" class="form-select form-select-solid" data-control="select2" data-placeholder="Select a Port..." data-allow-clear="true">
-								<option value="">Select a Port...</option>
-								@foreach (Port port in Model.PortList)
-								{
-									<option value="@port.Id">@port.PortName - @port.PortSymbol</option>
-								}
-							</select>
-						</div>
-					</div>
-					<!--end::Col-->
-				</div>
-				<!--end::Input group-->
-*@			</div>
+			</div>
 			<!--end::Card body-->
 			<div asp-validation-summary="All" class="text-danger"></div>
 			<!--begin::Actions-->
@@ -193,11 +118,7 @@
 @section Scripts{
 	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    <script src="~/js/persiandatepicker.min.js"></script>
-    <script src="~/lib/dayjs/dayjs.min.js"></script>
-    <script src="~/lib/font-awesome/js/all.min.js"></script>
 
-	<script src="~/js/timepicker-bs4.js"></script>
 	<script type="text/javascript">
 		$('.hasMaxlength').maxlength({
 			warningClass: "badge badge-warning",
@@ -218,54 +139,6 @@
 					}
 				})
 			})
-
-			//$('#eta,#ata,#etd,#atd').persianDatepicker({
-			//	theme: 'dark',
-			//	formatDate: "YYYY/MM/DD",
-			//	showGregorianDate: false,
-			//	persianNumbers:true,
-			//	cellWidth: 35,
-			//	cellHeight: 30,
-			//	fontSize: 16, 
-			//});
-			//$('#etatime,#etdtime').timepicker({
-			//	step: 900
-			//});
-
-			//$("#atatime,#atdtime").timepicker({});
-
-			@*//$('#eta').val('@Model.Voyage.ETA?.ToString("yyyy/MM/dd")');
-			//$('#etatime').val('@Model.Voyage.ETA?.ToShortTimeString()');
-
-			//$('#ata').val('@Model.Voyage.ATA?.ToString("yyyy/MM/dd")');
-			//$('#atatime').val('@Model.Voyage.ATA?.ToShortTimeString()');
-
-			//$('#etd').val('@Model.Voyage.ETD?.ToString("yyyy/MM/dd")');
-			//$('#etdtime').val('@Model.Voyage.ETD?.ToShortTimeString()');
-
-			//$('#atd').val('@Model.Voyage.ATD?.ToString("yyyy/MM/dd")');
-			//$('#atdtime').val('@Model.Voyage.ATD?.ToShortTimeString()');*@
-
-			//var optionFormat = function (item) {
-			//	if (!item.id) {
-			//		return item.text;
-			//	}
-
-			//	var span = document.createElement('span');
-			//	var imgUrl = item.element.getAttribute('data-kt-select2-country');
-			//	var template = '';
-
-			//	template += '<img src="' + imgUrl + '" class="rounded-circle h-20px me-2" alt="image"/>';
-			//	template += item.text;
-
-			//	span.innerHTML = template;
-
-			//	return $(span);
-			//}
-			//$('#kt_docs_select2_country_originPort,#kt_docs_select2_country_previousPort,#kt_docs_select2_country_nextPort').select2({
-			//	templateSelection: optionFormat,
-			//	templateResult: optionFormat
-			//});
 		});
 	</script>
 }

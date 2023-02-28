@@ -1,9 +1,10 @@
 ﻿
 using DataAnnotationsExtensions;
+using Negin.Core.Domain.Aggregates.Basic;
 
 namespace Negin.Core.Domain.Entities.Basic;
 
-public class ShippingLineCompany: BaseEntity<uint>
+public class ShippingLineCompany: BaseAudit_SoftDeleteable_Entity<uint>
 {
 	public string ShippingLineName { get; set; }
 	public string EconomicCode { get; set; }

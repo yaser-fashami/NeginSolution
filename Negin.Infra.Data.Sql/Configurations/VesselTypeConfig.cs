@@ -15,6 +15,7 @@ internal class VesselTypeConfig : IEntityTypeConfiguration<VesselType>
 
         #region Navigation
         builder.HasMany(c=>c.Vessels).WithOne(d=>d.Type).HasForeignKey(s=>s.VesselTypeId);
+        builder.HasMany(c => c.VesselStoppageTariffDetails).WithOne(d => d.VesselType).HasForeignKey("VesselTypeId");
         #endregion
     }
 }

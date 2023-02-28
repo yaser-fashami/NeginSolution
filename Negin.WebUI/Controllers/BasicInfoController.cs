@@ -7,6 +7,8 @@ using SmartBreadcrumbs.Attributes;
 using System.Diagnostics;
 using static Negin.Framework.Exceptions.SqlException;
 using Microsoft.AspNetCore.Authorization;
+using Negin.Core.Domain.Aggregates.Basic;
+using Negin.Framework.Exceptions;
 
 namespace Negin.WebUI.Controllers
 {
@@ -17,18 +19,23 @@ namespace Negin.WebUI.Controllers
         private readonly IVesselRepository _vesselRepository;
         private readonly IShippingLineCompanyRepository _shippingLineCompanyRepository;
         private readonly IVoyageRepository _voyageRepository;
+        private readonly IBasicInfoRepository _basicInfoRepository;
 
 
-        public BasicInfoController(ILogger<BasicInfoController> logger, IVesselRepository vesselRepository, IShippingLineCompanyRepository shippingLineCompanyRepository, IVoyageRepository voyageRepository)
+        public BasicInfoController(ILogger<BasicInfoController> logger, IVesselRepository vesselRepository,
+			IShippingLineCompanyRepository shippingLineCompanyRepository,
+			IVoyageRepository voyageRepository,
+			IBasicInfoRepository basicIOnfoRepository)
         {
             _logger = logger;
             _vesselRepository = vesselRepository;
             _shippingLineCompanyRepository = shippingLineCompanyRepository;
             _voyageRepository = voyageRepository;
+            _basicInfoRepository = basicIOnfoRepository;
         }
 
-		#region Vessel
-		[DefaultBreadcrumb("Home")]
+        #region Vessel
+        [DefaultBreadcrumb("Home")]
 		public async Task<IActionResult> List(int pageNumber = 1, int pageCount = 10, string filter = "")
         {
             var model = await _vesselRepository.GetPaginationVesselsAsync(pageNumber, pageCount, filter);
@@ -38,6 +45,7 @@ namespace Negin.WebUI.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "admin")]
         [Breadcrumb("CreateVessel", FromAction = "List", FromController = typeof(BasicInfoController))]
         public async Task<IActionResult> CreateVessel()
         {
@@ -47,13 +55,14 @@ namespace Negin.WebUI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin")]
         [Breadcrumb("CreateVessel", FromAction = "List", FromController = typeof(BasicInfoController))]
         public async Task<IActionResult> CreateVessel(VesselViewModel newVessel)
         {
             if (ModelState.IsValid)
             {
                 var result = await _vesselRepository.CreateVesselAsync(newVessel.Vessel);
-                if (result.State == SqlExceptionMessages.Success)
+                if (result.State)
                 {
                     return RedirectToAction("List");
 				}
@@ -67,6 +76,7 @@ namespace Negin.WebUI.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "admin")]
         [Breadcrumb("EditVessel", FromAction = "List", FromController = typeof(BasicInfoController))]
         public async Task<IActionResult> EditVessel(ulong vesselId)
         {
@@ -78,13 +88,14 @@ namespace Negin.WebUI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin")]
         [Breadcrumb("EditVessel", FromAction = "List", FromController = typeof(BasicInfoController))]
         public async Task<IActionResult> EditVessel(VesselViewModel v)
         {
 			if (ModelState.IsValid)
             {
                 var result = await _vesselRepository.UpdateVesselAsync(v.Vessel);
-				if (result.State == SqlExceptionMessages.Success)
+				if (result.State)
 				{
 					return RedirectToAction("List");
 				}
@@ -100,6 +111,7 @@ namespace Negin.WebUI.Controllers
 		}
 
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteVessel(ulong vesselId)
         {
            await _vesselRepository.DeleteVesselById(vesselId);
@@ -127,6 +139,7 @@ namespace Negin.WebUI.Controllers
 			return View(model);
         }
 
+        [Authorize(Roles = "admin")]
         [Breadcrumb("CreateShippingLine", FromAction = "ShippingLineList", FromController = typeof(BasicInfoController))]
         public async Task<IActionResult> CreateShippingLine()
         {
@@ -138,7 +151,8 @@ namespace Negin.WebUI.Controllers
         }
 
         [HttpPost]
-		[Breadcrumb("CreateShippingLine", FromAction = "ShippingLineList", FromController = typeof(BasicInfoController))]
+        [Authorize(Roles = "admin")]
+        [Breadcrumb("CreateShippingLine", FromAction = "ShippingLineList", FromController = typeof(BasicInfoController))]
 		public async Task<IActionResult> CreateShippingLine(ShippingLineViewModel input, IFormCollection formCollection)
         {
             if (ModelState.IsValid)
@@ -146,7 +160,7 @@ namespace Negin.WebUI.Controllers
 				EditTels(input, formCollection);
 
 				var result = await _shippingLineCompanyRepository.CreateShippingLineAsync(input.ShippingLineCompany, input.AgentAssigned);
-				if (result.State == SqlExceptionMessages.Success)
+				if (result.State)
 				{
 					return RedirectToAction("ShippingLineList");
 				}
@@ -161,7 +175,8 @@ namespace Negin.WebUI.Controllers
             return View(input);
         }
 
-		[Breadcrumb("EditShippingLine", FromAction = "ShippingLineList", FromController = typeof(BasicInfoController))]
+        [Authorize(Roles = "admin")]
+        [Breadcrumb("EditShippingLine", FromAction = "ShippingLineList", FromController = typeof(BasicInfoController))]
 		public async Task<IActionResult> EditShippingLine(uint id)
         {
 			ViewData["ActiveLink"] = "shippingline";
@@ -172,7 +187,8 @@ namespace Negin.WebUI.Controllers
         }
 
         [HttpPost]
-		[Breadcrumb("EditShippingLine", FromAction = "ShippingLineList", FromController = typeof(BasicInfoController))]
+        [Authorize(Roles = "admin")]
+        [Breadcrumb("EditShippingLine", FromAction = "ShippingLineList", FromController = typeof(BasicInfoController))]
 		public async Task<IActionResult> EditShippingLine(ShippingLineViewModel input, IFormCollection formCollection)
         {
 			if (ModelState.IsValid)
@@ -180,7 +196,7 @@ namespace Negin.WebUI.Controllers
 				EditTels(input, formCollection);
 
 				var result = await _shippingLineCompanyRepository.EditShippingLine(input.ShippingLineCompany, input.AgentAssigned);
-				if (result.State == SqlExceptionMessages.Success)
+				if (result.State)
 				{
 					return RedirectToAction("ShippingLineList");
 				}
@@ -195,6 +211,7 @@ namespace Negin.WebUI.Controllers
 			return View(input);
         }
 
+        [Authorize(Roles = "admin")]
         public void DeleteShippingLine(uint id)
         {
             _shippingLineCompanyRepository.DeleteShippingLine(id);
@@ -228,6 +245,7 @@ namespace Negin.WebUI.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "admin")]
         [Breadcrumb("CreateVoyage", FromAction = "VoyageList", FromController = typeof(BasicInfoController))]
         public IActionResult CreateVoyage()
 		{
@@ -236,13 +254,14 @@ namespace Negin.WebUI.Controllers
 		}
 
 		[HttpPost]
-		[Breadcrumb("CreateVoyage", FromAction = "VoyageList", FromController = typeof(BasicInfoController))]
+        [Authorize(Roles = "admin")]
+        [Breadcrumb("CreateVoyage", FromAction = "VoyageList", FromController = typeof(BasicInfoController))]
 		public IActionResult CreateVoyage(VoyageViewModel newVoyage)
         {
             if (ModelState.IsValid)
 			{
 				var result = _voyageRepository.CreateVoyageAsync(newVoyage.Voyage).Result;
-				if (result.State == SqlExceptionMessages.Success)
+				if (result.State)
 				{
 					return RedirectToAction("VoyageList");
 				}
@@ -257,6 +276,7 @@ namespace Negin.WebUI.Controllers
 			return View(model);
 		}
 
+        [Authorize(Roles = "admin")]
         [Breadcrumb("EditVoyage", FromAction = "VoyageList", FromController = typeof(BasicInfoController))]
         public IActionResult EditVoyage(ulong id)
 		{
@@ -267,13 +287,14 @@ namespace Negin.WebUI.Controllers
 		}
 
 		[HttpPost]
-		[Breadcrumb("EditVoyage", FromAction = "VoyageList", FromController = typeof(BasicInfoController))]
+        [Authorize(Roles = "admin")]
+        [Breadcrumb("EditVoyage", FromAction = "VoyageList", FromController = typeof(BasicInfoController))]
 		public IActionResult EditVoyage(VoyageViewModel input)
 		{
 			if (ModelState.IsValid)
 			{
 				var result = _voyageRepository.UpdateVoyageAsync(input.Voyage).Result;
-				if (result.State == SqlExceptionMessages.Success)
+				if (result.State)
 				{
 					return RedirectToAction("VoyageList");
 				}
@@ -289,7 +310,8 @@ namespace Negin.WebUI.Controllers
 			return View(model);
 		}
 
-		public void ToggleVoyageStatus(ulong id)
+        [Authorize(Roles = "admin")]
+        public void ToggleVoyageStatus(ulong id)
 		{
 			_voyageRepository.ToggleVoyageStatus(id);
 		}
@@ -306,6 +328,180 @@ namespace Negin.WebUI.Controllers
 			model.VesselList = _vesselRepository.GetAllVessels().Result;
 			model.OwnerShippinglineList = _shippingLineCompanyRepository.GetOwnersAsync().Result;
 			return model;
+		}
+
+        #endregion
+
+        #region Currencies
+        [Breadcrumb("Currencies")]
+        public IActionResult CurrencyList(int pageNumber = 1, int pageCount = 10)
+		{
+			var model = _basicInfoRepository.GetPaginationCurrenciesAsync(pageNumber, pageCount).Result;
+			model.PageInfo.Title = "Currencies";
+            ViewData["ActiveLink"] = "currency";
+
+			return View(model);
+		}
+
+        [Authorize(Roles = "admin")]
+        [Breadcrumb("CreateCurrencyRate", FromAction = "CurrencyList", FromController = typeof(BasicInfoController))]
+        public IActionResult CreateCurrency()
+		{
+            ViewData["ActiveLink"] = "currency";
+            return View();
+		}
+
+		[HttpPost]
+        [Authorize(Roles = "admin")]
+        [Breadcrumb("CreateCurrencyRate", FromAction = "CurrencyList", FromController = typeof(BasicInfoController))]
+        public IActionResult CreateCurrency(Currency newCurrency)
+		{
+			if (ModelState.IsValid)
+			{
+				var result = _basicInfoRepository.CreateCurrencyAsync(newCurrency).Result;
+				if (result.State)
+				{
+					return RedirectToAction("CurrencyList");
+				}
+				else
+				{
+					ModelState.AddModelError("", result.Message ?? string.Empty);
+				}
+
+			}
+			ViewData["ActiveLink"] = "currency";
+            return View();
+		}
+        #endregion
+
+        #region VesselStoppageTariff
+        [Breadcrumb("VesselStoppageTariffs")]
+        public IActionResult VesselStoppageTariffList(int pageNumber = 1, int pageCount = 10, string filter = "")
+		{
+			var model = _basicInfoRepository.GetPaginationVesselStoppageTariffAsync(pageNumber, pageCount, filter).Result;
+            model.PageInfo.Title = "VesselStoppage Tariff List";
+            model.PageInfo.Filter = filter;
+            ViewData["ActiveLink"] = "vesselstoppagetariff";
+
+            return View(model);
+		}
+
+        [Breadcrumb("VesselStoppageTariffDetails", FromAction = "VesselStoppageTariffList", FromController = typeof(BasicInfoController))]
+        public IActionResult VesselStoppageTariffDetailList(int id)
+		{
+			var model = _basicInfoRepository.GetAllVesselStoppageTariffDetailAsync(id).Result;
+            ViewData["ActiveLink"] = "vesselstoppagetariff";
+
+            return View(model);
+		}
+
+        [Authorize(Roles = "admin")]
+        [Breadcrumb("CreateVesselStoppageTariff", FromAction = "VesselStoppageTariffList", FromController = typeof(BasicInfoController))]
+		public IActionResult CreateVesselStoppageTariff()
+		{
+			ViewData["ActiveLink"] = "vesselstoppagetariff";
+			return View();
+		}
+
+		[Authorize(Roles = "admin")]
+		public IActionResult AddVesselStoppageTariff(string description, DateTime effectiveDate)
+		{
+			if(!string.IsNullOrEmpty(description) && effectiveDate != DateTime.MinValue)
+			{
+				var result = _basicInfoRepository.CreateVesselStoppageTariffAsync(new VesselStoppageTariff { Description = description, EffectiveDate = effectiveDate}).Result;
+				if (!result.State)
+				{
+					ViewBag.Error = result.Message;
+				}
+				else
+				{
+					ViewBag.VesselStoppageTariffId = result.sqlResult;
+				}
+			}
+			var model = new VesselStoppageTariffViewModel()
+			{
+				VesselTypes = (IList<VesselType>)_vesselRepository.GetAllVesselTypes().Result
+			};
+			return View(model);
+		}
+
+		[HttpPost]
+        [Authorize(Roles = "admin")]
+        public OkObjectResult AddVesselStoppageTariffDetail([FromBody]List<VesselStoppageTariffDetails> vesselStoppageTariffDetails)
+		{
+			if (vesselStoppageTariffDetails.Any(c=>c.NormalHour > 0 && c.NormalPrice > 0 && c.ExtraPrice > 0))
+			{
+				var result = _basicInfoRepository.CreateVesselStoppageTariffDetailsAsync(vesselStoppageTariffDetails).Result;
+				if (!result.State)
+				{
+					return Ok(result.Message);
+				}
+			}
+			return Ok(200);
+		}
+		#endregion
+
+		#region CleaningServiceTariff
+		[Breadcrumb("CleaningServiceTariffs")]
+		public IActionResult CleaningServiceTariffList(int pageNumber = 1, int pageCount = 10, string filter = "")
+		{
+			var model = _basicInfoRepository.GetPaginationCleaningServiceTariffAsync(pageNumber, pageCount, filter).Result;
+			model.PageInfo.Title = "CleaningService Tariff List";
+			model.PageInfo.Filter = filter;
+			ViewData["ActiveLink"] = "cleaningservicetariff";
+			return View(model);
+		}
+
+		[Breadcrumb("CleaningServiceTariffDetails", FromAction = "CleaningServiceTariffList", FromController = typeof(BasicInfoController))]
+		public IActionResult CleaningServiceTariffDetailList(int id)
+		{
+			var model = _basicInfoRepository.GetAllCleaningServiceTariffDetailAsync(id).Result;
+			ViewData["ActiveLink"] = "cleaningservicetariff";
+
+			return View(model);
+		}
+
+		[Authorize(Roles = "admin")]
+		[Breadcrumb("CreateCleaningServiceTariff", FromAction = "CleaningServiceTariffList", FromController = typeof(BasicInfoController))]
+		public IActionResult CreateCleaningServiceTariff()
+		{
+			ViewData["ActiveLink"] = "cleaningservicetariff";
+			return View();
+		}
+
+		[Authorize(Roles = "admin")]
+		public IActionResult AddCleaningServiceTariff(string description, DateTime effectiveDate)
+		{
+			if (!string.IsNullOrEmpty(description) && effectiveDate != DateTime.MinValue)
+			{
+				var result = _basicInfoRepository.CreateCleaningServiceTariffAsync(new CleaningServiceTariff { Description = description, EffectiveDate = effectiveDate }).Result;
+				if (!result.State)
+				{
+					ViewBag.Error = result.Message;
+				}
+				else
+				{
+					ViewBag.CleaningServiceTariffId = result.sqlResult;
+				}
+			}
+
+			return View();
+		}
+
+		[HttpPost]
+		[Authorize(Roles = "admin")]
+		public OkObjectResult AddCleaningServiceTariffDetail([FromBody] List<CleaningServiceTariffDetails> cleaningServiceTariffDetails)
+		{
+			if (cleaningServiceTariffDetails.Any(c => c.GrossWeight > 0 && c.Price > 0))
+			{
+				var result = _basicInfoRepository.CreateCleaningServiceTariffDetailsAsync(cleaningServiceTariffDetails).Result;
+				if (!result.State)
+				{
+					return Ok(result.Message);
+                }
+			}
+
+			return Ok(200);
 		}
 
 		#endregion

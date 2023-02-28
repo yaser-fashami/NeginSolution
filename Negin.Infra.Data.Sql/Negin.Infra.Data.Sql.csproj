@@ -4,10 +4,13 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <SignAssembly>False</SignAssembly>
+    <AssemblyOriginatorKeyFile>C:\Yaser-Fashami.cer</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Configurations\VesselStoppageStatusConfig.cs" />
+    <Compile Remove="EFRepositories\VesselStoppageRepository.cs" />
   </ItemGroup>
 
   <ItemGroup>

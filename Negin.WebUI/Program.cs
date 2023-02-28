@@ -5,6 +5,7 @@ using Negin.Core.Domain.Entities;
 using Negin.Core.Domain.Interfaces;
 using Negin.Infra.Data.Sql.EFRepositories;
 using Negin.Infrastructure;
+using Negin.Services.Operation;
 using SmartBreadcrumbs.Extensions;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -50,6 +51,8 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IVesselRepository, VesselRepository>();
 builder.Services.AddScoped<IShippingLineCompanyRepository, ShippingLineCompanyRepository>();
 builder.Services.AddScoped<IVoyageRepository, VoyageRepository>();
+builder.Services.AddScoped<IVesselStoppageService, VesselStoppageService>();
+builder.Services.AddScoped<IBasicInfoRepository, BasicInfoRepository>();
 
 #endregion
 

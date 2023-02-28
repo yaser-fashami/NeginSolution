@@ -1,7 +1,7 @@
 ﻿
 namespace Negin.Core.Domain.Entities.Basic;
 
-public class Country : BaseBasicInformation<ushort>
+public class Country : BaseEntity<ushort>
 {
     public string Name { get; set; }
     public string Symbol { get; set; }

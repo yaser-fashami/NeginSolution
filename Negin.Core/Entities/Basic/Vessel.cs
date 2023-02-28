@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Negin.Core.Domain.Entities.Basic;
 
-public class Vessel : BaseEntity
+public class Vessel : BaseAudit_SoftDeleteable_Entity<ulong>
 {
     public string Name { get; set; }
     public byte VesselTypeId { get; set; }

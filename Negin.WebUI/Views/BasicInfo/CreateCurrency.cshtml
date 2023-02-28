@@ -1,0 +1,95 @@
+﻿@{
+    ViewData["Title"] = "Create New Currency Rate";
+}
+@model Currency
+
+<div class="card mb-5 mb-xl-10">
+	<!--begin::Card header-->
+	<div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_profile_details" aria-expanded="true" aria-controls="kt_account_profile_details">
+		<!--begin::Card title-->
+		<div class="card-title m-0">
+			<h3 class="fw-bold m-0">@ViewData["Title"]</h3>
+		</div>
+		<!--end::Card title-->
+	</div>
+	<!--begin::Card header-->
+	<!--begin::Content-->
+	<div class="collapse show">
+		<!--begin::Form-->
+		<form id="kt_account_profile_details_form" class="form fv-plugins-bootstrap5 fv-plugins-framework" asp-controller="BasicInfo" asp-action="CreateCurrency" method="post">
+			<!--begin::Card body-->
+			<div class="card-body border-top p-9">
+				<!--begin::Input group-->
+				<div class="row mb-6">
+					<!--begin::Col-->
+					<div class="col-lg-4">
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text required">Foreign Doller Rate</span>
+							<input type="number" min="0" asp-for="ForeignDollerRate" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0" placeholder="Foreign" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Please enter in Rials">
+							<span class="input-group-text">Rial</span>
+						</div>
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div class="col-lg-4">
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text required">Persian Doller Rate</span>
+							<input type="number" min="0" asp-for="PersianDollerRate" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0" placeholder="Persian" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Please enter in Rials">
+							<span class="input-group-text">Rial</span>
+						</div>
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div class="col-lg-1 text-center mt-3">
+						<i class="bi bi-arrow-right fs-2x"></i>
+					</div>
+					<!--end::Col-->
+					<!--begin::Col-->
+					<div class="col-lg-3">
+						<div class="input-group input-group-solid mb-5">
+							<span class="input-group-text required">Date</span>
+							<input id="date" type="text" asp-for="Date" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0" placeholder="Pick date">
+						</div>
+					</div>
+					<!--end::Col-->
+				</div>
+				<!--end::Input group-->
+			</div>
+			<!--end::Card body-->
+			<div asp-validation-summary="All" class="text-danger"></div>
+			<!--begin::Actions-->
+			<div class="card-footer d-flex justify-content-end py-6 px-9">
+				<a href="/BasicInfo/CurrencyList" class="btn btn-light btn-active-light-primary me-2">Back</a>
+				<button type="reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
+				<button type="submit" class="btn btn-primary" id="kt_account_profile_details_submit">Save Changes</button>
+			</div>
+			<!--end::Actions-->
+		</form>
+		<!--end::Form-->
+	</div>
+	<!--end::Content-->
+</div>
+
+@section Links{
+	<link href="~/css/datepicker/persiandatepicker-dark.css" rel="stylesheet" />
+}
+
+@section Scripts{
+	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+	<script src="~/assets/js/persiandatepicker.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$('#date').persianDatepicker({
+				theme: 'dark',
+				formatDate: "YYYY/MM/DD",
+				showGregorianDate: false,
+				persianNumbers: true,
+				cellWidth: 35,
+				cellHeight: 30,
+				fontSize: 16,
+			});
+
+		});
+	</script>
+}

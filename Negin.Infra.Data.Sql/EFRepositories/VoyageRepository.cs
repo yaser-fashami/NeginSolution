@@ -9,7 +9,8 @@ using static Negin.Framework.Exceptions.SqlException;
 using Microsoft.Extensions.Primitives;
 using EntityFramework.Exceptions.Common;
 using Microsoft.AspNetCore.Http;
-using Negin.Core.Domain.Entities.Billing;
+using Negin.Core.Domain.Aggregates.Basic;
+using Negin.Core.Domain.Aggregates.Operation;
 
 namespace Negin.Infra.Data.Sql.EFRepositories;
 
@@ -43,16 +44,16 @@ public class VoyageRepository : IVoyageRepository
         {
             await _neginDbContext.Voyages.AddAsync(voyage);
             await _neginDbContext.SaveChangesAsync();
-			result.State = SqlExceptionMessages.Success;
+			result.State = true;
 		}
 		catch (UniqueConstraintException ex)
         {
-            result.State = SqlExceptionMessages.DuplicateName;
+            result.SqlState = SqlExceptionState.DuplicateName;
             result.Message = "(Vessel Number In + Vessel) must be unique!";
         }
 		catch (Exception ex)
         {
-			result.State = SqlExceptionMessages.Fail;
+			result.State = false;
 			result.Message = ex.Message;
 		}
 		return result;
@@ -65,7 +66,8 @@ public class VoyageRepository : IVoyageRepository
         var voyages = _neginDbContext.Voyages
             .Include(v => v.Vessel)
             .Include(o => o.Owner)
-            .Include(a => a.Agent).AsNoTracking()
+            .Include(a => a.Agent)
+            .Include(s => s.VesselStoppages).AsNoTracking()
                             .Where(c => noFilter || c.VoyageNoIn.Contains(filter)
                                                  || c.VoyageNoOut.Contains(filter)
                                                  || c.Owner.ShippingLineName.Contains(filter)
@@ -88,10 +90,38 @@ public class VoyageRepository : IVoyageRepository
         return result;
     }
 
+    public async Task<PagedData<Voyage>> GetPaginationVoyagesForBillingAsync(int pageNumber = 1, int pageSize = 10, string filter = "")
+    {
+        bool noFilter = string.IsNullOrWhiteSpace(filter);
+
+        var voyages = _neginDbContext.Voyages
+            .Include(v => v.Vessel)
+            .Include(s => s.VesselStoppages).AsNoTracking()
+                            .Where(c => c.IsDelete == false)
+                            .Where(c => noFilter || c.Vessel.Name.Contains(filter)
+                                                 || c.VoyageNoIn.Contains(filter));
+
+        PagedData<Voyage> result = new()
+        {
+            PageInfo = new()
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = await voyages.CountAsync()
+            },
+            Data = await voyages.OrderBy(x => x.Vessel.Name)
+                        .ToPagination(pageNumber, pageSize)
+                        .ToListAsync()
+        };
+
+        result.Data.ForEach(v => { SetStatus(v.VesselStoppages); });
+        return result;
+    }
+
 
     public async Task<SqlException> UpdateVoyageAsync(Voyage v)
     {
-        var result = new SqlException() { State = SqlExceptionMessages.Fail };
+        var result = new SqlException() { State = false };
 
         var voyage = await _neginDbContext.Voyages.SingleAsync(c => c.Id == v.Id);
         if (voyage != null)
@@ -110,11 +140,11 @@ public class VoyageRepository : IVoyageRepository
             {
                 _neginDbContext.Voyages.Update(voyage);
                 _neginDbContext.SaveChanges();
-				result.State = SqlExceptionMessages.Success;
+				result.State = true;
 			}
             catch (Exception ex)
             {
-				result.State = SqlExceptionMessages.Fail;
+				result.State = false;
 				result.Message = ex.Message;
 			}
 		}
@@ -126,12 +156,16 @@ public class VoyageRepository : IVoyageRepository
     {
         try
         {
-            var voyage = _neginDbContext.Voyages.SingleOrDefault(c => c.Id == id);
+            var voyage = _neginDbContext.Voyages.Include(c=>c.VesselStoppages).SingleOrDefault(c => c.Id == id);
             if (voyage != null)
             {
-                voyage.IsDelete = !voyage.IsDelete;
-                _neginDbContext.Voyages.Update(voyage);
-                _neginDbContext.SaveChanges();
+                //TODO: implement if condition for payed invoices
+                if (voyage.VesselStoppages != null && !voyage.VesselStoppages.Any(c => c.ATA != null && c.ATD == null))
+                {
+                    voyage.IsDelete = !voyage.IsDelete;
+                    _neginDbContext.Voyages.Update(voyage);
+                    _neginDbContext.SaveChanges();
+                } 
             }
         }
         catch (Exception)
@@ -143,7 +177,7 @@ public class VoyageRepository : IVoyageRepository
 
     public async Task<Voyage> GetVoyageById(ulong id)
     {
-        return await _neginDbContext.Voyages.SingleAsync(c => c.Id == id);
+        return await _neginDbContext.Voyages.Include(c => c.Vessel).AsNoTracking().SingleAsync(c => c.Id == id);
     }
 
     public async Task<IList<Voyage>> GetVoyageByVesselId(ulong vesselId)
@@ -161,12 +195,11 @@ public class VoyageRepository : IVoyageRepository
         bool noFilter = string.IsNullOrWhiteSpace(filter);
 
         var vesselStoppages = _neginDbContext.VesselStoppages.Include(c => c.OriginPort).Include(c => c.PreviousPort).Include(c => c.NextPort).AsNoTracking()
-                                                                .Where(c => c.IsDelete == false)
                                                                 .Where(c => c.VoyageId == voyageId)
                                                                 .Where(c => noFilter
-                                                                    || c.OriginPort.PortName.Contains(filter)
-                                                                    || c.PreviousPort.PortName.Contains(filter)
-                                                                    || c.NextPort.PortName.Contains(filter));
+                                                                    || c.OriginPort.PortName.Contains(filter) || c.OriginPort.PortSymbol.Contains(filter)
+                                                                    || c.PreviousPort.PortName.Contains(filter) || c.PreviousPort.PortSymbol.Contains(filter)
+                                                                    || c.NextPort.PortName.Contains(filter) || c.NextPort.PortSymbol.Contains(filter));
 
         PagedData<VesselStoppage> result = new()
         {
@@ -180,26 +213,19 @@ public class VoyageRepository : IVoyageRepository
                                 .ToPagination(pageNumber, pageSize)
                                 .ToListAsync()
         };
-        result.Data.ForEach(x => { x.ETADayOfTheWeek = x.ETA?.DayOfWeek; x.ATADayOfTheWeek = x.ATA?.DayOfWeek; x.ETDDayOfTheWeek = x.ETD?.DayOfWeek; x.ATDDayOfTheWeek = x.ATD?.DayOfWeek; });
-        result.Data.ForEach(x => { x.ETA = x.ETA?.MiladiToShamsi(); x.ATA = x.ATA?.MiladiToShamsi(); x.ETD = x.ETD?.MiladiToShamsi(); x.ATD = x.ATD?.MiladiToShamsi(); });
+        result.Data.ForEach(x => 
+        {
+            x.ETADayOfTheWeek = x.ETA?.DayOfWeek; x.ATADayOfTheWeek = x.ATA?.DayOfWeek; x.ETDDayOfTheWeek = x.ETD?.DayOfWeek; x.ATDDayOfTheWeek = x.ATD?.DayOfWeek;
+            x.ETA = x.ETA?.MiladiToShamsi(); x.ATA = x.ATA?.MiladiToShamsi(); x.ETD = x.ETD?.MiladiToShamsi(); x.ATD = x.ATD?.MiladiToShamsi();
+        });
+        SetStatus(result.Data);
         return result;
     }
 
-    public async Task<SqlException> CreateVesselStoppageAsync(VesselStoppage newVesselStoppage, IEnumerable<KeyValuePair<string, StringValues>> formCollection)
+    public async Task<SqlException> CreateVesselStoppageAsync(VesselStoppage newVesselStoppage)
     {
 
         SqlException result = new SqlException();
-        SetTimes(ref newVesselStoppage, formCollection);
-        newVesselStoppage.ETA = newVesselStoppage.ETA?.ShamsiToMiladi();
-        newVesselStoppage.ATA = newVesselStoppage.ATA?.ShamsiToMiladi();
-        newVesselStoppage.ETD = newVesselStoppage.ETD?.ShamsiToMiladi();
-        newVesselStoppage.ATD = newVesselStoppage.ATD?.ShamsiToMiladi();
-        if (_neginDbContext.VesselStoppages.Any(c=>c.ATA < newVesselStoppage.ATA) || _neginDbContext.VesselStoppages.Any(c => c.ATD < newVesselStoppage.ATD) || _neginDbContext.VesselStoppages.Any(c => c.ATA > newVesselStoppage.ATD))
-        {
-            result.Message = "There is at least a vessel stoppage after this!";
-            result.State = SqlExceptionMessages.Fail;
-            return result;
-        }
         VesselStoppage vesselStoppage = new()
         {
             ETA = newVesselStoppage.ETA,
@@ -217,11 +243,11 @@ public class VoyageRepository : IVoyageRepository
         {
             await _neginDbContext.VesselStoppages.AddAsync(vesselStoppage);
             await _neginDbContext.SaveChangesAsync();
-            result.State = SqlExceptionMessages.Success;
+            result.State = true;
         }
         catch (Exception ex)
         {
-            result.State = SqlExceptionMessages.Fail;
+            result.State = false;
             result.Message = ex.Message;
         }
         return result;
@@ -256,26 +282,26 @@ public class VoyageRepository : IVoyageRepository
         return vesselStoppage;
     }
 
-    public async Task<SqlException> UpdateVesselStoppageAsync(VesselStoppage v, IEnumerable<KeyValuePair<string, StringValues>> formCollection)
+    public async Task<SqlException> UpdateVesselStoppageAsync(VesselStoppage v)
     {
-        var result = new SqlException() { State = SqlExceptionMessages.Fail };
+        var result = new SqlException() { State = false };
+
         var vesselStoppage = await _neginDbContext.VesselStoppages.SingleOrDefaultAsync(c => c.Id == v.Id);
         if (vesselStoppage != null)
         {
-            vesselStoppage.ETA = v.ETA?.ShamsiToMiladi();
-            vesselStoppage.ATA = v.ATA?.ShamsiToMiladi();
-            vesselStoppage.ETD = v.ETD?.ShamsiToMiladi();
-            vesselStoppage.ATD = v.ATD?.ShamsiToMiladi();
-            SetTimes(ref vesselStoppage, formCollection);
-            if (vesselStoppage.ATA > DateTime.Now || vesselStoppage.ATD > DateTime.Now)
+            if ((vesselStoppage.ATA != null && v.ATA == null) || (vesselStoppage.ATD != null && v.ATD == null))
             {
-                result.Message = "Actual Time must be past!";
-                result.State = SqlExceptionMessages.Fail;
+                result.Message = "You can`t remove a Actual Time!";
+                result.State = false;
                 return result;
             }
+            vesselStoppage.ETA = v.ETA;
+            vesselStoppage.ATA = v.ATA;
+            vesselStoppage.ETD = v.ETD;
+            vesselStoppage.ATD = v.ATD;
             vesselStoppage.OriginPortId = v.OriginPortId;
             vesselStoppage.PreviousPortId = v.PreviousPortId;
-            vesselStoppage.NextPort = v.NextPort;
+            vesselStoppage.NextPortId = v.NextPortId;
             vesselStoppage.ModifiedById = _httpContextAccessor.HttpContext.User.Identity?.GetCurrentUserId();
             vesselStoppage.ModifiedDate = DateTime.Now;
 
@@ -283,56 +309,27 @@ public class VoyageRepository : IVoyageRepository
             {
                 _neginDbContext.VesselStoppages.Update(vesselStoppage);
                 _neginDbContext.SaveChanges();
-                result.State = SqlExceptionMessages.Success;
+                result.State = true;
             }
             catch (Exception ex)
             {
                 result.Message = ex.Message;
-                result.State = SqlExceptionMessages.Fail;
+                result.State = false;
             }
 
         }
         return result;
     }
 
-    private void SetTimes(ref VesselStoppage newVesselStoppage, IEnumerable<KeyValuePair<string, StringValues>> formCollection)
+    private static void SetStatus(IEnumerable<VesselStoppage> vesselStoppages)
     {
-        foreach (var item in formCollection)
+        foreach (var vesselStoppage in vesselStoppages)
         {
-            if (item.Key.Contains("ETATime") && newVesselStoppage.ETA != null && string.IsNullOrEmpty(item.Value.First()) == false)
+            if (vesselStoppage != null)
             {
-                newVesselStoppage.ETA = AddTimeToDate(newVesselStoppage.ETA.Value, item);
-            }
-            if (item.Key.Contains("ATATime") && newVesselStoppage.ATA != null && string.IsNullOrEmpty(item.Value.First()) == false)
-            {
-                newVesselStoppage.ATA = AddTimeToDate(newVesselStoppage.ATA.Value, item);
-            }
-            if (item.Key.Contains("ETDTime") && newVesselStoppage.ETD != null && string.IsNullOrEmpty(item.Value.First()) == false)
-            {
-                newVesselStoppage.ETD = AddTimeToDate(newVesselStoppage.ETD.Value, item);
-            }
-            if (item.Key.Contains("ATDTime") && newVesselStoppage.ATD != null && string.IsNullOrEmpty(item.Value.First()) == false)
-            {
-                newVesselStoppage.ATD = AddTimeToDate(newVesselStoppage.ATD.Value, item);
-            }
+                vesselStoppage.SetStatus();
+            }    
         }
-    }
-
-    private DateTime? AddTimeToDate(DateTime newVesselStoppageDate, KeyValuePair<string, StringValues> item)
-    {
-        //TimeSpan time = new TimeSpan();
-        //foreach (var eta in item.Value)
-        //{
-        //    if (TimeSpan.TryParse(eta.Substring(0, eta.Length > 2 ? eta.Length - 2 : eta.Length), out time) && eta.Contains("AM"))
-        //    {
-        //        time = time.Add(new TimeSpan(-12, 0, 0));
-        //    }
-        //    else if (eta.Contains("PM"))
-        //    {
-        //        time = time.Add(new TimeSpan(12, 0, 0));
-        //    }
-        //}
-        return newVesselStoppageDate = newVesselStoppageDate + TimeSpan.Parse(item.Value);
     }
 
 }

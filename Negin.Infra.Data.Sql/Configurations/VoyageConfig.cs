@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Negin.Core.Domain.Entities.Basic;
+using Negin.Core.Domain.Aggregates.Basic;
 
 namespace Negin.Infra.Data.Sql.Configurations;
 

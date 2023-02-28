@@ -1,10 +1,13 @@
 ﻿
+using Negin.Core.Domain.Aggregates.Basic;
+
 namespace Negin.Core.Domain.Entities.Basic;
 
-public class VesselType : BaseBasicInformation<byte>
+public class VesselType : BaseEntity<byte>
 {
     public string Name { get; set; }
     public string? Description { get; set; }
 
     public virtual ICollection<Vessel> Vessels { get; set; }
+    public virtual ICollection<VesselStoppageTariffDetails> VesselStoppageTariffDetails { get; set; }
 }

@@ -49,7 +49,7 @@ public class VesselRepository : IVesselRepository
         {
             await _neginDbContext.AddAsync(vessel);
             await _neginDbContext.SaveChangesAsync();
-            result.State = SqlExceptionMessages.Success;
+            result.State = true;
 		}
         catch (UniqueConstraintException)
         {
@@ -58,17 +58,17 @@ public class VesselRepository : IVesselRepository
             {
                 _neginDbContext.Vessels.Remove(oldVessel);
                 _neginDbContext.SaveChanges();
-				result.State = SqlExceptionMessages.Success;
+				result.State = true;
 			}
             else
             {
-                result.State = SqlExceptionMessages.DuplicateName;
+                result.SqlState = SqlExceptionState.DuplicateName;
                 result.Message = "This vessel name is exist. please enter another name";
             }
         }
         catch (Exception ex)
         {
-            result.State = SqlExceptionMessages.Fail;
+            result.State = false;
             result.Message = ex.Message;
         }
 
@@ -141,11 +141,11 @@ public class VesselRepository : IVesselRepository
         {
             _neginDbContext.Vessels.Update(vessel);
             await _neginDbContext.SaveChangesAsync();
-			result.State = SqlExceptionMessages.Success;
+			result.State = true;
 		}
 		catch (Exception ex)
         {
-			result.State = SqlExceptionMessages.Fail;
+			result.State = false;
 			result.Message = ex.Message;
 		}
 		return result;

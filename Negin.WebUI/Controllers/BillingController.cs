@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Negin.Core.Domain.Entities.Basic;
-using Negin.Core.Domain.Entities.Billing;
+using Negin.Core.Domain.Aggregates.Operation;
 using Negin.Core.Domain.Interfaces;
+using Negin.Services.Operation;
 using SmartBreadcrumbs.Attributes;
-using System.ComponentModel;
-using static Negin.Framework.Exceptions.SqlException;
+using Negin.WebUI.Models.ViewModels;
+using Negin.Framework.Utilities;
 
 namespace Negin.WebUI.Controllers;
 
@@ -14,93 +14,54 @@ public class BillingController : Controller
 {
     private readonly IVesselRepository _vesselRepository;
     private readonly IVoyageRepository _voyageRepository;
+    private readonly IVesselStoppageService _vesselStoppageService;
 
-    public BillingController(IVesselRepository vesselRepository, IVoyageRepository voyageRepository)
+    public BillingController(IVesselRepository vesselRepository, IVoyageRepository voyageRepository, IVesselStoppageService vesselStoppageService)
     {
         _vesselRepository = vesselRepository;
         _voyageRepository = voyageRepository;
+        _vesselStoppageService = vesselStoppageService;
     }
 
-    [Breadcrumb("VesselStoppages")]
-    public IActionResult List()
+    [Breadcrumb("Invoices")]
+    public IActionResult List(int pageNumber = 1, int pageCount = 10, string filter = "")
     {
-        var model = _vesselRepository.GetAllVessels().Result;
-        ViewData["ActiveLink"] = "vesselStoppage";
+        var voyages = _voyageRepository.GetPaginationVoyagesForBillingAsync(pageNumber, pageCount, filter).Result;
+        voyages.PageInfo.Title = "Invoices";
+        voyages.PageInfo.Filter = filter;
 
-        return View("SelectVesselStoppage", model);
-    }
+        var model = new InvoiceViewModel
+        {
+            Voyages = voyages,
+            ActiveVoyages = voyages.Data.Count(),
+            Gone = voyages.Data.SelectMany(c=>c.VesselStoppages).Where(c=>c.Status == VesselStoppage.VesselStoppageStatus.Gone).Count(),
+            InProcess = voyages.Data.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.InProcess).Count(),
+            WaitForVessel = voyages.Data.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.WaitForVessel).Count()
+        };
 
-    public JsonResult GetVoyageNoIn(ulong vesselId)
-    {
-        return Json(_voyageRepository.GetVoyageByVesselId(vesselId).Result);
-    }
-
-    public IActionResult VesselStoppageList(ulong voyageId, int pageNumber = 1, int pageCount = 10, string filter = "")
-    {
-        var model = _voyageRepository.GetPaginationVesselStoppagesAsync(voyageId, pageNumber, pageCount, filter).Result;
-        ViewBag.VoyageId = voyageId;
+        ViewData["ActiveLink"] = "invoice";
         return View(model);
     }
 
-    [Breadcrumb("AddVesselStoppages", FromAction = "List", FromController = typeof(BillingController))]
-    public IActionResult AddVesselStoppage(ulong voyageId)
+    public IActionResult VoyageList(int pageNumber = 1, int pageCount = 10, string filter = "") 
     {
-        ViewData["ActiveLink"] = "vesselStoppage";
-        ViewBag.VoyageId = voyageId;
-        ViewBag.Ports = _voyageRepository.GetAllPorts().Result;
-        return View();
+        var model = _voyageRepository.GetPaginationVoyagesForBillingAsync(pageNumber, pageCount, filter).Result;
+        model.PageInfo.Filter = filter;
+        return PartialView("Shared/_VoyageInvoice", model); 
     }
 
-    [HttpPost]
-    [Breadcrumb("AddVesselStoppages", FromAction = "List", FromController = typeof(BillingController))]
-    public IActionResult AddVesselStoppage(VesselStoppage v, IFormCollection formCollection)
+    [Authorize(Roles ="admin")]
+    [Breadcrumb("CreateInvoice")]
+    public IActionResult CreateInvoice(ulong voyageId, int pageNumber = 1, int pageSize = 10, string filter = "")
     {
-        if (ModelState.IsValid)
+        var model = new CreateInvoiceViewModel
         {
-            var result = _voyageRepository.CreateVesselStoppageAsync(v, formCollection).Result;
-            if (result.State == SqlExceptionMessages.Success)
-            {
-                return RedirectToAction("List");
-            }
-            else
-            {
-                ModelState.AddModelError("", result.Message ?? string.Empty);
-            }
-        }
-
-        return View();
-    }
-
-    [Breadcrumb("EditVesselStoppages", FromAction = "List", FromController = typeof(BillingController))]
-    public IActionResult EditVesselStoppage(ulong id)
-    {
-        ViewData["ActiveLink"] = "vesselStoppage";
-        ViewBag.VesselStoppageId = id;
-        ViewBag.Ports = _voyageRepository.GetAllPorts().Result;
-        var model = _voyageRepository.GetVesselStoppageByVoyageId(id).Result;
+            Voyage = _voyageRepository.GetVoyageById(voyageId).Result,
+            VesselStoppages = _voyageRepository.GetPaginationVesselStoppagesAsync(voyageId, pageNumber, pageSize, filter).Result
+        };
+        model.VesselStoppages.PageInfo.Title = "Create Invoice";
+        model.VesselStoppages.PageInfo.Filter = filter;
+        ViewData["ActiveLink"] = "invoice";
         return View(model);
-    }
-
-    [HttpPost]
-    [Breadcrumb("EditVesselStoppages", FromAction = "List", FromController = typeof(BillingController))]
-    public IActionResult EditVesselStoppage(VesselStoppage v, IFormCollection formCollection)
-    {
-        if (ModelState.IsValid)
-        {
-            var result = _voyageRepository.UpdateVesselStoppageAsync(v, formCollection).Result;
-            if (result.State == SqlExceptionMessages.Success)
-            {
-                return RedirectToAction("List");
-            }
-            else
-            {
-                ModelState.AddModelError("", result.Message ?? string.Empty);
-            }
-
-        }
-        ViewData["ActiveLink"] = "vesselStoppage";
-        ViewBag.VesselStoppageId = v.Id;
-        ViewBag.Ports = _voyageRepository.GetAllPorts().Result;
-        return View(v);
     }
 }

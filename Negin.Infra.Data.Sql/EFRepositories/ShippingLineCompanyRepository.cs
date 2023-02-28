@@ -12,6 +12,7 @@ using Negin.Infra.Data.Sql.Migrations;
 using Negin.Infrastructure;
 using System.Net.Http;
 using static Negin.Framework.Exceptions.SqlException;
+using SqlException = Negin.Framework.Exceptions.SqlException;
 
 namespace Negin.Infra.Data.Sql.EFRepositories;
 
@@ -26,12 +27,12 @@ public class ShippingLineCompanyRepository : IShippingLineCompanyRepository
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<Framework.Exceptions.SqlException> CreateShippingLineAsync(ShippingLineCompany shippingLine, IList<uint> AgentAssignedIds)
+    public async Task<SqlException> CreateShippingLineAsync(ShippingLineCompany shippingLine, IList<uint> AgentAssignedIds)
     {
-        var result = new Framework.Exceptions.SqlException();
+        var result = new SqlException();
         if (shippingLine.IsOwner && !shippingLine.IsAgent && AgentAssignedIds == null)
         {
-            result.State = SqlExceptionMessages.AgentIsEmpty;
+            result.SqlState = SqlExceptionState.AgentIsEmpty;
             result.Message = "this company must has at least one agent! because it`s type is owner.";
         }
         else
@@ -64,7 +65,7 @@ public class ShippingLineCompanyRepository : IShippingLineCompanyRepository
 					}
 					await _neginDbContext.SaveChangesAsync();
 				}
-                result.State = SqlExceptionMessages.Success;
+                result.State = true;
             }
             catch (UniqueConstraintException ex)
             {
@@ -74,17 +75,17 @@ public class ShippingLineCompanyRepository : IShippingLineCompanyRepository
                 {
                     _neginDbContext.ShippingLines.Remove(oldShippingline);
                     _neginDbContext.SaveChanges();
-                    result.State = SqlExceptionMessages.Success;
+                    result.State = true;
                 }
                 else
                 {
-                    result.State = SqlExceptionMessages.DuplicateName;
+                    result.SqlState = SqlExceptionState.DuplicateName;
                     result.Message = "This shipping line name is exist. please enter another name";
                 }
             }
             catch (Exception ex)
             {
-                result.State = SqlExceptionMessages.Fail;
+                result.State = false;
                 result.Message = ex.Message;
             }
         }
@@ -108,8 +109,6 @@ public class ShippingLineCompanyRepository : IShippingLineCompanyRepository
                 || c.City.Contains(filter)
                 || c.Email.Contains(filter)
                 || c.NationalCode.Contains(filter));
-        //|| c.Agents?.SelectMany(c=>c.ShippingLineCompany.ShippingLineName.Contains(filter))
-        //|| c.Agents?.SelectMany(c=>c.AgentShippingLineCompany.ShippingLineName.Contains(filter)));
 
         PagedData<ShippingLineCompany> result = new PagedData<ShippingLineCompany>()
         {
@@ -125,13 +124,13 @@ public class ShippingLineCompanyRepository : IShippingLineCompanyRepository
         return result;
     }
 
-    public async Task<Framework.Exceptions.SqlException> EditShippingLine(ShippingLineCompany newShippingLine, IList<uint> AgentAssignedIds)
+    public async Task<SqlException> EditShippingLine(ShippingLineCompany newShippingLine, IList<uint> AgentAssignedIds)
     {
-		var result = new Framework.Exceptions.SqlException() { State = SqlExceptionMessages.Fail };
+		var result = new SqlException() { State = false };
         ShippingLineCompany shippingline;
 		if (newShippingLine.IsOwner && !newShippingLine.IsAgent && AgentAssignedIds == null)
 		{
-			result.State = SqlExceptionMessages.AgentIsEmpty;
+			result.SqlState = SqlExceptionState.AgentIsEmpty;
 			result.Message = "this company must has at least one agent! because it`s type is owner.";
 		}
 		else
@@ -158,7 +157,7 @@ public class ShippingLineCompanyRepository : IShippingLineCompanyRepository
 					_neginDbContext.ShippingLines.Update(shippingline);
 					await UpdateAgentsAsync(AgentAssignedIds, shippingline);
 					_neginDbContext.SaveChanges();
-					result.State = SqlExceptionMessages.Success;
+					result.State = true;
 				}
 				catch (UniqueConstraintException ex)
 				{
@@ -168,17 +167,17 @@ public class ShippingLineCompanyRepository : IShippingLineCompanyRepository
 					{
 						_neginDbContext.ShippingLines.Remove(oldShippingline);
 						_neginDbContext.SaveChanges();
-						result.State = SqlExceptionMessages.Success;
+						result.State = true;
 					}
 					else
 					{
-						result.State = SqlExceptionMessages.DuplicateName;
+						result.SqlState = SqlExceptionState.DuplicateName;
 						result.Message = "This shipping line name is exist. please enter another name";
 					}
 				}
 				catch (Exception ex)
 				{
-					result.State = SqlExceptionMessages.Fail;
+					result.State = false;
 					result.Message = ex.Message;
 				}
 			}
