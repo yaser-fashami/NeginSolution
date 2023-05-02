@@ -18,6 +18,7 @@
 		var user = await signinManager.UserManager.FindByIdAsync(userId);
 		string role = signinManager.UserManager.GetRolesAsync(user).Result.First();
 		ViewBag.CurrentUserRole = role.ToUpper();
+		ViewBag.CurrentUserAvatar = user.UserAvatar;
 	}
 </head>
 <body id="kt_app_body" data-kt-app-layout="dark-sidebar" data-kt-app-header-fixed="true" data-kt-app-sidebar-enabled="true" data-kt-app-sidebar-fixed="true" data-kt-app-sidebar-hoverable="true" data-kt-app-sidebar-push-header="true" data-kt-app-sidebar-push-toolbar="true" data-kt-app-sidebar-push-footer="true" data-kt-app-toolbar-enabled="true" class="app-default">
@@ -930,7 +931,7 @@
 								<div class="app-navbar-item ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
 									<!--begin::Menu wrapper-->
 									<div class="cursor-pointer symbol symbol-35px symbol-md-40px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
-										<img src="~/assets/media/avatars/blank.png" alt="user">
+									<img src="~/assets/media/avatars/@ViewBag.CurrentUserAvatar" alt="user">
 									</div>
 									<!--begin::User account menu-->
 									<div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-color fw-semibold py-4 fs-6 w-275px" data-kt-menu="true" style="">
@@ -939,7 +940,7 @@
 											<div class="menu-content d-flex align-items-center px-3">
 												<!--begin::Avatar-->
 												<div class="symbol symbol-50px me-5">
-													<img alt="Logo" src="~/assets/media/avatars/blank.png">
+												<img alt="Logo" src="~/assets/media/avatars/@ViewBag.CurrentUserAvatar">
 												</div>
 												<!--end::Avatar-->
 												<!--begin::Username-->
@@ -1174,7 +1175,19 @@
 													<span class="menu-bullet">
 														<span class="bullet bullet-dot"></span>
 													</span>
-													<span class="menu-title">Invoice</span>
+													<span class="menu-title">Issuing Invoice</span>
+												</a>
+												<!--end:Menu link-->
+											</div>
+											<!--end:Menu item-->
+											<!--begin:Menu item-->
+											<div class="menu-item">
+												<!--begin:Menu link-->
+												<a id="issued" class="menu-link" href="/Billing/IssuedInvoiceList">
+													<span class="menu-bullet">
+														<span class="bullet bullet-dot"></span>
+													</span>
+													<span class="menu-title">Issued Invoice</span>
 												</a>
 												<!--end:Menu link-->
 											</div>
@@ -1190,7 +1203,7 @@
 						</div>
 						<!--end::sidebar menu-->
 						<!--begin::Footer-->
-						<div class="app-sidebar-footer flex-column-auto pt-2 pb-6 px-6" id="kt_app_sidebar_footer">
+@*						<div class="app-sidebar-footer flex-column-auto pt-2 pb-6 px-6" id="kt_app_sidebar_footer">
 							<a href="https://preview.keenthemes.com/html/metronic/docs" class="btn btn-flex flex-center btn-custom btn-primary overflow-hidden text-nowrap px-0 h-40px w-100" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss-="click" data-bs-original-title="200+ in-house components and 3rd-party plugins" data-kt-initialized="1">
 								<span class="btn-label">Docs &amp; Components</span>
 								<!--begin::Svg Icon | path: icons/duotune/general/gen005.svg-->
@@ -1206,7 +1219,7 @@
 								<!--end::Svg Icon-->
 							</a>
 						</div>
-						<!--end::Footer-->
+*@						<!--end::Footer-->
 				</div>
 				<!--end::Sidebar-->
 				<!--begin::Main-->
@@ -1238,8 +1251,11 @@
 									<a href="#" target="_blank" class="text-gray-800 text-hover-primary">Sina TOS Team</a>
 								</div>
 								<!--end::Copyright-->
+							<div class="order-3 text-muted">
+									<span>Version 1.0.0</span>
+								</div>
 								<!--begin::Menu-->
-								<ul class="menu menu-gray-600 menu-hover-primary fw-semibold order-1">
+@*								<ul class="menu menu-gray-600 menu-hover-primary fw-semibold order-1">
 									<li class="menu-item">
 										<a href="https://keenthemes.com" target="_blank" class="menu-link px-2">About</a>
 									</li>
@@ -1250,7 +1266,7 @@
 										<a href="https://1.envato.market/EA4JP" target="_blank" class="menu-link px-2">Purchase</a>
 									</li>
 								</ul>
-								<!--end::Menu-->
+*@								<!--end::Menu-->
 							</div>
 							<!--end::Footer container-->
 						</div>
@@ -1290,11 +1306,11 @@
 
 	<script type="text/javascript">
 		var activeLink = '@ViewData["ActiveLink"]'
-		$('#' + activeLink).parent().parent().parent().addClass("show");
 
 		$(document).ready(function () {
 			if(activeLink != ''){
 				$('#'+activeLink).addClass("active");
+				$('#' + activeLink).parent().parent().parent().addClass("show");
 			}
 			setTimeout(function () {
 				$('#main').css('visibility', 'visible')

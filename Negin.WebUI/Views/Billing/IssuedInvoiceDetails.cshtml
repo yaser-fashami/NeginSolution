@@ -1,0 +1,220 @@
+﻿@{
+    ViewData["Title"] = "#" + Model.InvoiceNo;
+}
+@model Invoice
+
+<div class="container">
+    <div class="row pb-5">
+        <div class="col-5 text-start">
+            <a href="/Billing/IssuedInvoiceList" class="btn btn-secondary m-1">Back</a>
+            <a href="#" id="print_btn" class="btn btn-primary m-1">Print</a>
+            @if (Model.Status == Invoice.InvoiceStatus.IsIssued)
+            {
+                <button href="#" id="confirm_btn" class="btn btn-success m-1">Confirm</button>
+                <button href="#" id="cancel_btn" class="btn btn-danger m-1">Cancel</button>
+            }
+        </div>
+    </div>
+
+    <div class="invoice page">
+        @if (Model.Status == Invoice.InvoiceStatus.IsIssued)
+        {
+            <div id="confirmStamp" style="display:none">Confirmed</div>
+            <div id="cancelStamp" style="display:none">Cancelled</div>
+        }
+        else if (Model.Status == Invoice.InvoiceStatus.IsConfirm)
+        {
+            <div id="confirmStamp">Confirmed</div>
+        }
+        else if (Model.Status == Invoice.InvoiceStatus.IsCancel)
+        {
+            <div id="cancelStamp">Cancelled</div>
+        }
+
+        <div class="invoice-company text-inverse f-w-600">
+            <img src="/assets/media/logos/logoSina.jpg" /><span class="header">Sina Port And Marine Services Company</span></div>
+        <hr style="margin-bottom:30px;" />
+        <div class="row invoice-header">
+            <div class="col-12">
+                <span class="col-md-12">Invoice-no: <strong class="text-inverse">@Model.InvoiceNo</strong> &nbsp;&nbsp;</span>
+                <span class="col-md-12 ms-10">Invoice Date: <strong class="text-inverse">@Model.InvoiceDate.MiladiToShamsiDateString()</strong> </span>
+            </div>
+        </div>
+        <div class="row invoice-header">
+            <div class="col-6 ">
+                <span class="col-md-3">Seller: <strong class="text-inverse">Sina Port And Marine Services Company</strong><br /> Address: <strong class="text-inverse">No.35 13th avenue Gandi st Tehran Iran </strong> </span>
+            </div>
+            <div class="col-6">
+                <span class="col-md-3">ID No: <strong class="text-inverse">1010114364 </strong> <br /> Economic No: <strong class="text-inverse">411-1135-5887 </strong></span>
+            </div>
+        </div>
+        <div class="row invoice-header">
+            <div class="col-12">
+                <span class="col-md-4 me-10">Buyer: <strong class="text-inverse">@Model.Voyage.Agent.ShippingLineName</strong> </span>
+                <span class="col-md me-10">Address: <strong class="text-inverse">@Model.Voyage.Agent.Address</strong> </span>
+                <span class="col-md-4 me-10">@*ID No: <strong class="text-inverse"> </strong>*@ </span>
+                <span class="col-md-4 me-10">Economic No: <strong class="text-inverse">@Model.Voyage.Agent.EconomicCode</strong> </span>
+            </div>
+        </div>
+        <div class="row invoice-header">
+            <div class="col-12">
+                Vessel/voyage: <span class="fw-bold me-20"> @Model.Voyage.Vessel.Name / @Model.Voyage.VoyageNoIn</span>
+                Tonage: <span class="fw-bold me-20">@Model.Voyage.Vessel.GrossTonage.ToString("#,0")</span>
+                Flag: <span class="fw-bold me-20">@Model.Voyage.Vessel.Flag.Name</span>
+                Dwell: <span class="fw-bold me-10">@Model.TotalDwellingHour h</span>
+            </div>
+        </div>
+        <div class="row page-break" style="border:1px solid #000;border-radius:5px;">
+            <div class="col-lg-12" style="padding:0;">
+                <table class="table table-striped invoice-content" style="width:100%;">
+                        <thead>
+                            <tr class="invoice-tableHeader">
+                                <th class="tect-center">Invoice Detail</th>
+                                <th class="text-center">Actual arrival</th>
+                                <th class="text-center">Actual leave</th>
+                                <th class="text-center">Dwell</th>
+                                <th class="text-center">Vessel Name</th>
+                                <th class="text-center">Dollar Rate</th>
+                                <th class="text-right">Price($)</th>
+                                <th class="text-right">Price(R)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var vesselStoppageInvoiceDetail in Model.VesselStoppageInvoiceDetails)
+                            {
+                                <tr>
+                                    <td class="text-center">Vessel stoppage</td>
+                                    <td class="text-center">@Html.Raw(vesselStoppageInvoiceDetail.VesselStoppage.ATA.Value.MiladiToShamsi().ToShamsiDateString(vesselStoppageInvoiceDetail.VesselStoppage.ATA.Value.DayOfWeek))</td>
+                                    <td class="text-center">@Html.Raw(vesselStoppageInvoiceDetail.VesselStoppage.ATD.Value.MiladiToShamsi().ToShamsiDateString(vesselStoppageInvoiceDetail.VesselStoppage.ATD.Value.DayOfWeek))</td>
+                                    <td class="text-center">@vesselStoppageInvoiceDetail.DwellingHour h</td>
+                                    <td class="text-center">@vesselStoppageInvoiceDetail.Invoice.Voyage.Vessel.Name</td>
+                                    <td class="text-center">@vesselStoppageInvoiceDetail.ApplyCurrencyRate.ToString("#,0")</td>
+                                    <td class="text-right">@vesselStoppageInvoiceDetail.PriceD</td>
+                                    <td class="text-right">@vesselStoppageInvoiceDetail.PriceR.ToString("#,0")</td>
+                                </tr>
+                            }
+                            @foreach (var cleaningServiceInvoiceDetails in Model.CleaningServiceInvoiceDetails)
+                            {
+                                <tr>
+                                    <td class="text-center">Cleaning Service</td>
+                                    <td class="text-center">@Html.Raw(cleaningServiceInvoiceDetails.VesselStoppage.ATA.Value.MiladiToShamsi().ToShamsiDateString(cleaningServiceInvoiceDetails.VesselStoppage.ATA.Value.DayOfWeek))</td>
+                                    <td class="text-center">@Html.Raw(cleaningServiceInvoiceDetails.VesselStoppage.ATD.Value.MiladiToShamsi().ToShamsiDateString(cleaningServiceInvoiceDetails.VesselStoppage.ATD.Value.DayOfWeek))</td>
+                                    <td class="text-center">@(cleaningServiceInvoiceDetails.DwellingHour%24 == 0 ? cleaningServiceInvoiceDetails.DwellingHour/24 : cleaningServiceInvoiceDetails.DwellingHour/24 + 1) D</td>
+                                    <td class="text-center">@Model.Voyage.Vessel.Name</td>
+                                    <td class="text-center">@cleaningServiceInvoiceDetails.ApplyCurrencyRate.ToString("#,0")</td>
+                                    <td class="text-right">@cleaningServiceInvoiceDetails.PriceD</td>
+                                    <td class="text-right">@cleaningServiceInvoiceDetails.PriceR.ToString("#,0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        </table>
+                <div class="invoice-price">
+                    <div class="invoice-price-left">
+                        <div class="invoice-price-row">خواهشمند است مبلغ @Model.SumPriceR.ToString("#,0") ریال به حساب شماره 0106003276003 نزد بانک ملی و یا حساب شبا IR740170000000106003276003 به نام شرکت توسعه خدمات دریایی و بندری سینا واریز نمایید.</div>
+                    </div>
+                    <div class="invoice-price-right">
+                        <table class="table total">
+                            <tr style="border-bottom: 1px solid #fff">
+                                <td>Tax : </td>
+                                <td>@Model.SumPriceRVat.ToString("#,0") IRR</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #fff">
+                                <td>TOTAL($) : </td>
+                                <td>@Model.SumPriceD $</td>
+                            <tr>
+                                <td>TOTAL(R) : </td>
+                                <td>@Model.SumPriceR.ToString("#,0") IRR</td>
+                            </tr>
+                        </table>
+                    </div>
+                    </div>
+            </div>
+        </div>
+        <div class="invoice-note">Issued By: @Model.CreatedBy.UserName</div>
+    </div>
+</div>
+
+@section links{
+    <link href="~/css/invoicestyle.css" rel="stylesheet" />
+}
+
+@section Scripts{
+    <script src="~/lib/jquery.print/jquery.print.min.js"></script>
+    <script type="text/javascript">
+        $('#print_btn').click(function () {
+            $('.invoice').print();
+        })
+
+        $("#cancel_btn").click(function () {
+            Swal.fire({
+                text: "Are you sure you want to cancel this invoice?",
+                icon: "warning",
+                showCancelButton: !0,
+                buttonsStyling: !1,
+                confirmButtonText: "Yes, do it!",
+                cancelButtonText: "No, cancel",
+                customClass: { confirmButton: "btn fw-bold btn-success", cancelButton: "btn fw-bold btn-active-light-primary" },
+            }).then(function (t) {
+                t.isConfirmed
+                    ? $.ajax({
+                        url: "/Billing/CancelInvoice",
+                        type: "GET",
+                        data: { id: '@Model.Id' },
+                        success: function (res) {
+                            debugger;
+                            if (res.state) {
+                                Swal.fire({ text: "You have cancelled this invoice!", icon: "success", buttonsStyling: !1, confirmButtonText: "Ok, got it!", customClass: { confirmButton: "btn fw-bold btn-primary" } })
+                                    .then(function () {
+                                        $('#cancelStamp').css('display', 'block');
+                                        $('#cancel_btn').prop('disabled', true);
+                                        $('#confirm_btn').prop('disabled', true);
+                                    })
+                            } else {
+                                Swal.fire({ text: res.message + "!.", icon: "warning", buttonsStyling: !1, confirmButtonText: "Ok, got it!", customClass: { confirmButton: "btn fw-bold btn-primary" } })
+                                    .then(function () {
+                                        window.location = "/Billing/IssuedInvoiceDetails?id=" + '@Model.Id';
+                                    })
+                            }
+                        },
+                    }) : () => { }
+            })
+        })
+
+        $("#confirm_btn").click(function () {
+            Swal.fire({
+                text: "Are you sure you want to confirm this invoice?",
+                icon: "warning",
+                showCancelButton: !0,
+                buttonsStyling: !1,
+                confirmButtonText: "Yes, do it!",
+                cancelButtonText: "No, cancel",
+                customClass: { confirmButton: "btn fw-bold btn-success", cancelButton: "btn fw-bold btn-active-light-primary" },
+            }).then(function (t) {
+                t.isConfirmed
+                    ? $.ajax({
+                        url: "/Billing/ConfirmInvoice",
+                        type: "GET",
+                        data: { id: '@Model.Id' },
+                        success: function (res) {
+                            if (res.state) {
+                                Swal.fire({ text: "You have confirmed this invoice!", icon: "success", buttonsStyling: !1, confirmButtonText: "Ok, got it!", customClass: { confirmButton: "btn fw-bold btn-primary" } })
+                                    .then(function () {
+                                        $('#confirmStamp').css('display', 'block');
+                                        $('#confirm_btn').prop('disabled', true);
+                                        $('#cancel_btn').prop('disabled', true);
+                                    })
+                            } else {
+                                Swal.fire({ text: res.message + "!.", icon: "warning", buttonsStyling: !1, confirmButtonText: "Ok, got it!", customClass: { confirmButton: "btn fw-bold btn-primary" } })
+                                    .then(function () {
+                                        window.location = "/Billing/IssuedInvoiceDetails?id=" + '@Model.Id';
+                                    })
+                            }
+                        },
+                    }) : () => { }
+            })
+        })
+
+
+    </script>
+
+}

@@ -24,7 +24,7 @@
         </div>
         <!--begin::Card title-->
     </div>
-    <div class="card-body p-10">
+    <div class="card-body p-10" style="padding-top:10px !important">
         <!--begin::Table-->
         <div class="dataTables_wrapper dt-bootstrap4 no-footer">
             <div class="table-responsive">
@@ -33,10 +33,13 @@
                     <thead>
                         <!--begin::Table row-->
                         <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                            <th class="w-400px" data-priority="1">Vessel Name / Voyage No In</th>
-                            <th class="w-100px">Gone</th>
+                            <th class="w-220px" data-priority="1">Vessel Name / Voyage No In</th>
+                            <th>Owner</th>
+                            <th class="min-w-175px">Agent</th>
+                            <th class="w-70px">Gone</th>
                             <th class="w-100px">InProcess</th>
-                            <th class="min-w-150px">Wait for vessel</th>
+                            <th class="w-150px">Wait for vessel</th>
+                            <th>Invoiced</th>
                             <th data-priority="2"></th>
                         </tr>
                         <!--end::Table row-->
@@ -46,10 +49,12 @@
                     <tbody class="text-dark fw-bold">
                         @foreach (Voyage voyage in Model.Data)
                         {
-                            <tr>
+                            <tr class="h-60px">
                                 <td>
                                     @voyage.Vessel?.Name / @voyage.VoyageNoIn
                                 </td>
+                                <td class="text-gray-400">@voyage.Owner?.ShippingLineName</td>
+                                <td class="text-gray-400">@voyage.Agent?.ShippingLineName</td>
                                 <td>
                                     @voyage.VesselStoppages?.Where(c=>c.Status == VesselStoppage.VesselStoppageStatus.Gone).Count()
                                 </td>
@@ -59,8 +64,14 @@
                                 <td>
                                     @voyage.VesselStoppages?.Where(c=>c.Status == VesselStoppage.VesselStoppageStatus.WaitForVessel).Count()
                                 </td>
+                                <td>
+                                    @voyage.VesselStoppages?.Where(c=>c.Status == VesselStoppage.VesselStoppageStatus.Invoiced && c.VesselStoppageInvoiceDetail?.Invoice?.Status != Invoice.InvoiceStatus.IsCancel).Count()
+                                </td>
                                 <td class="text-end">
-                                    <a href="/Billing/CreateInvoice?voyageId=@voyage.Id" class="btn btn-bg-light btn-active-color-primary btn-sm">Create Invoice</a>
+                                    @if (voyage.VesselStoppages?.Where(c => c.Status == VesselStoppage.VesselStoppageStatus.Gone).Count() > 0)
+                                    {
+                                        <a href="/Billing/CreateInvoice?voyageId=@voyage.Id" class="btn btn-bg-light btn-active-color-primary btn-sm">Create Invoice</a>
+                                    }
                                 </td>
                             </tr>
                         }

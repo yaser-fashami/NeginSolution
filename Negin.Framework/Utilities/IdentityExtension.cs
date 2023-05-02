@@ -21,4 +21,21 @@ public static class IdentityExtension
 
         return string.IsNullOrWhiteSpace(userId) ? string.Empty : userId;
     }
+
+    public static string GetCurrentUserEmail(this IIdentity identity)
+    {
+        if (identity == null)
+            return string.Empty;
+
+        var claimsIdentity = identity as ClaimsIdentity;
+
+        var userDataClaim = claimsIdentity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+        if (userDataClaim == null || userDataClaim.Value == null)
+            return string.Empty;
+
+        var userEmail = userDataClaim.Value;
+
+        return string.IsNullOrWhiteSpace(userEmail) ? string.Empty : userEmail;
+    }
+
 }

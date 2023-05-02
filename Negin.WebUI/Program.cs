@@ -5,6 +5,7 @@ using Negin.Core.Domain.Entities;
 using Negin.Core.Domain.Interfaces;
 using Negin.Infra.Data.Sql.EFRepositories;
 using Negin.Infrastructure;
+using Negin.Services.Billing;
 using Negin.Services.Operation;
 using SmartBreadcrumbs.Extensions;
 using System.Reflection;
@@ -35,6 +36,13 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
 
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddBreadcrumbs(Assembly.GetExecutingAssembly(), options =>
 {
 	options.TagName = "nav";
@@ -53,8 +61,11 @@ builder.Services.AddScoped<IShippingLineCompanyRepository, ShippingLineCompanyRe
 builder.Services.AddScoped<IVoyageRepository, VoyageRepository>();
 builder.Services.AddScoped<IVesselStoppageService, VesselStoppageService>();
 builder.Services.AddScoped<IBasicInfoRepository, BasicInfoRepository>();
+builder.Services.AddScoped<IInvoiceCalculator, InvoiceCalculator>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 
 #endregion
+
 
 var app = builder.Build();
 
@@ -71,6 +82,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 
 app.MapControllerRoute(

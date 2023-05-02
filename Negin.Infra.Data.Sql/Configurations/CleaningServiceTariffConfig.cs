@@ -15,6 +15,7 @@ internal class CleaningServiceTariffConfig : IEntityTypeConfiguration<CleaningSe
 
 		#region Navigation
 		builder.HasMany(c => c.CleaningServiceTariffDetails).WithOne(d => d.CleaningServiceTariff).HasForeignKey("CleaningServiceTariffId");
+		builder.HasMany(c => c.CleaningServiceInvoiceDetail).WithOne(d => d.CleaningServiceTariff).HasForeignKey(s => s.CleaningServiceTariffId);
 		#endregion
 	}
 }
@@ -32,6 +33,7 @@ internal class CleaningServiceTariffDetailsConfig : IEntityTypeConfiguration<Cle
 
 		#region Navigation
 		builder.HasOne(c => c.CleaningServiceTariff).WithMany(d => d.CleaningServiceTariffDetails).HasForeignKey("CleaningServiceTariffId");
+
 		#endregion
 	}
 }

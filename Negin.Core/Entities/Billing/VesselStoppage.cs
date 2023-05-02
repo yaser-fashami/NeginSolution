@@ -1,4 +1,5 @@
 ﻿
+using Negin.Core.Domain.Aggregates.Basic;
 using Negin.Core.Domain.Entities.Basic;
 using System.ComponentModel.DataAnnotations.Schema;
 

@@ -16,7 +16,7 @@
 	<!--begin::Content-->
 	<div id="kt_account_settings_profile_details" class="collapse show">
 		<!--begin::Form-->
-		<form id="kt_account_profile_details_form" class="form fv-plugins-bootstrap5 fv-plugins-framework" novalidate="novalidate" asp-controller="Account" asp-action="CreateUser" method="post">
+		<form id="kt_account_profile_details_form" class="form fv-plugins-bootstrap5 fv-plugins-framework" enctype="multipart/form-data" novalidate="novalidate" asp-controller="Account" asp-action="CreateUser" method="post">
 			<!--begin::Card body-->
 			<div class="card-body border-top p-9">
 				<!--begin::Input group-->
@@ -35,8 +35,8 @@
 							<label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" aria-label="Change avatar" data-bs-original-title="Change avatar" data-kt-initialized="1">
 								<i class="bi bi-pencil-fill fs-7"></i>
 								<!--begin::Inputs-->
-								<input type="file" name="avatar" accept=".png, .jpg, .jpeg">
-								<input type="hidden" name="avatar_remove">
+								<input type="file" asp-for="Avatar" accept=".png, .jpg, .jpeg">
+								<input type="hidden" asp-for="avatar_remove">
 								<!--end::Inputs-->
 							</label>
 							<!--end::Label-->

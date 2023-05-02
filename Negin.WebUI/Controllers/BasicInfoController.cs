@@ -311,9 +311,9 @@ namespace Negin.WebUI.Controllers
 		}
 
         [Authorize(Roles = "admin")]
-        public void ToggleVoyageStatus(ulong id)
+        public BLMessage ToggleVoyageStatus(ulong id)
 		{
-			_voyageRepository.ToggleVoyageStatus(id);
+			return _voyageRepository.ToggleVoyageStatus(id);
 		}
 
 		public JsonResult GetAgentsOfOwner(uint ownerId)

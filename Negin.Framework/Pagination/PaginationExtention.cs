@@ -13,4 +13,10 @@ public static class PaginationExtention
     {
         return page == 1 ? query.Take(count) : query.Skip((page - 1) * count).Take(count);
     }
+
+    public static IEnumerable<TEntity> ToPagination<TEntity>(this IEnumerable<TEntity> query, int page, int count)
+    {
+        return page == 1 ? query.Take(count) : query.Skip((page - 1) * count).Take(count);
+    }
+
 }

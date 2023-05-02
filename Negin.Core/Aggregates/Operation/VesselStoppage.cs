@@ -1,4 +1,5 @@
 ﻿using Negin.Core.Domain.Aggregates.Basic;
+using Negin.Core.Domain.Aggregates.Billing;
 using Negin.Core.Domain.Entities;
 using Negin.Core.Domain.Entities.Basic;
 using Negin.Framework.Utilities;
@@ -20,6 +21,9 @@ public class VesselStoppage : BaseAuditableEntity<ulong>
     public Port? PreviousPort { get; set; }
     public uint? NextPortId { get; set; }
     public Port? NextPort { get; set; }
+
+    public virtual VesselStoppageInvoiceDetail? VesselStoppageInvoiceDetail { get; set; }
+    public virtual CleaningServiceInvoiceDetail? CleaningServiceInvoiceDetail { get; set; }
 
     [NotMapped]
     public string? ETATime { get; set; }
@@ -76,11 +80,15 @@ public class VesselStoppage : BaseAuditableEntity<ulong>
         {
             Status = VesselStoppage.VesselStoppageStatus.WaitForVessel;
         }
+        if (VesselStoppageInvoiceDetail != null && VesselStoppageInvoiceDetail.Invoice?.Status != Invoice.InvoiceStatus.IsCancel)
+        {
+            Status = VesselStoppage.VesselStoppageStatus.Invoiced;
+        }
     }
 
     public enum VesselStoppageStatus
     {
-        WaitForVessel = 0, InProcess = 1, Gone = 2
-    }
+        WaitForVessel = 0, InProcess = 1, Gone = 2, Invoiced = 3
+	}
 }
 

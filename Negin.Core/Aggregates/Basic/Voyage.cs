@@ -1,11 +1,6 @@
 ﻿using Negin.Core.Domain.Aggregates.Operation;
 using Negin.Core.Domain.Entities;
 using Negin.Core.Domain.Entities.Basic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Negin.Core.Domain.Aggregates.Basic;
 

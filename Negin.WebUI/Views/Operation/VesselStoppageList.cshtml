@@ -35,6 +35,7 @@
                     <option value="waitforvessel">Wait for Vessel</option>
                     <option value="inprocess">InProcess</option>
                     <option value="gone">Gone</option>
+                    <option value="invoiced">Invoiced</option>
                 </select>
             <!--end::Filter-->
             <!--begin::Add Vessel Stoppage-->
@@ -104,9 +105,13 @@
                                 {
                                         <span class="badge py-3 px-4 fs-7 badge-light-primary">@vesselStoppage.Status</span>
                                 }
-                                else
+                                else if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.WaitForVessel)
                                 {
                                         <span class="badge py-3 px-4 fs-7 badge-light-warning">@vesselStoppage.Status</span>
+                                }
+                                else if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.Invoiced)
+                                {
+                                    <span class="badge py-3 px-4 fs-7 badge-light-info">@vesselStoppage.Status</span>
                                 }
                                 </td>
                                 <td>@vesselStoppage.OriginPort?.PortName - @vesselStoppage.OriginPort?.PortSymbol</td>
@@ -114,9 +119,13 @@
                                 <td>@vesselStoppage.NextPort?.PortName - @vesselStoppage.NextPort?.PortSymbol</td>
                                 <!--begin::Action=-->
                                 <td class="text-end">
-                                    @if (vesselStoppage.ATD == null)
+                                    @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.WaitForVessel || vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.InProcess)
                                     {
-                                        <a href="/Operation/EditVesselStoppage?vesselName=@ViewBag.VesselName&id=@vesselStoppage.Id&voyageNoIn=@ViewBag.VoyageNoIn&voyageId=@ViewBag.VoyageId" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Edit"><i class="bi bi-pencil-square fs-4"></i></a>
+                                        <a href="/Operation/EditVesselStoppage?vesselName=@ViewBag.VesselName&id=@vesselStoppage.Id&voyageNoIn=@ViewBag.VoyageNoIn" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Edit"><i class="bi bi-pencil-square fs-4"></i></a>
+                                    }
+                                    @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.Gone)
+                                    {
+                                        <a href="/Billing/PreInvoice?voyageId=@ViewBag.VoyageId&vesselStoppages=@vesselStoppage?.Id" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Pre Invoice"><i class="bi bi-coin fs-2"></i></a>
                                     }
                                 </td>
                                 <!--end::Action=-->

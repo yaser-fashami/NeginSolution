@@ -152,7 +152,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "06b26aed-28a0-4752-935f-8f3d43360c79",
+                            UserId = "408dc71b-4a06-4c17-be33-b12a8c9ccc69",
                             RoleId = "1"
                         });
                 });
@@ -371,6 +371,214 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.ToTable("Voyages", "Basic");
                 });
 
+            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.CleaningServiceInvoiceDetail", b =>
+                {
+                    b.Property<decimal>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(20,0)");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<decimal>("Id"));
+
+                    b.Property<int>("ApplyCurrencyRate")
+                        .HasColumnType("int");
+
+                    b.Property<double>("ApplyPrice")
+                        .HasColumnType("float");
+
+                    b.Property<int>("CleaningServiceTariffId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("CurrencyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("DwellingHour")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("InvoiceId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("PriceD")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PriceR")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<decimal>("PriceRVat")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<decimal>("VesselStoppageId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CleaningServiceTariffId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("CurrencyId");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("ModifiedById");
+
+                    b.HasIndex("VesselStoppageId")
+                        .IsUnique();
+
+                    b.ToTable("CleaningServiceInvoiceDetails", "Billing");
+                });
+
+            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.Invoice", b =>
+                {
+                    b.Property<decimal>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(20,0)");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<decimal>("Id"));
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("InvoiceDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InvoiceNo")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(15)");
+
+                    b.Property<bool>("IsPaied")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("ModifiedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte>("Status")
+                        .HasColumnType("tinyint");
+
+                    b.Property<decimal>("SumPriceD")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SumPriceR")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<decimal>("SumPriceRVat")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<int>("TotalDwellingHour")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("VoyageId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ModifiedById");
+
+                    b.HasIndex("VoyageId");
+
+                    b.ToTable("Invoices", "Billing");
+                });
+
+            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.VesselStoppageInvoiceDetail", b =>
+                {
+                    b.Property<decimal>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(20,0)");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<decimal>("Id"));
+
+                    b.Property<int>("ApplyCurrencyRate")
+                        .HasColumnType("int");
+
+                    b.Property<double>("ApplyExtraPrice")
+                        .HasColumnType("float");
+
+                    b.Property<double>("ApplyNormalPrice")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("CurrencyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("DwellingHour")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("InvoiceId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("PriceD")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PriceR")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<decimal>("PriceRVat")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<decimal>("VesselStoppageId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<int>("VesselStoppageTariffId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("CurrencyId");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("ModifiedById");
+
+                    b.HasIndex("VesselStoppageId")
+                        .IsUnique();
+
+                    b.HasIndex("VesselStoppageTariffId");
+
+                    b.ToTable("VesselStoppageInvoiceDetails", "Billing");
+                });
+
             modelBuilder.Entity("Negin.Core.Domain.Aggregates.Operation.VesselStoppage", b =>
                 {
                     b.Property<decimal>("Id")
@@ -520,6 +728,54 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.ToTable("Currencies", "Basic");
                 });
 
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.DiscountTariff", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<double>("DiscountPercent")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("EffectiveDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("FlagId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModifiedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("ToGrossTonage")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("FlagId");
+
+                    b.HasIndex("ModifiedById");
+
+                    b.ToTable("DiscountTariff", "Basic");
+                });
+
             modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.Port", b =>
                 {
                     b.Property<long>("Id")
@@ -636,6 +892,49 @@ namespace Negin.Infra.Data.Sql.Migrations
                         .IsUnique();
 
                     b.ToTable("ShippingLineCompany", "Basic");
+                });
+
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.VatTariff", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("EffectiveDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("Rate")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("TollRate")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ModifiedById");
+
+                    b.ToTable("VatTariff", "Basic");
                 });
 
             modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.Vessel", b =>
@@ -808,6 +1107,13 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
+                    b.Property<string>("UserAvatar")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasDefaultValue("blank.png");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -828,16 +1134,16 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "06b26aed-28a0-4752-935f-8f3d43360c79",
+                            Id = "408dc71b-4a06-4c17-be33-b12a8c9ccc69",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e1f1c391-adc9-45ed-9cc9-76e9cfd88f29",
+                            ConcurrencyStamp = "736f3d66-fe37-4595-926d-817eda52152a",
                             CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             EmailConfirmed = false,
                             IsActived = true,
                             LockoutEnabled = false,
-                            PasswordHash = "tGY/+dga2x7kbCTLx1iDVhcPzz4OmFyJPOLyVKddecA=",
+                            PasswordHash = "KN2dFrXZrplk2BcLgsp09+2bILqhgI6xK9hQC5lI/Lo=",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "f6f4fba8-d5e8-447a-b98e-743d1db2c967",
+                            SecurityStamp = "c574a3d6-0458-465a-a9b8-cdc1fd7892ff",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
@@ -993,6 +1299,123 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("Vessel");
                 });
 
+            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.CleaningServiceInvoiceDetail", b =>
+                {
+                    b.HasOne("Negin.Core.Domain.Aggregates.Basic.CleaningServiceTariff", "CleaningServiceTariff")
+                        .WithMany("CleaningServiceInvoiceDetail")
+                        .HasForeignKey("CleaningServiceTariffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Negin.Core.Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("Negin.Core.Domain.Entities.Basic.Currency", "Currency")
+                        .WithMany()
+                        .HasForeignKey("CurrencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Negin.Core.Domain.Aggregates.Billing.Invoice", "Invoice")
+                        .WithMany("CleaningServiceInvoiceDetails")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Negin.Core.Domain.Entities.User", "ModifiedBy")
+                        .WithMany()
+                        .HasForeignKey("ModifiedById");
+
+                    b.HasOne("Negin.Core.Domain.Aggregates.Operation.VesselStoppage", "VesselStoppage")
+                        .WithOne("CleaningServiceInvoiceDetail")
+                        .HasForeignKey("Negin.Core.Domain.Aggregates.Billing.CleaningServiceInvoiceDetail", "VesselStoppageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CleaningServiceTariff");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Currency");
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("ModifiedBy");
+
+                    b.Navigation("VesselStoppage");
+                });
+
+            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.Invoice", b =>
+                {
+                    b.HasOne("Negin.Core.Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("Negin.Core.Domain.Entities.User", "ModifiedBy")
+                        .WithMany()
+                        .HasForeignKey("ModifiedById");
+
+                    b.HasOne("Negin.Core.Domain.Aggregates.Basic.Voyage", "Voyage")
+                        .WithMany()
+                        .HasForeignKey("VoyageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("ModifiedBy");
+
+                    b.Navigation("Voyage");
+                });
+
+            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.VesselStoppageInvoiceDetail", b =>
+                {
+                    b.HasOne("Negin.Core.Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("Negin.Core.Domain.Entities.Basic.Currency", "Currency")
+                        .WithMany()
+                        .HasForeignKey("CurrencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Negin.Core.Domain.Aggregates.Billing.Invoice", "Invoice")
+                        .WithMany("VesselStoppageInvoiceDetails")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Negin.Core.Domain.Entities.User", "ModifiedBy")
+                        .WithMany()
+                        .HasForeignKey("ModifiedById");
+
+                    b.HasOne("Negin.Core.Domain.Aggregates.Operation.VesselStoppage", "VesselStoppage")
+                        .WithOne("VesselStoppageInvoiceDetail")
+                        .HasForeignKey("Negin.Core.Domain.Aggregates.Billing.VesselStoppageInvoiceDetail", "VesselStoppageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Negin.Core.Domain.Aggregates.Basic.VesselStoppageTariff", "VesselStoppageTariff")
+                        .WithMany("VesselStoppageInvoiceDetail")
+                        .HasForeignKey("VesselStoppageTariffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Currency");
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("ModifiedBy");
+
+                    b.Navigation("VesselStoppage");
+
+                    b.Navigation("VesselStoppageTariff");
+                });
+
             modelBuilder.Entity("Negin.Core.Domain.Aggregates.Operation.VesselStoppage", b =>
                 {
                     b.HasOne("Negin.Core.Domain.Entities.User", "CreatedBy")
@@ -1068,6 +1491,27 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("ModifiedBy");
                 });
 
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.DiscountTariff", b =>
+                {
+                    b.HasOne("Negin.Core.Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
+
+                    b.HasOne("Negin.Core.Domain.Entities.Basic.Country", "Flag")
+                        .WithMany()
+                        .HasForeignKey("FlagId");
+
+                    b.HasOne("Negin.Core.Domain.Entities.User", "ModifiedBy")
+                        .WithMany()
+                        .HasForeignKey("ModifiedById");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Flag");
+
+                    b.Navigation("ModifiedBy");
+                });
+
             modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.Port", b =>
                 {
                     b.HasOne("Negin.Core.Domain.Entities.Basic.Country", "Country")
@@ -1084,6 +1528,21 @@ namespace Negin.Infra.Data.Sql.Migrations
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Negin.Core.Domain.Entities.User", "ModifiedBy")
+                        .WithMany()
+                        .HasForeignKey("ModifiedById");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("ModifiedBy");
+                });
+
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.VatTariff", b =>
+                {
+                    b.HasOne("Negin.Core.Domain.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("Negin.Core.Domain.Entities.User", "ModifiedBy")
                         .WithMany()
@@ -1133,17 +1592,35 @@ namespace Negin.Infra.Data.Sql.Migrations
 
             modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.CleaningServiceTariff", b =>
                 {
+                    b.Navigation("CleaningServiceInvoiceDetail");
+
                     b.Navigation("CleaningServiceTariffDetails");
                 });
 
             modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.VesselStoppageTariff", b =>
                 {
+                    b.Navigation("VesselStoppageInvoiceDetail");
+
                     b.Navigation("VesselStoppageTariffDetails");
                 });
 
             modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.Voyage", b =>
                 {
                     b.Navigation("VesselStoppages");
+                });
+
+            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.Invoice", b =>
+                {
+                    b.Navigation("CleaningServiceInvoiceDetails");
+
+                    b.Navigation("VesselStoppageInvoiceDetails");
+                });
+
+            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Operation.VesselStoppage", b =>
+                {
+                    b.Navigation("CleaningServiceInvoiceDetail");
+
+                    b.Navigation("VesselStoppageInvoiceDetail");
                 });
 
             modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.Country", b =>

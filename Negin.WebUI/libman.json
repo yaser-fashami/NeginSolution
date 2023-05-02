@@ -1,14 +1,19 @@
 {
   "version": "1.0",
   "defaultProvider": "cdnjs",
-  "libraries": [
-    {
-      "library": "bootstrap-icons@1.10.2",
-      "destination": "wwwroot/lib/bootstrap-icons/"
-    },
-    {
-      "library": "font-awesome@5.15.4",
-      "destination": "wwwroot/lib/font-awesome/"
-    }
-  ]
+	"libraries": [
+		{
+			"library": "bootstrap-icons@1.10.2",
+			"destination": "wwwroot/lib/bootstrap-icons/"
+		},
+		{
+			"library": "font-awesome@5.15.4",
+			"destination": "wwwroot/lib/font-awesome/"
+		},
+		{
+			"provider": "cdnjs",
+			"library": "jQuery.print@1.6.2",
+			"destination": "wwwroot/lib/jQuery.print/"
+		}
+	]
 }

@@ -16,7 +16,8 @@ public class User : IdentityUser
 	public bool IsActived { get; set; } = false;
 	public DateTime CreateDate { get; set; }
 	public DateTime? LastLogInDate { get; set; }
+    public string? UserAvatar { get; set; }
 
-	public ICollection<IdentityRole>? Roles { get; set; }
+    public ICollection<IdentityRole>? Roles { get; set; }
 
 }

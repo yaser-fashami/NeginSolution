@@ -1,0 +1,481 @@
+﻿@{
+    ViewData["Title"] = "PreInvoice";
+    int i = 1, j = 1;
+}
+@model Negin.WebUI.Models.ViewModels.PreInvoiceViewModel
+
+<div class="card" id="preInvoice">
+    <!--begin::Body-->
+    <div class="card-body p-lg-20">
+        <!--begin::Layout-->
+        <div class="d-flex flex-column flex-xl-row">
+            <!--begin::Content-->
+            <div class="flex-lg-row-fluid me-xl-18 mb-10 mb-xl-0">
+                <!--begin::Invoice 2 content-->
+                <div class="mt-n1">
+                    <!--begin::Top-->
+                    <div class="row pb-10">
+                        <!--begin::Logo-->
+                        <div class="col-7">
+                            <img alt="Logo" src="/assets/media/logos/LogoSina.PNG">
+                        </div>
+                        <!--end::Logo-->
+                        <div class="col-5 text-end">
+                            <a href="#" id="invoicing_btn" class="btn btn-sm btn-success me-1">Invoicing</a>
+                            <a href="#" id="print_btn" class="btn btn-sm btn-light-primary me-1">Print</a>
+                            <a href="/Billing/CreateInvoice?voyageId=@Model.VoyageId" class="btn btn-sm btn-light-primary">Back</a>
+                        </div>
+                    </div>
+                    <!--end::Top-->
+                    <!--begin::Wrapper-->
+                    <div class="m-0">
+                        <!--begin::Label-->
+                        <div class="fw-bold fs-3 text-gray-800 mb-8">Invoice No: #@Model.InvoiceNo</div>
+                        <!--end::Label-->
+                        <!--begin::Row-->
+                        <div class="row g-5 mb-11">
+                            <!--end::Col-->
+                            <div class="col-sm-6">
+                                <!--end::Label-->
+                                <div class="fw-semibold fs-7 text-gray-600 mb-1">Invoice Date:</div>
+                                <!--end::Label-->
+                                <!--end::Col-->
+                                <div class="fw-bold fs-6 text-gray-800">@Model.InvoiceDate.MiladiToShamsiDateString()</div>
+                                <!--end::Col-->
+                            </div>
+                            <!--end::Col-->
+                            <!--end::Col-->
+                            <div class="col-sm-6">
+                                <!--end::Label-->
+                                <div class="fw-semibold fs-7 text-gray-600 mb-1">Total Dwelling Hour:</div>
+                                <!--end::Label-->
+                                <!--end::Info-->
+                                <div class="fw-bold fs-6 text-gray-800 d-flex align-items-center flex-wrap">
+                                    <span class="pe-2">@Model.TotalDwellingHour h</span>
+
+                                    <span class="fs-7 text-danger d-flex align-items-center">
+                                        <span class="bullet bullet-dot bg-danger me-2"></span>
+
+                                        Due in @Model.TotalDwellingDays days
+                                    </span>
+                                </div>
+                                <!--end::Info-->
+                            </div>
+                            <!--end::Col-->
+                        </div>
+                        <!--end::Row-->
+                        <!--begin::Row-->
+                        <div class="row g-5 mb-12">
+                            <!--end::Col-->
+                            <div class="col-sm-6">
+                                <!--end::Label-->
+                                <div class="fw-semibold fs-7 text-gray-600 mb-1">Issued For:</div>
+                                <!--end::Label-->
+                                <!--end::Text-->
+                                <div class="fw-bold fs-6 text-gray-800">@Model.Voyage?.Owner?.ShippingLineName (Owner)</div>
+                                <!--end::Text-->
+                                <!--end::Description-->
+                                <div class="fw-semibold fs-7 text-gray-600">
+                                    @Model.Voyage?.Agent?.ShippingLineName (Agent) <br>
+                                    <i class="bi bi-telephone me-2"></i>@Model.Voyage?.Agent?.Tel
+                                </div>
+                                <!--end::Description-->
+                            </div>
+                            <!--end::Col-->
+                            <!--end::Col-->
+                            <div class="col-sm-6">
+                                <!--end::Label-->
+                                <div class="fw-semibold fs-7 text-gray-600 mb-1">Issued By:</div>
+                                <!--end::Label-->
+                                <!--end::Text-->
+                                <div class="fw-bold fs-6 text-gray-800">@Model.CurrentUser</div>
+                                <!--end::Text-->
+                                <!--end::Description-->
+                                <div class="fw-semibold fs-7 text-gray-600">
+                                    <i class="bi bi-envelope me-1"></i>@Model.CurrentUserEmail
+                                </div>
+                                <!--end::Description-->
+                            </div>
+                            <!--end::Col-->
+                        </div>
+                        <!--end::Row-->
+                        <div class="row g-5 mb-12">
+                            <div class="col-sm-3 border border-dashed border-gray-300 card-rounded p-5">
+                                <span class="symbol-label">
+                                    <span class="svg-icon svg-icon-success me-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stoplights" viewBox="0 0 16 16">
+                                            <path d="M8 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm0 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm1.5 2.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                                            <path d="M4 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2h2c-.167.5-.8 1.6-2 2v2h2c-.167.5-.8 1.6-2 2v2h2c-.167.5-.8 1.6-2 2v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1c-1.2-.4-1.833-1.5-2-2h2V8c-1.2-.4-1.833-1.5-2-2h2V4c-1.2-.4-1.833-1.5-2-2h2zm2-1a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z" />
+                                        </svg>
+                                    </span>
+                                </span>
+                                <span class="fw-semibold fs-7">VesselStoppage</span><br />
+                                <span class="symbol-label">
+                                    <span class="svg-icon svg-icon-danger me-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                        </svg>
+                                    </span>
+                                </span>
+                                <span class="fw-semibold fs-7">Cleaning Service</span>
+                            </div>
+                            <div class="col-sm-9">
+                            </div>
+                        </div>
+                        <!--begin::Content-->
+                        <div class="flex-grow-1">
+                            <!--begin::Table-->
+                            <div class="table-responsive border-bottom mb-9">
+                                @foreach (var preInvoiceDetail in Model.PreInvoiceDetails)
+                                {
+                                    <table class="table mb-3">
+                                        <thead>
+                                            <tr class="border-bottom fs-6 fw-bold text-muted">
+                                                <th></th>
+                                                <th class="min-w-150px pb-2">Actual Time Arrival</th>
+                                                <th class="min-w-150px pb-2">Actual Time Departure</th>
+                                                <th class="text-end">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="fw-bold text-gray-700 fs-5 text-end">
+                                                <td class="pt-7"><span class="badge badge-circle badge-outline badge-dark">@j</span></td>
+                                                <td class="d-flex align-items-center pt-6">
+                                                    <div class="badge badge-dark fw-bold">@Html.Raw(preInvoiceDetail.VesselStoppage.ATA != null ? preInvoiceDetail.VesselStoppage.ATA.Value.MiladiToShamsi().ToShamsiDateString(preInvoiceDetail.VesselStoppage.ATADayOfTheWeek) : "")</div>
+                                                </td>
+                                                <td class="pt-5 text-start">
+                                                    <div class="badge badge-dark fw-bold">@Html.Raw(preInvoiceDetail.VesselStoppage.ATD != null ? preInvoiceDetail.VesselStoppage.ATD.Value.MiladiToShamsi().ToShamsiDateString(preInvoiceDetail.VesselStoppage.ATDDayOfTheWeek) : "")</div>
+                                                </td>
+                                                <td class="pt-5 text-end">
+                                                    <span class="badge py-3 px-4 fs-7 badge-light-success">Gone!</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4">
+                                                    <table class="table mb-3">
+                                                    <thead>
+                                                        <tr class="border-bottom fs-6 fw-bold text-muted">
+                                                            <th class="min-w-70px text-start pb-2">Description</th>
+                                                            <th class="min-w-70px text-end pb-2">Dwelling Time</th>
+                                                            <th class="min-w-80px text-end pb-2">Dollar</th>
+                                                            <th class="min-w-100px text-end pb-2">Rial</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="fw-bold text-gray-700 fs-5 text-end">
+                                                            <td class="d-flex align-items-center pt-6">
+                                                                <span class="symbol-label me-4">
+                                                                    <!--begin::Svg Icon | path: icons/duotune/abstract/abs027.svg-->
+                                                                    <span class="svg-icon svg-icon-2x svg-icon-success">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stoplights" viewBox="0 0 16 16">
+                                                                                <path d="M8 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm0 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm1.5 2.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                                                                                <path d="M4 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2h2c-.167.5-.8 1.6-2 2v2h2c-.167.5-.8 1.6-2 2v2h2c-.167.5-.8 1.6-2 2v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1c-1.2-.4-1.833-1.5-2-2h2V8c-1.2-.4-1.833-1.5-2-2h2V4c-1.2-.4-1.833-1.5-2-2h2zm2-1a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z" />
+                                                                            </svg>
+                                                                    </span>
+                                                                    <!--end::Svg Icon-->
+                                                                </span>
+                                                                <span>VesselStoppage Cost</span>
+                                                            </td>
+                                                                <td class="pt-6">@preInvoiceDetail.VesselStoppageInvoiceDetail.DwellingHour h (@(preInvoiceDetail.VesselStoppageInvoiceDetail.DwellingHour / 24) day)</td>
+                                                                <td class="pt-6">@if (preInvoiceDetail.DiscountRate != null && preInvoiceDetail.DiscountRate > 0){<span>(Discount: @preInvoiceDetail.DiscountRate%) </span>} $@preInvoiceDetail.VesselStoppageInvoiceDetail.PriceD </td>
+                                                                <td class="pt-6 text-dark fw-bolder">@((preInvoiceDetail.VesselStoppageInvoiceDetail.PriceR - preInvoiceDetail.VesselStoppageInvoiceDetail.PriceRVat).ToString("#,0"))</td>
+                                                        </tr>
+                                                        <tr class="fw-bold text-gray-700 fs-5 text-end">
+                                                            <td class="d-flex align-items-center pt-6">
+                                                                <span class="symbol-label me-4">
+                                                                    <!--begin::Svg Icon -->
+                                                                        <span class="svg-icon svg-icon-2x svg-icon-danger me-0">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                                                        </svg>
+                                                                    </span>
+                                                                    <!--end::Svg Icon-->
+                                                                </span>
+                                                                <span>Cleaning Service Cost</span>
+                                                            </td>
+                                                                <td class="pt-6">@preInvoiceDetail.CleaningServiceInvoiceDetail.DwellingHour h (@(preInvoiceDetail.CleaningServiceInvoiceDetail.DwellingHour/24) day)</td>
+                                                                <td class="pt-6">@if (preInvoiceDetail.DiscountRate != null && preInvoiceDetail.DiscountRate > 0)
+                                                                    {
+                                                                        <span>(Discount: @preInvoiceDetail.DiscountRate%)</span>
+                                                                    } $@preInvoiceDetail.CleaningServiceInvoiceDetail.PriceD </td>
+                                                            <td class="pt-6 text-dark fw-bolder">@((preInvoiceDetail.CleaningServiceInvoiceDetail.PriceR - preInvoiceDetail.CleaningServiceInvoiceDetail.PriceRVat).ToString("#,0"))</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                    <div class="d-flex justify-content-end">
+                                                        <!--begin::Section-->
+                                                        <div class="mw-300px border border-dashed border-gray-300 card-rounded p-5">
+                                                            <!--begin::Item-->
+                                                            <div class="d-flex flex-stack mb-3">
+                                                                <!--begin::Accountname-->
+                                                                <div class="fw-semibold pe-10 text-gray-600 fs-7">Subtotal dollar:</div>
+                                                                <!--end::Accountname-->
+                                                                <!--begin::Label-->
+                                                                <div class="text-end fw-bold fs-6 text-gray-800">$ @(preInvoiceDetail.VesselStoppageInvoiceDetail.PriceD + preInvoiceDetail.CleaningServiceInvoiceDetail.PriceD)</div>
+                                                                <!--end::Label-->
+                                                            </div>
+                                                            <!--end::Item-->
+                                                            <!--begin::Item-->
+                                                            <div class="d-flex flex-stack mb-3">
+                                                                <!--begin::Accountname-->
+                                                                <div class="fw-semibold pe-10 text-gray-600 fs-7">Subtotal rial:</div>
+                                                                <!--end::Accountname-->
+                                                                <!--begin::Label-->
+                                                                <div class="text-end fw-bold fs-6 text-gray-800">@(((preInvoiceDetail.VesselStoppageInvoiceDetail.PriceR - preInvoiceDetail.VesselStoppageInvoiceDetail.PriceRVat) + (preInvoiceDetail.CleaningServiceInvoiceDetail.PriceR - preInvoiceDetail.CleaningServiceInvoiceDetail.PriceRVat)).ToString("#,0")) <sup>Rial</sup></div>
+                                                                <!--end::Label-->
+                                                            </div>
+                                                            <!--end::Item-->
+                                                            <!--begin::Item-->
+                                                            <div class="d-flex flex-stack mb-3">
+                                                                <!--begin::Accountnumber-->
+                                                                <div class="fw-semibold pe-10 text-gray-600 fs-7">VAT: (@preInvoiceDetail.VATPercent %) </div>
+                                                                <!--end::Accountnumber-->
+                                                                <!--begin::Number-->
+                                                                <div class="text-end fw-bold fs-6 text-gray-800">@((preInvoiceDetail.VesselStoppageInvoiceDetail.PriceRVat + preInvoiceDetail.CleaningServiceInvoiceDetail.PriceRVat).ToString("#,0")) <sup>Rial</sup></div>
+                                                                <!--end::Number-->
+                                                            </div>
+                                                            <!--end::Item-->
+                                                            <!--begin::Item-->
+                                                            <div class="d-flex flex-stack">
+                                                                <!--begin::Code-->
+                                                                <div class="fw-semibold pe-10 text-gray-600 fs-7">Subtotal rial + VAT: </div>
+                                                                <!--end::Code-->
+                                                                <!--begin::Label-->
+                                                                <div class="text-end fw-bold fs-6 text-gray-800">@((preInvoiceDetail.VesselStoppageInvoiceDetail.PriceR + preInvoiceDetail.CleaningServiceInvoiceDetail.PriceR).ToString("#,0")) <sup>Rial</sup></div>
+                                                                <!--end::Label-->
+                                                            </div>
+                                                            <!--end::Item-->
+                                                        </div>
+                                                        <!--end::Section-->
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    j++;
+                                }
+                            </div>
+                            <!--end::Table-->
+                            <!--begin::Container-->
+                            <div class="d-flex justify-content-end">
+                                <!--begin::Section-->
+                                <div class="mw-300px border border-dashed border-gray-300 card-rounded p-5">
+                                    <!--begin::Item-->
+                                    <div class="d-flex flex-stack mb-3">
+                                        <!--begin::Accountname-->
+                                        <div class="fw-semibold pe-10 text-gray-600 fs-7">Total dollar:</div>
+                                        <!--end::Accountname-->
+                                        <!--begin::Label-->
+                                        <div class="text-end fw-bold fs-6 text-gray-800">$ @(Model.SumPriceD)</div>
+                                        <!--end::Label-->
+                                    </div>
+                                    <!--end::Item-->
+                                    <!--begin::Item-->
+                                    <div class="d-flex flex-stack mb-3">
+                                        <!--begin::Accountname-->
+                                        <div class="fw-semibold pe-10 text-gray-600 fs-7">Total rial:</div>
+                                        <!--end::Accountname-->
+                                        <!--begin::Label-->
+                                        <div class="text-end fw-bold fs-6 text-gray-800">@((Model.SumPriceR - Model.SumPriceRVat).ToString("#,0")) <sup>Rial</sup></div>
+                                        <!--end::Label-->
+                                    </div>
+                                    <!--end::Item-->
+                                    <!--begin::Item-->
+                                    <div class="d-flex flex-stack mb-3">
+                                        <!--begin::Accountnumber-->
+                                        <div class="fw-semibold pe-10 text-gray-600 fs-7">VAT: (@Model.PreInvoiceDetails.First().VATPercent %)</div>
+                                        <!--end::Accountnumber-->
+                                        <!--begin::Number-->
+                                        <div class="text-end fw-bold fs-6 text-gray-800">@((Model.SumPriceRVat).ToString("#,0")) <sup>Rial</sup></div>
+                                        <!--end::Number-->
+                                    </div>
+                                    <!--end::Item-->
+                                    <!--begin::Item-->
+                                    <div class="d-flex flex-stack">
+                                        <!--begin::Code-->
+                                        <div class="fw-semibold pe-10 text-gray-600 fs-7">Total + VAT</div>
+                                        <!--end::Code-->
+                                        <!--begin::Label-->
+                                        <div class="text-end fw-bold fs-6 text-gray-800">@((Model.SumPriceR).ToString("#,0")) <sup>Rial</sup></div>
+                                        <!--end::Label-->
+                                    </div>
+                                    <!--end::Item-->
+                                </div>
+                                <!--end::Section-->
+                            </div>
+                            <!--end::Container-->
+                        </div>
+                        <!--end::Content-->
+                    </div>
+                    <!--end::Wrapper-->
+                </div>
+                <!--end::Invoice 2 content-->
+            </div>
+            <!--end::Content-->
+            <!--begin::Sidebar-->
+            <div class="m-0 page-break">
+                <!--begin::Invoice 2 sidebar-->
+                <div class="border border-dashed border-gray-300 card-rounded h-lg-100 min-w-md-350px p-9 bg-lighten">
+                    <!--begin::Labels-->
+                    <div class="mb-8">
+                        <span class="fw-semibold">Vessel/VoyageNoIn : </span>
+                        <span class="badge badge-light-primary me-2">@Model.Voyage?.Vessel?.Name / @Model.Voyage?.VoyageNoIn</span>
+                    </div>
+                    <!--end::Labels-->
+                    <!--begin::Title-->
+                    <h5 class="mb-8 fw-bolder text-gray-600 text-hover-primary">VESSEL DETAILS</h5>
+                    <!--end::Title-->
+                    <!--begin::Item-->
+                    <div class="mb-6">
+                        <div class="fw-semibold text-gray-600 fs-7">Vessel Type:</div>
+
+                        <div class="fw-bold text-gray-800 fs-6">@Model.Voyage?.Vessel?.Type?.Name</div>
+                    </div>
+                    <!--end::Item-->
+                    <!--begin::Item-->
+                    <div class="mb-6">
+                        <div class="fw-semibold text-gray-600 fs-7">Gross Tonage:</div>
+
+                        <div class="fw-bold fs-6 text-gray-800 d-flex align-items-center">
+                            @Model.Voyage?.Vessel?.GrossTonage
+                        </div>
+                    </div>
+                    <!--end::Item-->
+                    <!--begin::Item-->
+                    <div class="mb-6">
+                        <div class="fw-semibold text-gray-600 fs-7">Vessel Flag:</div>
+
+                        <div class="fw-bold text-gray-800 fs-6">
+                            @Model.Voyage?.Vessel?.Flag?.Name
+                            <img class="rounded-circle h-20px ms-2" src="../assets/media/flags/@Model.Voyage?.Vessel?.Flag?.FlagName" />
+                            
+                        </div>
+                    </div>
+                    <!--end::Item-->
+                    <!--begin::Item-->
+                    <div class="mb-15">
+                        <div class="fw-semibold text-gray-600 fs-7">Vessel Nationality:</div>
+
+                        <div class="fw-bold text-gray-800 fs-6">
+                            @Model.Voyage?.Vessel?.Nationality?.Name
+                            <img class="rounded-circle h-20px ms-2" src="../assets/media/flags/@Model.Voyage?.Vessel?.Nationality?.FlagName" />
+
+                        </div>
+                    </div>
+                    <!--end::Item-->
+                    <!--begin::Title-->
+                    <h5 class="mb-8 fw-bolder text-gray-600 text-hover-primary">TARIFFS OVERVIEW</h5>
+                    <!--end::Title-->
+                    @foreach (var PreInvoiceDetail in Model.PreInvoiceDetails)
+                    {
+                        <h6>VesselStoppage <span class="badge badge-circle badge-outline badge-dark">@i</span></h6>
+                        i++;
+                        <!--begin::Item-->
+                        <div class="mb-6">
+                            <div class="fw-semibold text-gray-600 fs-7">Stoppage Issued By:</div>
+
+                            <div class="fw-bold text-gray-800 fs-6">@PreInvoiceDetail.VesselStoppage.CreatedBy</div>
+                        </div>
+                        <!--end::Item-->
+                        <!--begin::Item-->
+                        <div class="mb-6">
+                            <div class="fw-semibold text-gray-600 fs-7">VesselStoppageTariff Name</div>
+
+                            <div class="fw-bold fs-6 text-gray-800">
+                                <span class="svg-icon me-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stoplights" viewBox="0 0 16 16">
+                                        <path d="M8 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm0 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm1.5 2.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                                        <path d="M4 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2h2c-.167.5-.8 1.6-2 2v2h2c-.167.5-.8 1.6-2 2v2h2c-.167.5-.8 1.6-2 2v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1c-1.2-.4-1.833-1.5-2-2h2V8c-1.2-.4-1.833-1.5-2-2h2V4c-1.2-.4-1.833-1.5-2-2h2zm2-1a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z" />
+                                    </svg>
+                                </span>
+
+                                @PreInvoiceDetail.VesselStoppageInvoiceDetail?.VesselStoppageTariff?.Description
+                                <span class="fs-7 text-success d-flex align-items-center">
+                                    <span class="bullet bullet-dot bg-success mx-2"></span>
+
+                                    normal price : @PreInvoiceDetail.VesselStoppageInvoiceDetail?.ApplyNormalPrice $/h
+                                </span>
+                                <span class="fs-7 text-success d-flex align-items-center">
+                                    <span class="bullet bullet-dot bg-success mx-2"></span>
+
+                                   extra price : @PreInvoiceDetail.VesselStoppageInvoiceDetail?.ApplyExtraPrice $/h
+                                </span>
+
+                                <a href="/BasicInfo/VesselStoppageTariffDetailList?id=@PreInvoiceDetail.VesselStoppageInvoiceDetail?.VesselStoppageTariff?.Id" class="btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary p-2 fs-7 mt-4">View Details</a>
+                            </div>
+                        </div>
+                        <!--end::Item-->
+                        <!--begin::Item-->
+                        <div class="mb-6">
+                            <div class="fw-semibold text-gray-600 fs-7">CleaningServiceTariff Name</div>
+
+                            <div class="fw-bold fs-6 text-gray-800 mb-6">
+                                <span class="svg-icon me-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                    </svg>
+                                </span>
+
+                                @PreInvoiceDetail.CleaningServiceInvoiceDetail?.CleaningServiceTariff?.Description
+                                <span class="fs-7 text-danger d-flex align-items-center">
+                                    <span class="bullet bullet-dot bg-danger mx-2"></span>
+                                    @PreInvoiceDetail.CleaningServiceInvoiceDetail?.ApplyPrice $/24h
+                                </span>
+                                <a href="/BasicInfo/CleaningServiceTariffDetailList?id=@PreInvoiceDetail.CleaningServiceInvoiceDetail?.CleaningServiceTariff?.Id" class="btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary p-2 fs-7 mt-4">View Details</a>
+                            </div>
+                        </div>
+                        <!--end::Item-->
+                        <!--begin::Item-->
+                        <div class="mb-6 border-bottom">
+                            <div class="fw-semibold text-gray-600 fs-7"><i class="bi bi-graph-up-arrow"></i> Currancy Rate</div>
+
+                            <div class="fw-bold fs-6 text-gray-800 mb-6">
+                                <span class="fs-7 text-info d-flex align-items-center">
+                                    <span class="bullet bullet-dot bg-info mx-2"></span>
+                                    @if (Model.Voyage?.Vessel?.FlagId == 207)
+                                    {
+                                        @PreInvoiceDetail.Currency.PersianDollerRate.ToString("#,0") 
+                                    }
+                                    else
+                                    {
+                                        @PreInvoiceDetail.Currency.ForeignDollerRate.ToString("#,0")
+                                    }
+                                    <sup>Rial</sup> &nbsp; <i class="bi bi-caret-right"></i>&nbsp; $
+                                </span>
+                                <a href="/BasicInfo/CurrencyList" class="btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary p-2 fs-7 mt-4">View Details</a>
+                            </div>
+                        </div>
+                        <!--end::Item-->
+                    }
+                </div>
+                <!--end::Invoice 2 sidebar-->
+            </div>
+            <!--end::Sidebar-->
+        </div>
+        <!--end::Layout-->
+    </div>
+    <!--end::Body-->
+</div>
+
+@section Links{
+    <link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" />
+    <style>
+        .page-break {
+            page-break-inside: avoid;
+        }
+    </style>
+}
+
+@section Scripts{
+    <script src="~/lib/jquery.print/jquery.print.min.js"></script>
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <script src="~/assets/js/custom/apps/invoicing.js"></script>
+    <script type="text/javascript">
+        $('#print_btn').click(function(){
+            $('#preInvoice').print();
+        })
+    </script>
+}

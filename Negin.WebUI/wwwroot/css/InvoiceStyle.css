@@ -1,0 +1,287 @@
+﻿
+.header {
+	font-size: xx-large;
+	font-weight: bold;
+	position: relative;
+	margin-left:50px;
+}
+
+.invoice {
+	background: #fff;
+	padding: 40px;
+	border-radius: 10px;
+}
+
+.invoice-company {
+	font-size: 20px
+}
+
+.invoice-header {
+	margin: 0 5px;
+	background: rgba(188,190,190,.23);
+	font-size: 17px;
+	border: 1px solid #000;
+	border-radius: 5px;
+	padding: 20px;
+}
+
+.invoice-tableHeader {
+	background: rgba(188,190,190,.23);
+	font-size: 17px !important;
+	font-weight:bold !important;
+	height: 50px !important;
+
+}
+
+.invoice-tableHeader > th {
+	padding-left: 20px !important;
+}
+
+.invoice-date, .invoice-from, .invoice-to {
+	display: table-cell;
+	width: 1%
+}
+
+.invoice-from, .invoice-to {
+	padding-right: 20px
+}
+
+.invoice-date .date, .invoice-from strong, .invoice-to strong {
+	font-size: 16px;
+	font-weight: 600
+}
+
+.invoice-date {
+	text-align: right;
+	padding-left: 20px
+}
+
+.invoice-price {
+	background: #f0f3f4;
+	display: table;
+	width: 100%;
+	padding: 0px !important;
+}
+
+.invoice-price .invoice-price-left, .invoice-price .invoice-price-right {
+	display: table-cell;
+	padding: 20px;
+	font-size: 20px;
+	font-weight: 600 !important;
+	width: 75%;
+	position: relative;
+	vertical-align: middle
+}
+
+.invoice-price .invoice-price-left .sub-price {
+	display: table-cell;
+	vertical-align: middle;
+	padding: 0 20px
+}
+
+.invoice-price small {
+	font-size: 12px;
+	font-weight: 400;
+	display: block
+}
+
+.invoice-content {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+}
+
+.invoice-price .invoice-price-row {
+	display: table;
+	float: right;
+	direction: rtl;
+	font-size: 13px;
+	text-align: right
+}
+
+.invoice-price .invoice-price-right {
+	width: 25%;
+	background: #c4c4c4;
+	color: #000;
+	font-size: 18px;
+	text-align: right;
+	vertical-align: bottom;
+	font-weight: 300;
+	direction: ltr
+}
+
+.invoice-price .invoice-price-right small {
+	display: block;
+	opacity: .6;
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	font-size: 12px
+}
+
+.invoice-footer {
+	border-top: 1px solid #ddd;
+	padding-top: 10px;
+	font-size: 10px
+}
+
+.invoice-note {
+	color: #999;
+	margin-top: 80px;
+	font-size: 85%
+}
+
+.invoice > div:not(.invoice-footer) {
+	margin-bottom: 20px
+}
+
+/* Print Setup */
+@page {
+	size: A4;
+	margin: 0;
+}
+
+@media print {
+	.page {
+		page-break-after: always;
+		width: 21cm;
+		min-height: 29.7cm;
+		padding: 0.4cm;
+		margin: 1cm auto;
+		background: white;
+	}
+
+	.header {
+		font-size: 14pt !important;
+	}
+
+	.invoice-header {
+		padding: 10px;
+		font-size: 10pt !important;
+	}
+
+	.total{
+		font-size:12pt !important;
+		width:40%;
+	}
+
+	#confirmStamp {
+		height: 100px;
+		left: 30%;
+		top: 10%;
+		border: 10px solid mediumseagreen;
+		border-radius: 5px;
+		color: mediumseagreen;
+		position: absolute;
+		font-size: 32px;
+		font-weight: bolder;
+		text-align: center;
+		vertical-align: middle;
+		padding: 20px;
+		-webkit-animation-name: confirm !important;
+		animation-name: confirm !important;
+		animation-delay: 0.5s !important;
+		-webkit-animation-delay: 0.5s !important;
+		-webkit-animation-duration: 0.5s !important;
+		animation-duration: 0.5s !important;
+		opacity: 0;
+		-webkit-animation-fill-mode: forwards !important;
+		animation-fill-mode: forwards !important;
+	}
+
+	#cancelStamp {
+		height: 100px;
+		left: 30%;
+		top: 10%;
+		border: 10px solid crimson;
+		border-radius: 5px;
+		color: crimson;
+		position: absolute;
+		font-size: 32px;
+		font-weight: bolder;
+		text-align: center;
+		vertical-align: middle;
+		padding: 20px;
+		-webkit-animation-name: confirm !important;
+		animation-name: confirm !important;
+		animation-delay: 0.5s !important;
+		-webkit-animation-delay: 0.5s !important;
+		-webkit-animation-duration: 0.5s !important;
+		animation-duration: 0.5s !important;
+		opacity: 0;
+		-webkit-animation-fill-mode: forwards !important;
+		animation-fill-mode: forwards !important;
+	}
+
+}
+
+@media screen {
+	#confirmStamp {
+		height: 100px;
+		left: 50%;
+		top: 30%;
+		border: 10px solid mediumseagreen;
+		border-radius: 5px;
+		color: mediumseagreen;
+		position: absolute;
+		font-size: 32px;
+		font-weight: bolder;
+		text-align: center;
+		vertical-align: middle;
+		padding: 20px;
+		-webkit-animation-name: confirm !important;
+		animation-name: confirm !important;
+		animation-delay: 0.5s !important;
+		-webkit-animation-delay: 0.5s !important;
+		-webkit-animation-duration: 0.5s !important;
+		animation-duration: 0.5s !important;
+		opacity: 0;
+		-webkit-animation-fill-mode: forwards !important;
+		animation-fill-mode: forwards !important;
+	}
+
+	#cancelStamp {
+		height: 100px;
+		left: 50%;
+		top: 30%;
+		border: 10px solid crimson;
+		border-radius: 5px;
+		color: crimson;
+		position: absolute;
+		font-size: 32px;
+		font-weight: bolder;
+		text-align: center;
+		vertical-align: middle;
+		padding: 20px;
+		-webkit-animation-name: confirm !important;
+		animation-name: confirm !important;
+		animation-delay: 0.5s !important;
+		-webkit-animation-delay: 0.5s !important;
+		-webkit-animation-duration: 0.5s !important;
+		animation-duration: 0.5s !important;
+		opacity: 0;
+		-webkit-animation-fill-mode: forwards !important;
+		animation-fill-mode: forwards !important;
+	}
+
+}
+
+
+
+@-webkit-keyframes confirm {
+	0% {
+		opacity: 0;
+	}
+
+	10% {
+		opacity: .50;
+		transform-origin: 50% 50%;
+		transform: rotate(-2deg) scale(5);
+		transition: all .3s cubic-bezier(0.6, 0.04, 0.98, 0.335);
+	}
+
+	100% {
+		opacity: 100;
+		transform: rotate(-15deg) scale(1);
+	}
+}
+

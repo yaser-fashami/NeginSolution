@@ -1,16 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Negin.Core.Domain.Entities.Basic;
 using Negin.Core.Domain.Interfaces;
 using Negin.Framework.Exceptions;
 using Negin.Framework.Pagination;
 using Negin.Framework.Utilities;
 using Negin.Infrastructure;
 using static Negin.Framework.Exceptions.SqlException;
-using Microsoft.Extensions.Primitives;
 using EntityFramework.Exceptions.Common;
 using Microsoft.AspNetCore.Http;
 using Negin.Core.Domain.Aggregates.Basic;
 using Negin.Core.Domain.Aggregates.Operation;
+using Negin.Core.Domain.Entities.Basic;
+using Negin.Framework.JoinExtentions;
 
 namespace Negin.Infra.Data.Sql.EFRepositories;
 
@@ -96,10 +96,12 @@ public class VoyageRepository : IVoyageRepository
 
         var voyages = _neginDbContext.Voyages
             .Include(v => v.Vessel)
-            .Include(s => s.VesselStoppages).AsNoTracking()
+            .Include(s => s.VesselStoppages).ThenInclude(i => i.VesselStoppageInvoiceDetail).ThenInclude(i=>i.Invoice).Include(o => o.Owner).Include(a => a.Agent).AsNoTracking()
                             .Where(c => c.IsDelete == false)
                             .Where(c => noFilter || c.Vessel.Name.Contains(filter)
-                                                 || c.VoyageNoIn.Contains(filter));
+                                                 || c.VoyageNoIn.Contains(filter)
+                                                 || c.Owner.ShippingLineName.Contains(filter)
+                                                 || c.Agent.ShippingLineName.Contains(filter));
 
         PagedData<Voyage> result = new()
         {
@@ -152,27 +154,43 @@ public class VoyageRepository : IVoyageRepository
 		return result;
     }
 
-    public void ToggleVoyageStatus(ulong id)
+    public BLMessage ToggleVoyageStatus(ulong id)
     {
+        var result = new BLMessage() { State = false };
         try
         {
             var voyage = _neginDbContext.Voyages.Include(c=>c.VesselStoppages).SingleOrDefault(c => c.Id == id);
             if (voyage != null)
             {
-                //TODO: implement if condition for payed invoices
-                if (voyage.VesselStoppages != null && !voyage.VesselStoppages.Any(c => c.ATA != null && c.ATD == null))
+                var vesselStoppages = _neginDbContext.VesselStoppages.Include(c => c.Voyage).Where(c => c.VoyageId == id).ToList();
+                vesselStoppages.ForEach(c =>
                 {
-                    voyage.IsDelete = !voyage.IsDelete;
-                    _neginDbContext.Voyages.Update(voyage);
-                    _neginDbContext.SaveChanges();
-                } 
+                    c.SetStatus();
+                });
+                if (!vesselStoppages.Any(c=>c.Status == VesselStoppage.VesselStoppageStatus.Gone || c.Status == VesselStoppage.VesselStoppageStatus.InProcess))
+                {
+                    if (voyage.VesselStoppages != null && !voyage.VesselStoppages.Any(c => c.ATA != null && c.ATD == null))
+                    {
+                        voyage.IsDelete = !voyage.IsDelete;
+                        _neginDbContext.Voyages.Update(voyage);
+                        _neginDbContext.SaveChanges();
+                        result.State = true;
+                        result.Message = "VoyageNoIn: " + voyage.VoyageNoIn;
+                    }
+                }
+                else
+                {
+                    result.State = false;
+                    result.Message = "This voyage can`t change status! because there is atleast a vesselStoppage with Gone or InProcess status in it";
+                }
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
-            throw;
+            result.State = false;
+            result.Message = ex.Message;
         }
+        return result;
     }
 
     public async Task<Voyage> GetVoyageById(ulong id)
@@ -194,12 +212,13 @@ public class VoyageRepository : IVoyageRepository
     {
         bool noFilter = string.IsNullOrWhiteSpace(filter);
 
-        var vesselStoppages = _neginDbContext.VesselStoppages.Include(c => c.OriginPort).Include(c => c.PreviousPort).Include(c => c.NextPort).AsNoTracking()
-                                                                .Where(c => c.VoyageId == voyageId)
-                                                                .Where(c => noFilter
-                                                                    || c.OriginPort.PortName.Contains(filter) || c.OriginPort.PortSymbol.Contains(filter)
-                                                                    || c.PreviousPort.PortName.Contains(filter) || c.PreviousPort.PortSymbol.Contains(filter)
-                                                                    || c.NextPort.PortName.Contains(filter) || c.NextPort.PortSymbol.Contains(filter));
+        var vesselStoppages = _neginDbContext.VesselStoppages.Include(c => c.VesselStoppageInvoiceDetail).Include(c => c.OriginPort).Include(c => c.PreviousPort).Include(c => c.NextPort).AsNoTracking()
+                                        .Where(c => c.VoyageId == voyageId)
+                                        .Where(c => noFilter
+                                            || c.OriginPort.PortName.Contains(filter) || c.OriginPort.PortSymbol.Contains(filter)
+                                            || c.PreviousPort.PortName.Contains(filter) || c.PreviousPort.PortSymbol.Contains(filter)
+                                            || c.NextPort.PortName.Contains(filter) || c.NextPort.PortSymbol.Contains(filter));
+
 
         PagedData<VesselStoppage> result = new()
         {
@@ -219,6 +238,41 @@ public class VoyageRepository : IVoyageRepository
             x.ETA = x.ETA?.MiladiToShamsi(); x.ATA = x.ATA?.MiladiToShamsi(); x.ETD = x.ETD?.MiladiToShamsi(); x.ATD = x.ATD?.MiladiToShamsi();
         });
         SetStatus(result.Data);
+        result.Data = result.Data.OrderByDescending(c=>c.Status).ToList();
+        return result;
+    }
+
+    public async Task<PagedData<VesselStoppage>> GetPaginationVesselStoppagesForInvoiceAsync(ulong voyageId, int pageNumber = 1, int pageSize = 10)
+    {
+        var fullOuterjoin = _neginDbContext.VesselStoppages.Include(c => c.OriginPort).Include(c => c.NextPort).Include(c => c.PreviousPort).AsNoTracking()
+            .Where(c => c.VoyageId == voyageId).FullOuterJoin
+            (
+                await _neginDbContext.VesselStoppageInvoiceDetails.Include(c => c.Invoice).AsNoTracking().Where(c => c.Invoice.VoyageId == voyageId && c.Invoice.Status != Core.Domain.Aggregates.Billing.Invoice.InvoiceStatus.IsCancel).ToListAsync(),
+                v => v.Id,
+                i => i.VesselStoppageId,
+                (v, i) => new { v, i }
+            )
+            .Where(vi => vi.v == null || vi.i == null);
+
+        PagedData<VesselStoppage> result = new()
+        {
+            PageInfo = new()
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = fullOuterjoin.Count()
+            },
+            Data =  fullOuterjoin.OrderBy(x => x.v.Id).Select(x => x.v)
+                                .ToPagination(pageNumber, pageSize)
+                                .ToList()
+        };
+        result.Data.ForEach(x =>
+        {
+            x.ETADayOfTheWeek = x.ETA?.DayOfWeek; x.ATADayOfTheWeek = x.ATA?.DayOfWeek; x.ETDDayOfTheWeek = x.ETD?.DayOfWeek; x.ATDDayOfTheWeek = x.ATD?.DayOfWeek;
+            x.ETA = x.ETA?.MiladiToShamsi(); x.ATA = x.ATA?.MiladiToShamsi(); x.ETD = x.ETD?.MiladiToShamsi(); x.ATD = x.ATD?.MiladiToShamsi();
+        });
+        SetStatus(result.Data);
+        result.Data = result.Data.OrderByDescending(c => c.Status).ToList();
         return result;
     }
 

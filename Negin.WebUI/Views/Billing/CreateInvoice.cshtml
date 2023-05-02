@@ -26,162 +26,155 @@
         <div class="card pt-10">
             <!--begin::Body-->
             <div class="card-body">
-                <div class="mb-2">
-                    @foreach (var vesselStoppage in Model.VesselStoppages.Data)
-                    {
-                        @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.Gone)
+                <form asp-controller="Billing" asp-action="PreInvoice" method="get">
+                    <div class="mb-2">
+                        <input type="hidden" name="voyageId" value="@Model.Voyage.Id" />
+                        @foreach (var vesselStoppage in Model.VesselStoppages.Data)
                         {
-                            string id = "vesselStopage" + vesselStoppage.Id;
-                            <div data-kt-buttons="true">
-                                <label class="btn btn-outline btn-outline-dashed btn-active-light-primary d-flex flex-stack text-start p-6 mb-5">
+                            @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.Gone)
+                            {
+                                <div data-kt-buttons="true">
+                                    <label class="btn btn-outline btn-outline-dashed btn-active-light-primary d-flex flex-stack text-start p-6 mb-5">
+                                        <div class="d-flex align-items-center me-2">
+                                            <div class="form-check form-check-custom form-check-solid form-check-primary me-6">
+                                                <input class="form-check-input" type="checkbox" name="vesselStoppages" value="@vesselStoppage.Id" />
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
+                                                    Origin Port
+                                                </h2>
+                                                <div class="fw-semibold opacity-50">
+                                                    @vesselStoppage.OriginPort?.PortName - @vesselStoppage.OriginPort?.PortSymbol
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-lg-20">
+                                                <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
+                                                    Previous Port
+                                                </h2>
+                                                <div class="fw-semibold opacity-50">
+                                                    @vesselStoppage.PreviousPort?.PortName - @vesselStoppage.PreviousPort?.PortSymbol
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-lg-20">
+                                                <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
+                                                    Next Port
+                                                </h2>
+                                                <div class="fw-semibold opacity-50">
+                                                    @vesselStoppage.NextPort?.PortName - @vesselStoppage.NextPort?.PortSymbol
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ms-5 table-responsive w-lg-300px">
+                                            <table class="table align-middle">
+                                                <tr>
+                                                    <td class="fs-6 fw-bold text-gray-800 py-0">
+                                                        ATA:
+                                                        <span class="badge badge-dark">@Html.Raw(vesselStoppage.ATA != null ? @vesselStoppage.ATA.ToShamsiDateString(vesselStoppage.ATADayOfTheWeek) : "")</span>
+                                                    </td>
+                                                    <td class="fs-6 fw-bold text-gray-800 py-0 text-end">
+                                                        ATD:
+                                                        <span class="badge badge-dark">@Html.Raw(vesselStoppage.ATD != null ? @vesselStoppage.ATD.ToShamsiDateString(vesselStoppage.ATDDayOfTheWeek) : "")</span>
+                                                    </td>
+                                                </tr>
+
+                                                <tr class="">
+                                                    <td class="py-0" colspan="2">
+                                                        <div class="progress mb-5 mt-1" role="progressbar" aria-label="Basic example" aria-valuenow="@vesselStoppage.Percentage" aria-valuemin="0" aria-valuemax="100" style="height:17px">
+                                                            <div class="progress-bar fs-7 fw-bolder " style="width:@vesselStoppage.Percentage%;background-color:#20c997">@vesselStoppage.Percentage % - Gone!</div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </label>
+                                </div>
+                            }
+                            else
+                            {
+                                <div data-kt-buttons="false">
+                                    <label class="border-1 border-dashed rounded-2 d-flex flex-stack text-start p-6 mb-5">
                                     <div class="d-flex align-items-center me-2">
-                                        <div class="form-check form-check-custom form-check-solid form-check-primary me-6">
-                                            <input id="@id" class="form-check-input" type="checkbox" name="vesselStoppage" value="1" />
+                                        <div class="w-25px me-6">
                                         </div>
                                         <div class="flex-grow-1">
                                             <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
                                                 Origin Port
                                             </h2>
                                             <div class="fw-semibold opacity-50">
-                                                @vesselStoppage.OriginPort?.PortName - @vesselStoppage.OriginPort?.PortSymbol
+                                                    @vesselStoppage.OriginPort?.PortName - @vesselStoppage.OriginPort?.PortSymbol
                                             </div>
                                         </div>
-                                        <div class="flex-grow-1 ms-lg-20">
-                                            <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
-                                                Previous Port
-                                            </h2>
-                                            <div class="fw-semibold opacity-50">
-                                                @vesselStoppage.PreviousPort?.PortName - @vesselStoppage.PreviousPort?.PortSymbol
+                                            <div class="flex-grow-1 ms-lg-20">
+                                                <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
+                                                    Previous Port
+                                                </h2>
+                                                <div class="fw-semibold opacity-50">
+                                                    @vesselStoppage.PreviousPort?.PortName - @vesselStoppage.PreviousPort?.PortSymbol
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="flex-grow-1 ms-lg-20">
-                                            <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
-                                                Next Port
-                                            </h2>
-                                            <div class="fw-semibold opacity-50">
-                                                @vesselStoppage.NextPort?.PortName - @vesselStoppage.NextPort?.PortSymbol
+                                            <div class="flex-grow-1 ms-lg-20">
+                                                <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
+                                                    Next Port
+                                                </h2>
+                                                <div class="fw-semibold opacity-50">
+                                                    @vesselStoppage.NextPort?.PortName - @vesselStoppage.NextPort?.PortSymbol
+                                                </div>
                                             </div>
-                                        </div>
                                     </div>
-                                    <div class="ms-5 table-responsive">
+                                    <div class="ms-5 table-responsive w-lg-300px">
                                         <table class="table align-middle">
                                             <tr>
-                                                <td class="fs-6 fw-bold text-gray-800 py-0">
+                                                <td class="fs-6 fw-bold text-gray-800 py-0 min-w-150px">
                                                     ATA:
                                                     <span class="badge badge-dark">@Html.Raw(vesselStoppage.ATA != null ? @vesselStoppage.ATA.ToShamsiDateString(vesselStoppage.ATADayOfTheWeek) : "")</span>
                                                 </td>
-                                                <td class="fs-6 fw-bold text-gray-800 py-0 text-end">
+                                                <td class="fs-6 fw-bold text-gray-800 py-0 text-end min-w-150px">
                                                     ATD:
                                                     <span class="badge badge-dark">@Html.Raw(vesselStoppage.ATD != null ? @vesselStoppage.ATD.ToShamsiDateString(vesselStoppage.ATDDayOfTheWeek) : "")</span>
                                                 </td>
                                             </tr>
-
-                                            <tr class="">
-                                                <td class="py-0" colspan="2">
-                                                    <div class="progress mb-5 mt-1" role="progressbar" aria-label="Basic example" aria-valuenow="@vesselStoppage.Percentage" aria-valuemin="0" aria-valuemax="100" style="height:17px">
-                                                        <div class="progress-bar fs-7 fw-bolder " style="width:@vesselStoppage.Percentage%;background-color:#20c997">@vesselStoppage.Percentage % - Gone!</div>
-                                                    </div>
-                                                </td>
-                                            </tr>
                                             <tr>
-                                                <td></td>
-                                                <td>
-                                                    <div class="form-check form-check-custom form-check-primary">
-                                                        <input class="form-check-input h-20px w-20px" type="checkbox" name="cleaningService" value="1" />
-                                                        <label class="mx-2">Have Cleaning Service? </label>
+                                                <td class="py-0" colspan="2">
+                                                        <div class="progress mb-10 mt-1" role="progressbar" aria-label="Basic example" aria-valuenow="@vesselStoppage.Percentage" aria-valuemin="0" aria-valuemax="100" style="height:17px">
+                                                        @if (@vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.InProcess)
+                                                        {
+                                                                <div class="progress-bar fs-7 fw-bolder progress-bar-striped progress-bar-animated" style="width:@vesselStoppage.Percentage%;background-color:#0d6efd">@vesselStoppage.Percentage % - InProcess</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="progress-bar fs-7 fw-bolder text-gray-400" style="width:100%;background-color:rgb(1,1,1,0)">@vesselStoppage.Percentage % - WaitForVessel</div>
+                                                        }
                                                     </div>
                                                 </td>
                                             </tr>
                                         </table>
                                     </div>
                                 </label>
-                            </div>
-                        }
-                        else
-                        {
-                            <div data-kt-buttons="false">
-                                <label class="border-1 border-dashed rounded-2 d-flex flex-stack text-start p-6 mb-5">
-                                <div class="d-flex align-items-center me-2">
-                                    <div class="w-25px me-6">
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
-                                            Origin Port
-                                        </h2>
-                                        <div class="fw-semibold opacity-50">
-                                                @vesselStoppage.OriginPort?.PortName - @vesselStoppage.OriginPort?.PortSymbol
-                                        </div>
-                                    </div>
-                                        <div class="flex-grow-1 ms-lg-20">
-                                            <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
-                                                Previous Port
-                                            </h2>
-                                            <div class="fw-semibold opacity-50">
-                                                @vesselStoppage.PreviousPort?.PortName - @vesselStoppage.PreviousPort?.PortSymbol
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1 ms-lg-20">
-                                            <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
-                                                Next Port
-                                            </h2>
-                                            <div class="fw-semibold opacity-50">
-                                                @vesselStoppage.NextPort?.PortName - @vesselStoppage.NextPort?.PortSymbol
-                                            </div>
-                                        </div>
                                 </div>
-                                <div class="ms-5 table-responsive">
-                                    <table class="table align-middle">
-                                        <tr>
-                                            <td class="fs-6 fw-bold text-gray-800 py-0 min-w-150px">
-                                                ATA:
-                                                <span class="badge badge-dark">@Html.Raw(vesselStoppage.ATA != null ? @vesselStoppage.ATA.ToShamsiDateString(vesselStoppage.ATADayOfTheWeek) : "")</span>
-                                            </td>
-                                            <td class="fs-6 fw-bold text-gray-800 py-0 text-end min-w-150px">
-                                                ATD:
-                                                <span class="badge badge-dark">@Html.Raw(vesselStoppage.ATD != null ? @vesselStoppage.ATD.ToShamsiDateString(vesselStoppage.ATDDayOfTheWeek) : "")</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-0" colspan="2">
-                                                    <div class="progress mb-10 mt-1" role="progressbar" aria-label="Basic example" aria-valuenow="@vesselStoppage.Percentage" aria-valuemin="0" aria-valuemax="100" style="height:17px">
-                                                    @if (@vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.InProcess)
-                                                    {
-                                                            <div class="progress-bar fs-7 fw-bolder progress-bar-striped progress-bar-animated" style="width:@vesselStoppage.Percentage%;background-color:#0d6efd">@vesselStoppage.Percentage % - InProcess</div>
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="progress-bar fs-7 fw-bolder text-gray-400" style="width:100%;background-color:rgb(1,1,1,0)">@vesselStoppage.Percentage % - WaitForVessel</div>
-                                                    }
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </label>
-                            </div>
+                            }
                         }
-                    }
 
-                    <ul class="pagination">
-                        <li id="previous" class="page-item previous"><a href="@UrlHelper.Action("CreateInvoice", new { pageNumber = Model.VesselStoppages.PageInfo.PageNumber-1, filter=Model.VesselStoppages.PageInfo.Filter })" class="page-link"><i class="previous"></i></a></li>
-                        @for (int i = 1; i <= Model.VesselStoppages.PageInfo.PageCount; i++)
-                        {
+                        <ul class="pagination">
+                            <li id="previous" class="page-item previous"><a href="@UrlHelper.Action("CreateInvoice", new { pageNumber = Model.VesselStoppages.PageInfo.PageNumber-1, filter=Model.VesselStoppages.PageInfo.Filter })" class="page-link"><i class="previous"></i></a></li>
+                            @for (int i = 1; i <= Model.VesselStoppages.PageInfo.PageCount; i++)
+                            {
 
-                            <li class="page-item @(i == Model.VesselStoppages.PageInfo.PageNumber ? "active" : "")">
-                                <a class="page-link " href="@UrlHelper.Action("CreateInvoice", new { pageNumber = i,filter=@Model.VesselStoppages.PageInfo.Filter })">@i</a>
-                            </li>
+                                <li class="page-item @(i == Model.VesselStoppages.PageInfo.PageNumber ? "active" : "")">
+                                    <a class="page-link " href="@UrlHelper.Action("CreateInvoice", new { pageNumber = i,filter=@Model.VesselStoppages.PageInfo.Filter })">@i</a>
+                                </li>
 
-                        }
-                        <li id="next" class="page-item next"><a href="@UrlHelper.Action("CreateInvoice", new { pageNumber = Model.VesselStoppages.PageInfo.PageNumber+1, filter=Model.VesselStoppages.PageInfo.Filter })" class="page-link"><i class="next"></i></a></li>
-                    </ul>
-                </div>
-                <!--begin::Action-->
-                <div class="float-end">
-                    <a href="/Billing/List" class="btn btn-sm btn-light me-2">Back</a>
+                            }
+                            <li id="next" class="page-item next"><a href="@UrlHelper.Action("CreateInvoice", new { pageNumber = Model.VesselStoppages.PageInfo.PageNumber+1, filter=Model.VesselStoppages.PageInfo.Filter })" class="page-link"><i class="next"></i></a></li>
+                        </ul>
+                    </div>
+                    <!--begin::Action-->
+                    <div class="float-end">
+                        <a href="/Billing/List" class="btn btn-sm btn-light me-2">Back</a>
 
-                    <a href="#" class="btn btn-sm btn-danger">Next Step</a>
-                </div>
-                <!--end::Action-->
+                        <button type="submit" disabled class="btn btn-sm btn-success">Next Step</button>
+                    </div>
+                    <!--end::Action-->
+                </form>
             </div>
             <!--end: Card Body-->
         </div>
@@ -199,13 +192,26 @@
             $('#previous').addClass("disabled")
         }
 
-        $('div[data-kt-buttons="true"]').click(function(){
-            if ($(this).find('input[name="vesselStoppage"]').is(":checked") == false) {
+        setTimeout(()=>{
+            $('input[type="checkbox"]').each(function () {
+                if ($(this).is(":checked") == false) {
+                    $(this).parent().parent().parent().removeClass("active");
+                } else {
+                    $(this).parent().parent().parent().addClass("active");
+                }
+            })
+        },500)
+
+        $('div[data-kt-buttons="true"]').click(function () {
+            if ($(this).find('input[type="checkbox"]').is(":checked") == false) {
                 $(this).find('label').removeClass("active");
-                $(this).find('input[name="cleaningService"]').prop('checked', false);
-            }else{
+            } else {
                 $(this).find('label').addClass("active");
+                $('button[type="submit"]').prop('disabled', false);
             }
+            if ($('input[type="checkbox"]').is(":checked") ==  false) {
+                $('button[type="submit"]').prop('disabled', true);
+            } 
         })
     })
 </script>

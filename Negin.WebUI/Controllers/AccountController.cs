@@ -1,17 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Negin.Core.Domain.Entities;
 using Negin.Framework.Utilities;
 using Negin.WebUI.Models.ViewModels;
 using SmartBreadcrumbs.Attributes;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Negin.Infra.Data.Sql.Migrations;
 
 namespace Negin.WebUI.Controllers;
 
@@ -88,6 +83,7 @@ public class AccountController : Controller
 				IsActived = newUser.User.IsActived,
 				CreateDate = DateTime.Now,
 			};
+			await CreateUserAvatar(newUser, user);
 
 			IdentityResult result1 = await _userManager.CreateAsync(user, newUser.User.PasswordHash);
 			if (result1.Succeeded)
@@ -158,6 +154,16 @@ public class AccountController : Controller
 			}
 			user.PhoneNumber = input.User.PhoneNumber?.Trim();
 			user.IsActived = input.User.IsActived;
+            if (input.Avatar != null && input.Avatar.Length > 0)
+            {
+				await CreateUserAvatar(input, user);
+			}
+			if (input.avatar_remove == 1)
+            {
+				RemoveUserAvatar(user);
+				user.UserAvatar = "blank.png";
+			}
+
 			var result1 = await _userManager.UpdateAsync(user);
 			IdentityResult result2 = null;
 
@@ -203,5 +209,30 @@ public class AccountController : Controller
 	public IActionResult AccessDenied()
 	{
 		return View();
+	}
+
+	private static async Task CreateUserAvatar(UserViewModel newUser, User user)
+	{
+		RemoveUserAvatar(user);
+
+		if (newUser.Avatar != null && newUser.Avatar.Length > 0)
+		{
+			string imagePath = string.Empty;
+			user.UserAvatar = newUser.User.UserName + Path.GetExtension(newUser.Avatar.FileName);
+			imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/assets/media/avatars", user.UserAvatar);
+			using (var stream = System.IO.File.Create(imagePath))
+			{
+				await newUser.Avatar.CopyToAsync(stream);
+			}
+
+		}
+	}
+
+	private static void RemoveUserAvatar(User user)
+	{
+		if (user.UserAvatar != "blank.png" && System.IO.File.Exists("wwwroot/assets/media/avatars/" + user.UserAvatar))
+		{
+			System.IO.File.Delete("wwwroot/assets/media/avatars/" + user.UserAvatar);
+		}
 	}
 }

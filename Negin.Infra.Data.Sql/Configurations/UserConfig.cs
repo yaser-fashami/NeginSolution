@@ -15,6 +15,7 @@ internal class UserConfig : IEntityTypeConfiguration<User>
         builder.Property(x => x.LastName).HasMaxLength(256);
         builder.Property(x => x.PhoneNumber).HasMaxLength(20);
         builder.Property(x => x.IsActived).IsRequired();
+        builder.Property(x=>x.UserAvatar).IsRequired().HasMaxLength(100).HasDefaultValue("blank.png");
 
         #region Navigation
         builder.HasMany(u => u.Roles).WithMany("Users")

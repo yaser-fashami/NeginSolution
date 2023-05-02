@@ -1,0 +1,127 @@
+﻿@{
+    ViewData["Title"] = Model.PageInfo.Title;
+}
+@inject IUrlHelper UrlHelper;
+@model PagedData<Invoice>
+
+<div class="card">
+    <div class="card-header border-0 pt-6">
+        <!--begin::Card title-->
+        <div class="card-title">
+            <!--begin::Search-->
+            <div class="d-flex align-items-center position-relative my-1">
+                <!--begin::Svg Icon | path: icons/duotune/general/gen021.svg-->
+                <span class="svg-icon svg-icon-1 position-absolute ms-6">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect opacity="0.5" x="17.0365" y="15.1223" width="8.15546" height="2" rx="1" transform="rotate(45 17.0365 15.1223)" fill="currentColor"></rect>
+                        <path d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+                <!--end::Svg Icon-->
+                <input type="text" id="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search Invoices" value="@Model.PageInfo.Filter">
+            </div>
+            <!--end::Search-->
+        </div>
+        <!--begin::Card title-->
+    </div>
+    <div class="card-body p-10" style="padding-top:10px !important">
+        <!--begin::Table-->
+        <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+            <div class="table-responsive">
+                <table class="table align-middle table-row-dashed fs-6 gy-4" data-paging="false" data-info="false" data-responsive="true">
+                    <!--begin::Table head-->
+                    <thead>
+                        <!--begin::Table row-->
+                        <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                            <th class="w-220px" data-priority="1">Invoice No</th>
+                            <th>Invoice Date</th>
+                            <th class="min-w-70px">State</th>
+                            <th class="w-110px">Vessel Name</th>
+                            <th class="w-110px">VoyageNoIn</th>
+                            <th class="w-150px">Agent</th>
+                            <th>Owner</th>
+                            <th data-priority="2" class="text-end">Action</th>
+                        </tr>
+                        <!--end::Table row-->
+                    </thead>
+                    <!--end::Table head-->
+                    <!--begin::Table body-->
+                    <tbody class="text-dark fw-bold">
+                        @foreach (Invoice invoice in Model.Data)
+                        {
+                            <tr class="h-60px text-gray-400">
+                                <td class="text-dark">
+                                    @invoice.InvoiceNo
+                                </td>
+                                <td>@invoice.InvoiceDate.MiladiToShamsiDateString()</td>
+                                <td>
+                                    @if(invoice.Status == Invoice.InvoiceStatus.IsConfirm)
+                                    {
+                                        <span class="badge py-3 px-4 fs-7 badge-light-success min-w-90px">@invoice.Status.ToString().Substring(2)ed</span>
+                                    }
+                                    @if (invoice.Status == Invoice.InvoiceStatus.IsCancel)
+                                    {
+                                        <span class="badge py-3 px-4 fs-7 badge-light-danger min-w-90px">@invoice.Status.ToString().Substring(2)led</span>
+                                    }
+                                    @if (invoice.Status == Invoice.InvoiceStatus.IsIssued)
+                                    {
+                                        <span class="badge py-3 px-4 fs-7 badge-light-secondary min-w-90px text-center d-inline-block text-gray-600">@invoice.Status.ToString().Substring(2)</span>
+                                    }
+                                </td>
+                                <td>
+                                    @invoice.Voyage?.Vessel?.Name 
+                                </td>
+                                <td>
+                                    @invoice.Voyage?.VoyageNoIn
+                                </td>
+                                <td>
+                                    @invoice.Voyage?.Agent?.ShippingLineName
+                                </td>
+                                <td>
+                                    @invoice.Voyage?.Owner?.ShippingLineName
+                                </td>
+                                <td class="text-end">
+                                    <a href="/Billing/IssuedInvoiceDetails?id=@invoice.Id" class="btn btn-bg-light btn-active-color-primary btn-sm">Detail</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <!--end::Table body-->
+                </table>
+                <ul class="pagination">
+                    <li id="previous" class="page-item previous"><a href="@UrlHelper.Action("IssuedInvoiceDetails", new { pageNumber = Model.PageInfo.PageNumber-1, filter=Model.PageInfo.Filter })" class="page-link"><i class="previous"></i></a></li>
+                    @for (int i = 1; i <= Model.PageInfo.PageCount; i++)
+                    {
+
+                        <li class="page-item @(i == Model.PageInfo.PageNumber ? "active" : "")">
+                            <a class="page-link " href="@UrlHelper.Action("IssuedInvoiceDetails", new { pageNumber = i,filter=@Model.PageInfo.Filter })">@i</a>
+                        </li>
+
+                    }
+                    <li id="next" class="page-item next"><a href="@UrlHelper.Action("IssuedInvoiceDetails", new { pageNumber = Model.PageInfo.PageNumber+1, filter=Model.PageInfo.Filter })" class="page-link"><i class="next"></i></a></li>
+                </ul>
+            </div>
+        </div>
+        <!--end::Table-->
+    </div>
+</div>
+
+@section Scripts{
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#search').keydown(function (event) {
+            if (event.which == 13) {
+                location = '/Billing/IssuedInvoiceList/?filter=' + $('#search').val();
+            }
+        });
+
+        if (@Model.PageInfo.PageNumber >= @Model.PageInfo.PageCount) {
+            $('#next').addClass("disabled")
+        }
+        if (@Model.PageInfo.PageNumber <= 1) {
+            $('#previous').addClass("disabled")
+        }
+    })
+
+</script>
+}

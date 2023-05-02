@@ -1,4 +1,5 @@
-﻿using Negin.Core.Domain.Entities;
+﻿using Negin.Core.Domain.Aggregates.Billing;
+using Negin.Core.Domain.Entities;
 
 namespace Negin.Core.Domain.Aggregates.Basic;
 
@@ -8,6 +9,7 @@ public class CleaningServiceTariff : BaseAuditableEntity<ushort>
     public DateTime EffectiveDate { get; set; }
 
     public virtual ICollection<CleaningServiceTariffDetails> CleaningServiceTariffDetails { get; set; }
+    public virtual ICollection<CleaningServiceInvoiceDetail> CleaningServiceInvoiceDetail { get; set; }
 
 }
 

@@ -41,7 +41,8 @@ public static class DateTimeExtension
 		string result = $"{dayOfWeek?.PersianDayOfWeek()} {dateTime?.Year}/{dateTime?.Month}/{dateTime?.Day} <br/>  ساعت: {dateTime?.Hour}:{dateTime?.Minute}";
 		return result;
 	}
-	public static string ToShortShamsiDateString(this DateTime dateTime)
+
+    public static string ToShortShamsiDateString(this DateTime dateTime)
 	{
 		string result = $"{dateTime.Year}/{dateTime.Month}/{dateTime.Day}";
 		return result;

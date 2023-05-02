@@ -44,4 +44,10 @@ public static class Util
 		return obj;
     }
 
+	public static string GenerateUniqCode()
+	{
+		return Guid.NewGuid().ToString().Replace("-", "");
+	}
+
+
 }

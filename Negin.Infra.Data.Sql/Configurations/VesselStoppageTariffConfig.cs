@@ -15,8 +15,10 @@ internal class VesselStoppageTariffConfig : IEntityTypeConfiguration<VesselStopp
 
 		#region Navigation
 		builder.HasMany(c => c.VesselStoppageTariffDetails).WithOne(d => d.VesselStoppageTarriff).HasForeignKey("VesselStoppageTarrifId");
-		#endregion
-	}
+        builder.HasMany(c => c.VesselStoppageInvoiceDetail).WithOne(d => d.VesselStoppageTariff).HasForeignKey(s => s.VesselStoppageTariffId);
+
+        #endregion
+    }
 }
 
 internal class VesselStoppageTariffDetailsConfig : IEntityTypeConfiguration<VesselStoppageTariffDetails>
