@@ -53,12 +53,12 @@ public class VesselStoppage : BaseAuditableEntity<ulong>
             Status = VesselStoppage.VesselStoppageStatus.InProcess;
             if (ETD != null)
             {
-                var now = DateTime.Now.MiladiToShamsi();
-                if (ETD > now)
+                var now = DateTime.Now;
+                if (ETD.ShamsiToMiladi() > now)
                 {
                     var diff = ETD.Value.DayOfYear - ATA.Value.DayOfYear;
 
-                    var diffNowDays = now.Value.DayOfYear - ATA.Value.DayOfYear;
+                    var diffNowDays = now.DayOfYear - ATA.Value.DayOfYear;
                     Percentage = (diffNowDays * 100) / diff == 100 ? 99 : (diffNowDays * 100) / diff;
                 }
                 else

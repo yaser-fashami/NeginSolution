@@ -1,4 +1,5 @@
-﻿using Negin.Core.Domain.Aggregates.Basic;
+﻿using Microsoft.Extensions.Primitives;
+using Negin.Core.Domain.Aggregates.Basic;
 using Negin.Core.Domain.Aggregates.Operation;
 using Negin.Core.Domain.Entities.Basic;
 using Negin.Framework.Exceptions;

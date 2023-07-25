@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Negin.Core.Domain.Entities;
 using Negin.Core.Domain.Interfaces;
 using Negin.Infra.Data.Sql.EFRepositories;
 using Negin.Infrastructure;
+using Negin.Services.ApplicationServices;
 using Negin.Services.Billing;
 using Negin.Services.Operation;
 using SmartBreadcrumbs.Extensions;
@@ -19,10 +21,21 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.WriteIndented = true;
 });
-builder.Services.AddDbContext<NeginDbContext>(c => c.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+string conStr;
+if (builder.Environment.IsDevelopment())
+{
+    conStr = builder.Configuration.GetConnectionString("DevelopmentConnection");
+}
+else
+{
+    conStr = builder.Configuration.GetConnectionString("NeginDbContextConnection");
+}
+
+builder.Services.AddDbContext<NeginDbContext>(c => c.UseSqlServer(conStr));
 
 builder.Services.AddIdentity<User, IdentityRole>(option=> {
-    option.Password.RequiredLength = 3;
+    option.Password.RequiredLength = 8;
     option.Password.RequireNonAlphanumeric = false;
     option.Password.RequireUppercase = false;
     option.Password.RequireLowercase = false;
@@ -55,6 +68,7 @@ builder.Services.AddBreadcrumbs(Assembly.GetExecutingAssembly(), options =>
 });
 
 #region IOC
+builder.Services.AddSingleton<IAppVersionService, AppVersionService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IVesselRepository, VesselRepository>();
 builder.Services.AddScoped<IShippingLineCompanyRepository, ShippingLineCompanyRepository>();

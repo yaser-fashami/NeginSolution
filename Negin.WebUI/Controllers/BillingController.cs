@@ -73,7 +73,7 @@ public class BillingController : Controller
 
 	[Authorize(Roles = "admin")]
 	[Breadcrumb("PreInvoice", FromAction = "List", FromController = typeof(BillingController))]
-	public IActionResult PreInvoice(ulong voyageId, IEnumerable<string> vesselStoppages)
+	public IActionResult PreInvoice(ulong voyageId, IEnumerable<ulong> vesselStoppages)
     {
         PreInvoiceViewModel model = null;
         try

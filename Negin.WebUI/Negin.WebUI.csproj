@@ -1,11 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+	<PropertyGroup>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <SignAssembly>False</SignAssembly>
-    <AssemblyOriginatorKeyFile>C:\Yaser-Fashami.cer</AssemblyOriginatorKeyFile>
+    <SignAssembly>True</SignAssembly>
+	<Title>Negin Sulotion</Title>
+	<Authors>Yaser Fashami</Authors>
+	<Version>1.0.8</Version>
   </PropertyGroup>
 
   <ItemGroup>

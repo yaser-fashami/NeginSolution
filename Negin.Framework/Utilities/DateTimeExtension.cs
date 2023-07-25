@@ -15,7 +15,14 @@ public static class DateTimeExtension
 		return result;
 	}
 
-	public static Nullable<DateTime> MiladiToShamsi(this DateTime dateTime)
+	public static DateTime? ShamsiToMiladi(this DateTime? dateTime)
+	{
+		DateTime result;
+		DateTime.TryParse(dateTime.ToString(), new CultureInfo("fa-IR"), out result);
+		return result;
+	}
+
+	public static DateTime? MiladiToShamsi(this DateTime dateTime)
 	{
 		if (dateTime.Year < 623)
 		{
@@ -27,13 +34,26 @@ public static class DateTimeExtension
 		int day = pc.GetDayOfMonth(dateTime);
 		int hour = pc.GetHour(dateTime);
 		int minute = pc.GetMinute(dateTime);
-        return new DateTime(year, month, day, hour, minute, 0); ;
+        return new DateTime(year, month, day, hour, minute, 0);
+	}
+	public static PersianDate MiladiToPersianDate(this DateTime dateTime)
+	{
+		if (dateTime.Year < 623)
+		{
+			return new PersianDate(1, 1, 1);
+		}
+        PersianCalendar pc = new PersianCalendar();
+		int year = pc.GetYear(dateTime);
+		int month = pc.GetMonth(dateTime);
+		int day = pc.GetDayOfMonth(dateTime);
+
+        return new PersianDate(year, month, day);
 	}
 
 	public static string MiladiToShamsiDateString(this DateTime dateTime)
 	{
-		var shamsi = MiladiToShamsi(dateTime);
-		return $"{shamsi?.Year}/{shamsi?.Month}/{shamsi?.Day}";
+		var shamsi = MiladiToPersianDate(dateTime);
+		return $"{shamsi.year}/{shamsi.month}/{shamsi.day}";
 	}
 
 	public static string ToShamsiDateString(this DateTime? dateTime, System.DayOfWeek? dayOfWeek)
@@ -70,4 +90,32 @@ public static class DateTimeExtension
                 throw new Exception();
         }
     }
+}
+
+public class PersianDate
+{
+	public readonly int year;
+	public readonly byte month;
+	public readonly byte day;
+	public readonly byte hour;
+	public readonly byte minut;
+
+    public PersianDate(int year, int month, int day)
+    {
+		this.year = year;
+		this.month = (byte)month;
+		this.day = (byte)day;
+		this.hour = 12;
+		this.minut = 0;
+    }
+
+    public PersianDate(int year, int month, int day, int hour, int minut)
+    {
+        this.year = year;
+        this.month = (byte)month;
+        this.day = (byte)day;
+		this.hour = (byte)hour;
+		this.minut = (byte)minut;
+    }
+
 }

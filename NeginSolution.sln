@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Negin.Core.Domain", "Negin.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "25.Services", "25.Services", "{D22AAE02-89F7-42DB-901F-716A0C8C9B5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Negin.Services", "Negin.Services\Negin.Services.csproj", "{2C26A054-1C73-442B-A309-599A2CBCE684}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Negin.Services", "Negin.Services\Negin.Services.csproj", "{2C26A054-1C73-442B-A309-599A2CBCE684}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Negin.ServicesTest", "Negin.ServicesTest\Negin.ServicesTest.csproj", "{35D54497-1722-4BAB-B814-44BF453DD74A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{2C26A054-1C73-442B-A309-599A2CBCE684}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C26A054-1C73-442B-A309-599A2CBCE684}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C26A054-1C73-442B-A309-599A2CBCE684}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35D54497-1722-4BAB-B814-44BF453DD74A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35D54497-1722-4BAB-B814-44BF453DD74A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35D54497-1722-4BAB-B814-44BF453DD74A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35D54497-1722-4BAB-B814-44BF453DD74A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,6 +67,7 @@ Global
 		{1D21E351-41CD-42A4-9639-1FC648AB1646} = {35358915-AD7A-46E4-AD77-EF32E0C23D50}
 		{B9104752-7DB9-418B-B09E-8FC9319958D9} = {857C2C89-E835-412A-9092-32BF07E1E2B5}
 		{2C26A054-1C73-442B-A309-599A2CBCE684} = {D22AAE02-89F7-42DB-901F-716A0C8C9B5E}
+		{35D54497-1722-4BAB-B814-44BF453DD74A} = {CF940607-D656-4DC3-B235-F772E73C7216}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2A6E5CBA-8B02-47C2-927C-2B1105BA7A1B}

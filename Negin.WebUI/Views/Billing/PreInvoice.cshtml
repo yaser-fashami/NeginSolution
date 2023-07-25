@@ -177,9 +177,12 @@
                                                                 </span>
                                                                 <span>VesselStoppage Cost</span>
                                                             </td>
-                                                                <td class="pt-6">@preInvoiceDetail.VesselStoppageInvoiceDetail.DwellingHour h (@(preInvoiceDetail.VesselStoppageInvoiceDetail.DwellingHour / 24) day)</td>
-                                                                <td class="pt-6">@if (preInvoiceDetail.DiscountRate != null && preInvoiceDetail.DiscountRate > 0){<span>(Discount: @preInvoiceDetail.DiscountRate%) </span>} $@preInvoiceDetail.VesselStoppageInvoiceDetail.PriceD </td>
-                                                                <td class="pt-6 text-dark fw-bolder">@((preInvoiceDetail.VesselStoppageInvoiceDetail.PriceR - preInvoiceDetail.VesselStoppageInvoiceDetail.PriceRVat).ToString("#,0"))</td>
+                                                                <td class="pt-6">@preInvoiceDetail.VesselStoppageInvoiceDetail.DwellingHour h</td>
+                                                                <td class="pt-6">@if (preInvoiceDetail.DiscountPercent != null && preInvoiceDetail.DiscountPercent > 0)
+                                                                    {
+                                                                        <span>(Discount: @preInvoiceDetail.DiscountPercent%) </span>
+                                                                    } $@preInvoiceDetail.VesselStoppageInvoiceDetail.PriceD </td>
+                                                                <td class="pt-6 text-dark fw-bolder">@preInvoiceDetail.VesselStoppageInvoiceDetail.PriceR.ToString("#,0")</td>
                                                         </tr>
                                                         <tr class="fw-bold text-gray-700 fs-5 text-end">
                                                             <td class="d-flex align-items-center pt-6">
@@ -195,12 +198,13 @@
                                                                 </span>
                                                                 <span>Cleaning Service Cost</span>
                                                             </td>
-                                                                <td class="pt-6">@preInvoiceDetail.CleaningServiceInvoiceDetail.DwellingHour h (@(preInvoiceDetail.CleaningServiceInvoiceDetail.DwellingHour/24) day)</td>
-                                                                <td class="pt-6">@if (preInvoiceDetail.DiscountRate != null && preInvoiceDetail.DiscountRate > 0)
+                                                                <td class="pt-6">@preInvoiceDetail.CleaningServiceInvoiceDetail.DwellingHour h (@Model.TotalDwellingDays days)</td>
+                                                                <td class="pt-6">
+                                                                    @if (preInvoiceDetail.DiscountPercent != null && preInvoiceDetail.DiscountPercent > 0)
                                                                     {
-                                                                        <span>(Discount: @preInvoiceDetail.DiscountRate%)</span>
+                                                                        <span>(Discount: @preInvoiceDetail.DiscountPercent%)</span>
                                                                     } $@preInvoiceDetail.CleaningServiceInvoiceDetail.PriceD </td>
-                                                            <td class="pt-6 text-dark fw-bolder">@((preInvoiceDetail.CleaningServiceInvoiceDetail.PriceR - preInvoiceDetail.CleaningServiceInvoiceDetail.PriceRVat).ToString("#,0"))</td>
+                                                            <td class="pt-6 text-dark fw-bolder">@preInvoiceDetail.CleaningServiceInvoiceDetail.PriceR.ToString("#,0")</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -223,7 +227,7 @@
                                                                 <div class="fw-semibold pe-10 text-gray-600 fs-7">Subtotal rial:</div>
                                                                 <!--end::Accountname-->
                                                                 <!--begin::Label-->
-                                                                <div class="text-end fw-bold fs-6 text-gray-800">@(((preInvoiceDetail.VesselStoppageInvoiceDetail.PriceR - preInvoiceDetail.VesselStoppageInvoiceDetail.PriceRVat) + (preInvoiceDetail.CleaningServiceInvoiceDetail.PriceR - preInvoiceDetail.CleaningServiceInvoiceDetail.PriceRVat)).ToString("#,0")) <sup>Rial</sup></div>
+                                                                <div class="text-end fw-bold fs-6 text-gray-800">@((preInvoiceDetail.VesselStoppageInvoiceDetail.PriceR + preInvoiceDetail.CleaningServiceInvoiceDetail.PriceR).ToString("#,0")) <sup>Rial</sup></div>
                                                                 <!--end::Label-->
                                                             </div>
                                                             <!--end::Item-->
@@ -243,7 +247,7 @@
                                                                 <div class="fw-semibold pe-10 text-gray-600 fs-7">Subtotal rial + VAT: </div>
                                                                 <!--end::Code-->
                                                                 <!--begin::Label-->
-                                                                <div class="text-end fw-bold fs-6 text-gray-800">@((preInvoiceDetail.VesselStoppageInvoiceDetail.PriceR + preInvoiceDetail.CleaningServiceInvoiceDetail.PriceR).ToString("#,0")) <sup>Rial</sup></div>
+                                                                <div class="text-end fw-bold fs-6 text-gray-800">@((preInvoiceDetail.VesselStoppageInvoiceDetail.PriceR + preInvoiceDetail.CleaningServiceInvoiceDetail.PriceR + preInvoiceDetail.VesselStoppageInvoiceDetail.PriceRVat + preInvoiceDetail.CleaningServiceInvoiceDetail.PriceRVat).ToString("#,0")) <sup>Rial</sup></div>
                                                                 <!--end::Label-->
                                                             </div>
                                                             <!--end::Item-->

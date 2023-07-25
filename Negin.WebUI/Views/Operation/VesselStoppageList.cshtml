@@ -95,7 +95,7 @@
                                 <td><div class="badge badge-light fw-bold">@Html.Raw(vesselStoppage.ETA != null ? @vesselStoppage.ETA.ToShamsiDateString(vesselStoppage.ETADayOfTheWeek) : "")</div></td>
                                 <td><div class="badge badge-dark fw-bold">@Html.Raw(vesselStoppage.ATA != null ? @vesselStoppage.ATA.ToShamsiDateString(vesselStoppage.ATADayOfTheWeek) : "")</div></td>
                                 <td><div class="badge badge-light fw-bold">@Html.Raw(vesselStoppage.ETD != null ? @vesselStoppage.ETD.ToShamsiDateString(vesselStoppage.ETDDayOfTheWeek) : "")</div></td>
-                                <td><div class="badge badge-dark fw-bold">@Html.Raw(vesselStoppage.ATD != null ? @vesselStoppage.ATD.ToShamsiDateString(vesselStoppage.ATADayOfTheWeek) : "")</div></td>
+                                <td><div class="badge badge-dark fw-bold">@Html.Raw(vesselStoppage.ATD != null ? @vesselStoppage.ATD.ToShamsiDateString(vesselStoppage.ATDDayOfTheWeek) : "")</div></td>
                                 <td>
                                 @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.Gone)
                                 {

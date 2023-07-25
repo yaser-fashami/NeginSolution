@@ -6,6 +6,6 @@ namespace Negin.Services.Billing;
 
 public interface IInvoiceCalculator
 {
-    Task<PreInvoiceDto> CalculateAsync(ulong voyageId, IEnumerable<string> vesselStoppages);
+    Task<PreInvoiceDto> CalculateAsync(ulong voyageId, IEnumerable<ulong> vesselStoppages);
     Task<BLMessage> Invoicing(PreInvoiceDto preInvoice);
 }

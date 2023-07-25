@@ -1,5 +1,6 @@
 ﻿@using System.Security.Claims;
 @using Microsoft.AspNetCore.Identity;
+@inject Negin.Core.Domain.Interfaces.IAppVersionService AppVersionService
 <!DOCTYPE html>
 <html lang="en" data-theme="light" class="" data-select2-id="select2-data-125-xzci">
 <head>
@@ -1252,7 +1253,9 @@
 								</div>
 								<!--end::Copyright-->
 							<div class="order-3 text-muted">
-									<span>Version 1.0.0</span>
+								<span>
+									Version @AppVersionService.Version
+								</span>
 								</div>
 								<!--begin::Menu-->
 @*								<ul class="menu menu-gray-600 menu-hover-primary fw-semibold order-1">

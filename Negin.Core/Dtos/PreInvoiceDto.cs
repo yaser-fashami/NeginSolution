@@ -1,4 +1,10 @@
 ﻿using Negin.Core.Domain.Aggregates.Basic;
+using Negin.Core.Domain.Aggregates.Billing;
+using Negin.Core.Domain.Aggregates.Operation;
+using Negin.Core.Domain.Entities;
+using Negin.Core.Domain.Entities.Basic;
+using static Negin.Core.Domain.Aggregates.Billing.Invoice;
+
 namespace Negin.Core.Domain.Dtos;
 
 public class PreInvoiceDto

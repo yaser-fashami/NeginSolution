@@ -1,9 +1,11 @@
 ﻿using EntityFramework.Exceptions.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Negin.Core.Domain.Aggregates.Basic;
 using Negin.Core.Domain.Aggregates.Billing;
 using Negin.Core.Domain.Aggregates.Operation;
 using Negin.Core.Domain.Dtos;
+using Negin.Core.Domain.Entities.Basic;
 using Negin.Framework.Exceptions;
 using Negin.Framework.Utilities;
 using Negin.Infrastructure;
@@ -23,20 +25,8 @@ public class InvoiceCalculator : IInvoiceCalculator
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<PreInvoiceDto> CalculateAsync(ulong voyageId, IEnumerable<string> vesselStoppagesIdStr)
+    public async Task<PreInvoiceDto> CalculateAsync(ulong voyageId, IEnumerable<ulong> vesselStoppagesId)
     {
-        var date = DateTime.Now;
-        var shamsiDate = date.MiladiToShamsi();
-        var invoiceNo = new StringBuilder();
-        invoiceNo.Append(shamsiDate?.Year);
-        invoiceNo.Append(shamsiDate?.Month.ToString().Length == 1 ? "0" + shamsiDate?.Month : shamsiDate?.Month);
-        invoiceNo.Append('-');
-        var lastInvoice = await _neginDbContext.Invoices.Where(c=>c.InvoiceNo.StartsWith(shamsiDate.Value.Year.ToString())).OrderBy(c => c.Id).LastOrDefaultAsync();
-        var lastinvoiceNo = lastInvoice != null ? ((int.Parse(lastInvoice.InvoiceNo.Substring(7, lastInvoice.InvoiceNo.Length - 7))) + 1).ToString() : "1";
-        invoiceNo.Append(lastinvoiceNo);
-
-        List<ulong> vesselStoppagesId = vesselStoppagesIdStr.Select(item => Convert.ToUInt64(item)).ToList();
-
         IList<VesselStoppage> vesselStoppages = await _neginDbContext.VesselStoppages
             .Include(c=>c.OriginPort)
             .Include(c=>c.PreviousPort)
@@ -50,73 +40,43 @@ public class InvoiceCalculator : IInvoiceCalculator
             .Include(c => c.Owner).Include(c => c.Agent)
             .AsNoTracking().SingleAsync(c => c.Id == voyageId);
 
-        int totalDwellingHour = 0, totalDwellingDay = 0; 
+        uint totalDwellingHour = 0, totalDwellingDay = 0; 
         ulong sumPriceR = 0, sumPriceRVat = 0;
         decimal sumPriceD = 0;
         List<PreInvoiceDetailDto> preInvoiceDetails = new();
 
         foreach (var vesselStoppage in vesselStoppages)
         {
-            vesselStoppage.ATADayOfTheWeek = vesselStoppage.ATA?.DayOfWeek;
-            vesselStoppage.ATDDayOfTheWeek = vesselStoppage.ATD?.DayOfWeek;
-            var diffHour = vesselStoppage.ATD?.Hour - vesselStoppage.ATA?.Hour;
-            var diffDays = (vesselStoppage.ATD - vesselStoppage.ATA)?.Days;
-            var dwellingHour = (diffDays * 24) + diffHour ?? 0;
-            var dwellingDay = dwellingHour % 24 == 0 ? dwellingHour / 24 : (dwellingHour / 24) + 1;
+            var dwellingHour = CalculateTotalDwellingHour(vesselStoppage, out uint dwellingDay);
             totalDwellingHour += dwellingHour;
-            var vesselStoppageTariff = await _neginDbContext.VesselStoppageTariffs.Include(c => c.VesselStoppageTariffDetails).AsNoTracking().Where(c => c.EffectiveDate <= vesselStoppage.ATA).OrderBy(c => c.EffectiveDate).LastOrDefaultAsync();
-            var cleaningServiceTariff = await _neginDbContext.CleaningServiceTariffs.Include(c => c.CleaningServiceTariffDetails).AsNoTracking().Where(c => c.EffectiveDate <= vesselStoppage.ATA).OrderBy(c => c.EffectiveDate).LastOrDefaultAsync();
-            var vesselStoppageTariffDetail = vesselStoppageTariff?.VesselStoppageTariffDetails.Where(c => c.VesselTypeId == voyage.Vessel?.VesselTypeId).Single();
-            var cleaningServiceTariffDetail = cleaningServiceTariff?.CleaningServiceTariffDetails.Where(c => c.GrossWeight >= voyage.Vessel?.GrossTonage).OrderBy(c=>c.GrossWeight).First();
-            var currency = await _neginDbContext.Currencies.AsNoTracking().Where(c => c.Date <= vesselStoppage.ATA).OrderBy(c => c.Date).LastOrDefaultAsync();
+            totalDwellingDay += dwellingDay;
 
-            decimal priceDVS = 0, priceDCS = 0;
-            ulong priceRVS = 0, priceRVSVat = 0, priceRCS = 0, priceRCSVat = 0;
-            byte discounrRate = 0;
-            if (dwellingHour <= vesselStoppageTariffDetail?.NormalHour)
-            {
-                priceDVS = Math.Round(Convert.ToDecimal(dwellingHour * vesselStoppageTariffDetail.NormalPrice), 2);
-            }
-            else
-            {
-                var extraH = dwellingHour - vesselStoppageTariffDetail?.NormalHour;
-                var normalH = dwellingHour - extraH;
-                priceDVS = Math.Round((Convert.ToDecimal(normalH * vesselStoppageTariffDetail?.NormalPrice) + Convert.ToDecimal(extraH * vesselStoppageTariffDetail?.ExtraPrice)), 2);
-            }
-            priceDCS = Math.Round(Convert.ToDecimal(dwellingDay * cleaningServiceTariffDetail?.Price), 2);
-            var DiscountTariff = await _neginDbContext.DiscountTariffs.AsNoTracking().Where(c => c.EffectiveDate <= vesselStoppage.ATA).OrderBy(c => c.EffectiveDate).LastOrDefaultAsync();
-            if (DiscountTariff != null)
-            {
-                if (voyage.Vessel?.FlagId == DiscountTariff.FlagId && voyage.Vessel?.GrossTonage <= DiscountTariff.ToGrossTonage)
-                {
-                    priceDVS = Math.Round(priceDVS - (priceDVS * Convert.ToDecimal(DiscountTariff.DiscountPercent)), 2);
-                    priceDCS = Math.Round(priceDCS - (priceDCS * Convert.ToDecimal(DiscountTariff.DiscountPercent)), 2);
-                    discounrRate = Convert.ToByte(DiscountTariff.DiscountPercent * 100);
-                }
-            }
+            var vesselStoppageTariff = PrepareVesselStoppageTariff(vesselStoppage.ATA.Value).Result;
+            var cleaningServiceTariff = PrepareCleaningServiceTariff(vesselStoppage.ATA.Value).Result;
+            var vesselStoppageTariffDetail = PrepareVesselStoppageTariffDetails(voyage, vesselStoppageTariff);
+            var cleaningServiceTariffDetail = PrepareCleaningServiceTariffDetails(voyage, cleaningServiceTariff);
+            
+            Currency currency = await PrepareCurrentCurrencyRateAsync(vesselStoppage);
+            DiscountTariff? discountTariff = await _neginDbContext.DiscountTariffs.AsNoTracking()
+                                        .Where(c => c.EffectiveDate <= vesselStoppage.ATA.Value).OrderBy(c => c.EffectiveDate).LastOrDefaultAsync();
 
-            sumPriceD += (priceDVS + priceDCS);
-            if (voyage.Vessel?.FlagId == 207)
-            {
-                priceRVS = Convert.ToUInt64(priceDVS * currency?.PersianDollerRate);
-                priceRCS = Convert.ToUInt64(priceDCS * currency?.PersianDollerRate);
-            }
-            else
-            {
-                priceRVS = Convert.ToUInt64(priceDVS * currency?.ForeignDollerRate);
-                priceRCS = Convert.ToUInt64(priceDCS * currency?.ForeignDollerRate);
-            }
-            var vatTariff = await _neginDbContext.VatTariffs.AsNoTracking().Where(c => c.EffectiveDate <= vesselStoppage.ATA).OrderBy(c => c.EffectiveDate).LastOrDefaultAsync();
+            decimal priceDVS = CalculateVesselStoppagePriceDollar(vesselStoppageTariffDetail, discountTariff, voyage, dwellingHour, vesselStoppage.ATA.Value);
+            decimal priceDCS = CalculateCleaningServicePriceDollar(cleaningServiceTariffDetail, discountTariff, voyage, dwellingDay, vesselStoppage.ATA.Value);
+
+            sumPriceD += priceDVS + priceDCS;
+
+            ulong priceRVS = CalculatePriceRial(voyage, currency, priceDVS);
+            ulong priceRCS = CalculatePriceRial(voyage, currency, priceDCS);
+            ulong priceRVSVat = 0, priceRCSVat = 0;
+
+            VatTariff vatTariff = await _neginDbContext.VatTariffs.AsNoTracking().Where(c => c.EffectiveDate <= vesselStoppage.ATA).OrderBy(c => c.EffectiveDate).LastAsync();
             if (vatTariff != null)
             {
                 priceRVSVat = Convert.ToUInt64(priceRVS * vatTariff.Rate / 100);
                 priceRCSVat = Convert.ToUInt64(priceRCS * vatTariff.Rate / 100);
-                priceRVS += priceRVSVat;
-                priceRCS += priceRCSVat;
                 sumPriceRVat += (priceRVSVat + priceRCSVat);
             }
-            sumPriceR += (priceRVS + priceRCS);
-            totalDwellingDay += dwellingDay;
+            sumPriceR += priceRVS + priceRCS + sumPriceRVat;
 
             PreInvoiceDetailDto preInvoiceDetail = new()
             {
@@ -149,12 +109,14 @@ public class InvoiceCalculator : IInvoiceCalculator
                     ApplyCurrencyRate = voyage.Vessel.FlagId == 207 ? currency.PersianDollerRate : currency.ForeignDollerRate
                 },
                 VATPercent = Convert.ToByte(vatTariff?.Rate),
-                StoppageIssuedBy = vesselStoppage.CreatedBy?.UserName,
+                StoppageIssuedBy = vesselStoppage?.CreatedBy?.UserName,
                 Currency = currency,
-                DiscountRate = discounrRate
+                DiscountPercent = discountTariff != null ? (byte)(discountTariff.DiscountPercent * 100) : null
             };
             preInvoiceDetails.Add(preInvoiceDetail);
         }
+
+        var invoiceNo = PrepareInvoiceNumber(out DateTime date);
 
         var result = new PreInvoiceDto()
         {
@@ -197,7 +159,6 @@ public class InvoiceCalculator : IInvoiceCalculator
         try
         {
             await _neginDbContext.Invoices.AddAsync(newInvoice);
-            await _neginDbContext.SaveChangesAsync();
         }
         catch (Exception ex)
         {
@@ -254,15 +215,17 @@ public class InvoiceCalculator : IInvoiceCalculator
         try
         {
             await _neginDbContext.SaveChangesAsync();
-            transaction.Commit();
+            await transaction.CommitAsync();
         }
         catch(UniqueConstraintException) 
         {
+            await transaction.RollbackAsync();
             result.Message = "This preInvoice was issued before!";
             return result;
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync();
             result.Message = ex.Message;
             return result;
         }
@@ -273,4 +236,113 @@ public class InvoiceCalculator : IInvoiceCalculator
 
         return result;
     }
+
+    #region Private Methods
+    private string PrepareInvoiceNumber(out DateTime date)
+    {
+        date = DateTime.Now;
+        var shamsiDate = date.MiladiToPersianDate();
+        var invoiceNo = new StringBuilder();
+        invoiceNo.Append('N');
+        invoiceNo.Append(shamsiDate.year);
+        invoiceNo.Append(shamsiDate.month.ToString().Length == 1 ? "0" + shamsiDate.month : shamsiDate.month);
+        invoiceNo.Append('-');
+        var lastInvoice = _neginDbContext.Invoices.OrderBy(c => c.Id).LastOrDefaultAsync().Result;
+        var lastinvoiceNo = lastInvoice != null ? (int.Parse(lastInvoice.InvoiceNo.Substring(8, lastInvoice.InvoiceNo.Length - 8)) + 1).ToString() : "65";
+        invoiceNo.Append(lastinvoiceNo);
+
+        return invoiceNo.ToString();
+    }
+
+    private uint CalculateTotalDwellingHour(VesselStoppage vesselStoppage, out uint dwellingDay)
+    {
+        vesselStoppage.ATADayOfTheWeek = vesselStoppage.ATA?.DayOfWeek;
+        vesselStoppage.ATDDayOfTheWeek = vesselStoppage.ATD?.DayOfWeek;
+        TimeSpan diffrence = (TimeSpan)(vesselStoppage.ATD - vesselStoppage.ATA);
+        uint dwellingHour = (uint)Math.Ceiling(diffrence.TotalHours);
+        dwellingDay = dwellingHour % 24 == 0 ? dwellingHour / 24 : (dwellingHour / 24) + 1;
+        return dwellingHour;
+    }
+
+    private async Task<Currency> PrepareCurrentCurrencyRateAsync(VesselStoppage vesselStoppage)
+    {
+        return await _neginDbContext.Currencies.AsNoTracking().Where(c => c.Date <= vesselStoppage.ATA).OrderBy(c => c.Date).LastAsync();
+    }
+
+    #region Tariffs
+    private async Task<VesselStoppageTariff> PrepareVesselStoppageTariff(DateTime ata)
+    {
+        return await _neginDbContext.VesselStoppageTariffs.Include(c => c.VesselStoppageTariffDetails).AsNoTracking()
+                         .Where(c => c.EffectiveDate <= ata).OrderBy(c => c.EffectiveDate).LastAsync();
+
+    }
+    private VesselStoppageTariffDetails PrepareVesselStoppageTariffDetails(Voyage voyage, VesselStoppageTariff vesselStoppageTariff)
+    {
+        return vesselStoppageTariff.VesselStoppageTariffDetails.Where(c => c.VesselTypeId == voyage.Vessel?.VesselTypeId).Single();
+    }
+    private async Task<CleaningServiceTariff> PrepareCleaningServiceTariff(DateTime ata)
+    {
+        return await _neginDbContext.CleaningServiceTariffs.Include(c => c.CleaningServiceTariffDetails).AsNoTracking()
+            .Where(c => c.EffectiveDate <= ata).OrderBy(c => c.EffectiveDate).LastAsync();
+
+    }
+    private CleaningServiceTariffDetails PrepareCleaningServiceTariffDetails(Voyage voyage, CleaningServiceTariff cleaningServiceTariff)
+    {
+        return cleaningServiceTariff.CleaningServiceTariffDetails.Where(c => c.GrossWeight >= voyage.Vessel?.GrossTonage).OrderBy(c => c.GrossWeight).First();
+    }
+
+    #endregion
+
+    #region Pricing
+    private decimal CalculateVesselStoppagePriceDollar(VesselStoppageTariffDetails vesselStoppageTariffDetail, DiscountTariff? discountTariff, Voyage voyage, uint dwellingHour, DateTime ata)
+    {
+        decimal priceDVS = 0;
+        if (dwellingHour <= vesselStoppageTariffDetail?.NormalHour)
+        {
+            priceDVS = Math.Round(Convert.ToDecimal((dwellingHour * vesselStoppageTariffDetail.NormalPrice * voyage.Vessel?.GrossTonage) / 100), 2);
+        }
+        else
+        {
+            var extraH = dwellingHour - vesselStoppageTariffDetail?.NormalHour;
+            var normalH = dwellingHour - extraH;
+            priceDVS = Math.Round((Convert.ToDecimal((normalH * vesselStoppageTariffDetail?.NormalPrice * voyage.Vessel?.GrossTonage) / 100) + Convert.ToDecimal((extraH * vesselStoppageTariffDetail?.ExtraPrice * voyage.Vessel?.GrossTonage) / 100)), 2);
+        }
+        priceDVS = CalculateDiscountAsync(discountTariff, voyage, ata, priceDVS);
+        return priceDVS;
+    }
+    private decimal CalculateCleaningServicePriceDollar(CleaningServiceTariffDetails cleaningServiceTariffDetail, DiscountTariff? discountTariff, Voyage voyage, uint dwellingDay, DateTime ata)
+    {
+        decimal priceDCS = 0;
+        priceDCS = Math.Round(Convert.ToDecimal(dwellingDay * cleaningServiceTariffDetail?.Price), 2);
+        priceDCS = CalculateDiscountAsync(discountTariff, voyage, ata, priceDCS);
+        return priceDCS;
+    }
+
+    private decimal CalculateDiscountAsync(DiscountTariff? discountTariff,Voyage voyage, DateTime ata, decimal priceD)
+    {
+        if (discountTariff != null)
+        {
+            if (voyage.Vessel?.FlagId == discountTariff.FlagId && voyage.Vessel?.GrossTonage <= discountTariff.ToGrossTonage)
+            {
+                priceD = Math.Round(priceD - (priceD * Convert.ToDecimal(discountTariff.DiscountPercent)), 2);
+            }
+        }
+        return priceD;
+    }
+    private ulong CalculatePriceRial(Voyage voyage, Currency currency, decimal priceD)
+    {
+        if (voyage.Vessel?.FlagId == 207)
+        {
+            return Convert.ToUInt64(priceD * currency.PersianDollerRate);
+        }
+        else
+        {
+            return Convert.ToUInt64(priceD * currency.ForeignDollerRate);
+        }
+
+    }
+    #endregion
+
+    #endregion
+
 }
