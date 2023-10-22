@@ -116,10 +116,10 @@
                     <!--begin::Table head-->
                     <thead>
                         <!--begin::Table row-->
-                        <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                            <th class="min-w-100px sorting" data-priority="1">Foreign Doller Rate</th>
-                            <th class="min-w-100px sorting">Persian Doller Rate</th>
-                            <th class="min-w-150px sorting">Date</th>
+                        <tr class="text-start fw-bold fs-7 text-uppercase gs-0">
+                            <th class="min-w-100px" data-priority="1">Foreign Doller Rate</th>
+                            <th class="min-w-100px">Persian Doller Rate</th>
+                            <th class="min-w-150px">Date</th>
                         </tr>
                         <!--end::Table row-->
                     </thead>
@@ -172,9 +172,8 @@
 
 
 @section Scripts{
-    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
-    <script src="~/assets/js/custom/apps/user-management/users/list/table.js"></script>
-    <script type="text/javascript">
+@*    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+*@    <script type="text/javascript">
         $(document).ready(function () {
             $('#kt_datatable_responsive').DataTable();
 

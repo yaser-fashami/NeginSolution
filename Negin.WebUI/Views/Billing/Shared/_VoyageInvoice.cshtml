@@ -36,10 +36,10 @@
                             <th class="w-220px" data-priority="1">Vessel Name / Voyage No In</th>
                             <th>Owner</th>
                             <th class="min-w-175px">Agent</th>
-                            <th class="w-70px">Gone</th>
-                            <th class="w-100px">InProcess</th>
+                            <th class="w-70px">Status</th>
+                            @*<th class="w-100px">InProcess</th>
                             <th class="w-150px">Wait for vessel</th>
-                            <th>Invoiced</th>
+                            <th>Invoiced</th>*@
                             <th data-priority="2"></th>
                         </tr>
                         <!--end::Table row-->
@@ -56,9 +56,10 @@
                                 <td class="text-gray-400">@voyage.Owner?.ShippingLineName</td>
                                 <td class="text-gray-400">@voyage.Agent?.ShippingLineName</td>
                                 <td>
-                                    @voyage.VesselStoppages?.Where(c=>c.Status == VesselStoppage.VesselStoppageStatus.Gone).Count()
+                                    <partial name="../Shared/_VesselStoppageStatus.cshtml" for="@voyage.VesselStoppages.First()"></partial>
+                                    @*@voyage.VesselStoppages?.Where(c=>c.Status == VesselStoppage.VesselStoppageStatus.Gone).Count()*@
                                 </td>
-                                <td>
+                                @*<td>
                                     @voyage.VesselStoppages?.Where(c=>c.Status == VesselStoppage.VesselStoppageStatus.InProcess).Count()
                                 </td>
                                 <td>
@@ -66,7 +67,7 @@
                                 </td>
                                 <td>
                                     @voyage.VesselStoppages?.Where(c=>c.Status == VesselStoppage.VesselStoppageStatus.Invoiced && c.VesselStoppageInvoiceDetail?.Invoice?.Status != Invoice.InvoiceStatus.IsCancel).Count()
-                                </td>
+                                </td>*@
                                 <td class="text-end">
                                     @if (voyage.VesselStoppages?.Where(c => c.Status == VesselStoppage.VesselStoppageStatus.Gone).Count() > 0)
                                     {

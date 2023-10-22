@@ -101,6 +101,6 @@ app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=BasicInfo}/{action=List}/{id?}");
+    pattern: "{controller=Dashboard}/{action=List}/{id?}");
 
 app.Run();

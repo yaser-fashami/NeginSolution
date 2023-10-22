@@ -14,6 +14,18 @@
                 <button href="#" id="cancel_btn" class="btn btn-danger m-1">Cancel</button>
             }
         </div>
+        <div class="col-4 text-start">
+        </div>
+        <div class="form-check form-switch form-check-custom form-check-solid col-3 text-end">
+            <label id="GLabel" style="margin-right:0.55rem;" class="form-check-label" for="chooseCalendar">
+                Gregorian Calendar
+            </label>
+            <input style="background-color: #009ef7;" class="form-check-input h-25px w-40px" type="checkbox" id="chooseCalendar" checked />
+            <label id="PLabel" class="form-check-label text-start" for="chooseCalendar">
+                Persian Calendar
+            </label>
+        </div>
+
     </div>
 
     <div class="invoice page">
@@ -37,7 +49,7 @@
         <div class="row invoice-header">
             <div class="col-12">
                 <span class="col-md-12">Invoice-no: <strong class="text-inverse">@Model.InvoiceNo</strong> &nbsp;&nbsp;</span>
-                <span class="col-md-12 ms-10">Invoice Date: <strong class="text-inverse">@Model.InvoiceDate.MiladiToShamsiDateString()</strong> </span>
+                <span class="col-md-12 ms-10">Invoice Date: <strong id="invoiceDate" class="text-inverse">@Model.InvoiceDate.MiladiToShamsiDateString()</strong> </span>
             </div>
         </div>
         <div class="row invoice-header">
@@ -84,27 +96,37 @@
                             {
                                 <tr>
                                     <td class="text-center">Vessel stoppage</td>
-                                    <td class="text-center">@Html.Raw(vesselStoppageInvoiceDetail.VesselStoppage.ATA.Value.MiladiToShamsi().ToShamsiDateString(vesselStoppageInvoiceDetail.VesselStoppage.ATA.Value.DayOfWeek))</td>
-                                    <td class="text-center">@Html.Raw(vesselStoppageInvoiceDetail.VesselStoppage.ATD.Value.MiladiToShamsi().ToShamsiDateString(vesselStoppageInvoiceDetail.VesselStoppage.ATD.Value.DayOfWeek))</td>
+                                    <td id="ataVesselStoppageDateTD" class="text-center">@Html.Raw(vesselStoppageInvoiceDetail.VesselStoppage.ATA.Value.MiladiToShamsi().ToShamsiDateString(vesselStoppageInvoiceDetail.VesselStoppage.ATA.Value.DayOfWeek))</td>
+                                    <td id="atdVesselStoppageDateTD" class="text-center">@Html.Raw(vesselStoppageInvoiceDetail.VesselStoppage.ATD.Value.MiladiToShamsi().ToShamsiDateString(vesselStoppageInvoiceDetail.VesselStoppage.ATD.Value.DayOfWeek))</td>
                                     <td class="text-center">@vesselStoppageInvoiceDetail.DwellingHour h</td>
                                     <td class="text-center">@vesselStoppageInvoiceDetail.Invoice.Voyage.Vessel.Name</td>
                                     <td class="text-center">@vesselStoppageInvoiceDetail.ApplyCurrencyRate.ToString("#,0")</td>
                                     <td class="text-right">@vesselStoppageInvoiceDetail.PriceD</td>
                                     <td class="text-right">@vesselStoppageInvoiceDetail.PriceR.ToString("#,0")</td>
                                 </tr>
+                            <input id="ataVesselStoppageDate" type="hidden" value="@Html.Raw(vesselStoppageInvoiceDetail.VesselStoppage.ATA.Value.ToMiladiDateString())" />
+                            <input id="atdVesselStoppageDate" type="hidden" value="@Html.Raw(vesselStoppageInvoiceDetail.VesselStoppage.ATD.Value.ToMiladiDateString())" />
+                            <input id="ataVesselStoppagePersianDate" type="hidden" value="@Html.Raw(vesselStoppageInvoiceDetail.VesselStoppage.ATA.Value.MiladiToShamsi().ToShamsiDateString(vesselStoppageInvoiceDetail.VesselStoppage.ATA.Value.DayOfWeek))" />
+                            <input id="atdVesselStoppagePersianDate" type="hidden" value="@Html.Raw(vesselStoppageInvoiceDetail.VesselStoppage.ATD.Value.MiladiToShamsi().ToShamsiDateString(vesselStoppageInvoiceDetail.VesselStoppage.ATD.Value.DayOfWeek))" />
+
                             }
                             @foreach (var cleaningServiceInvoiceDetails in Model.CleaningServiceInvoiceDetails)
                             {
                                 <tr>
                                     <td class="text-center">Cleaning Service</td>
-                                    <td class="text-center">@Html.Raw(cleaningServiceInvoiceDetails.VesselStoppage.ATA.Value.MiladiToShamsi().ToShamsiDateString(cleaningServiceInvoiceDetails.VesselStoppage.ATA.Value.DayOfWeek))</td>
-                                    <td class="text-center">@Html.Raw(cleaningServiceInvoiceDetails.VesselStoppage.ATD.Value.MiladiToShamsi().ToShamsiDateString(cleaningServiceInvoiceDetails.VesselStoppage.ATD.Value.DayOfWeek))</td>
+                                    <td id="ataCleaningserviceDateTD" class="text-center">@Html.Raw(cleaningServiceInvoiceDetails.VesselStoppage.ATA.Value.MiladiToShamsi().ToShamsiDateString(cleaningServiceInvoiceDetails.VesselStoppage.ATA.Value.DayOfWeek))</td>
+                                    <td id="atdCleaningserviceDateTD" class="text-center">@Html.Raw(cleaningServiceInvoiceDetails.VesselStoppage.ATD.Value.MiladiToShamsi().ToShamsiDateString(cleaningServiceInvoiceDetails.VesselStoppage.ATD.Value.DayOfWeek))</td>
                                     <td class="text-center">@(cleaningServiceInvoiceDetails.DwellingHour%24 == 0 ? cleaningServiceInvoiceDetails.DwellingHour/24 : cleaningServiceInvoiceDetails.DwellingHour/24 + 1) D</td>
                                     <td class="text-center">@Model.Voyage.Vessel.Name</td>
                                     <td class="text-center">@cleaningServiceInvoiceDetails.ApplyCurrencyRate.ToString("#,0")</td>
                                     <td class="text-right">@cleaningServiceInvoiceDetails.PriceD</td>
                                     <td class="text-right">@cleaningServiceInvoiceDetails.PriceR.ToString("#,0")</td>
                                 </tr>
+                            <input id="ataCleaningserviceDate" type="hidden" value="@Html.Raw(cleaningServiceInvoiceDetails.VesselStoppage.ATA.Value.ToMiladiDateString())" />
+                            <input id="atdCleaningserviceDate" type="hidden" value="@Html.Raw(cleaningServiceInvoiceDetails.VesselStoppage.ATD.Value.ToMiladiDateString())" />
+                            <input id="ataCleaningservicePersianDate" type="hidden" value="@Html.Raw(cleaningServiceInvoiceDetails.VesselStoppage.ATA.Value.MiladiToShamsi().ToShamsiDateString(cleaningServiceInvoiceDetails.VesselStoppage.ATA.Value.DayOfWeek))" />
+                            <input id="atdCleaningservicePersianDate" type="hidden" value="@Html.Raw(cleaningServiceInvoiceDetails.VesselStoppage.ATD.Value.MiladiToShamsi().ToShamsiDateString(cleaningServiceInvoiceDetails.VesselStoppage.ATD.Value.DayOfWeek))" />
+
                             }
                         </tbody>
                         </table>
@@ -136,6 +158,9 @@
 
 @section links{
     <link href="~/css/invoicestyle.css" rel="stylesheet" />
+    <style>
+        .form-check-input:checked + label
+    </style>
 }
 
 @section Scripts{
@@ -214,7 +239,30 @@
             })
         })
 
+        $(document).ready(function(){
+            var invoiceDate = '@Model.InvoiceDate.MiladiToString()';
+            var invoicePersianDate = '@Model.InvoiceDate.MiladiToShamsiDateString()';
 
+            $('#chooseCalendar').on('change', function(){
+                if ($('#chooseCalendar').is(':checked') != true) {
+                    $('#invoiceDate').text(invoiceDate);
+                    $('#ataVesselStoppageDateTD').html($('#ataVesselStoppageDate').val());
+                    $('#atdVesselStoppageDateTD').html($('#atdVesselStoppageDate').val());
+                    $('#ataCleaningserviceDateTD').html($('#ataCleaningserviceDate').val());
+                    $('#atdCleaningserviceDateTD').html($('#atdCleaningserviceDate').val());
+                    $('#GLabel').css('color', '#5e6278');
+                    $('#PLabel').css('color', '#a1a5b7');
+                }else{
+                    $('#invoiceDate').text(invoicePersianDate);
+                    $('#ataVesselStoppageDateTD').html($('#ataVesselStoppagePersianDate').val());
+                    $('#atdVesselStoppageDateTD').html($('#atdVesselStoppagePersianDate').val());
+                    $('#ataCleaningserviceDateTD').html($('#ataCleaningservicePersianDate').val());
+                    $('#atdCleaningserviceDateTD').html($('#atdCleaningservicePersianDate').val());
+                    $('#PLabel').css('color', '#5e6278');
+                    $('#GLabel').css('color', '#a1a5b7');
+                }
+            })
+        })
     </script>
 
 }

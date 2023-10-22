@@ -55,11 +55,18 @@ public static class DateTimeExtension
 		var shamsi = MiladiToPersianDate(dateTime);
 		return $"{shamsi.year}/{shamsi.month}/{shamsi.day}";
 	}
+	public static string MiladiToString(this DateTime dateTime)
+	{
+		return $"{dateTime.Day}/{dateTime.Month}/{dateTime.Year}";
+	}
 
 	public static string ToShamsiDateString(this DateTime? dateTime, System.DayOfWeek? dayOfWeek)
 	{
-		string result = $"{dayOfWeek?.PersianDayOfWeek()} {dateTime?.Year}/{dateTime?.Month}/{dateTime?.Day} <br/>  ساعت: {dateTime?.Hour}:{dateTime?.Minute}";
-		return result;
+		return $"{dayOfWeek?.PersianDayOfWeek()} {dateTime?.Year}/{dateTime?.Month}/{dateTime?.Day} <br/>  ساعت: {dateTime?.Hour}:{dateTime?.Minute}";
+	}
+	public static string ToMiladiDateString(this DateTime dateTime)
+	{
+        return $"{dateTime.DayOfWeek} {dateTime.Day}/{dateTime.Month}/{dateTime.Year} <br/> At {dateTime.Hour}:{dateTime.Minute}";
 	}
 
     public static string ToShortShamsiDateString(this DateTime dateTime)

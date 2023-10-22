@@ -43,6 +43,7 @@ public class InvoiceCalculator : IInvoiceCalculator
         uint totalDwellingHour = 0, totalDwellingDay = 0; 
         ulong sumPriceR = 0, sumPriceRVat = 0;
         decimal sumPriceD = 0;
+        double discountPercent = 0;
         List<PreInvoiceDetailDto> preInvoiceDetails = new();
 
         foreach (var vesselStoppage in vesselStoppages)
@@ -57,11 +58,10 @@ public class InvoiceCalculator : IInvoiceCalculator
             var cleaningServiceTariffDetail = PrepareCleaningServiceTariffDetails(voyage, cleaningServiceTariff);
             
             Currency currency = await PrepareCurrentCurrencyRateAsync(vesselStoppage);
-            DiscountTariff? discountTariff = await _neginDbContext.DiscountTariffs.AsNoTracking()
-                                        .Where(c => c.EffectiveDate <= vesselStoppage.ATA.Value).OrderBy(c => c.EffectiveDate).LastOrDefaultAsync();
 
-            decimal priceDVS = CalculateVesselStoppagePriceDollar(vesselStoppageTariffDetail, discountTariff, voyage, dwellingHour, vesselStoppage.ATA.Value);
-            decimal priceDCS = CalculateCleaningServicePriceDollar(cleaningServiceTariffDetail, discountTariff, voyage, dwellingDay, vesselStoppage.ATA.Value);
+            decimal priceDVS = CalculateVesselStoppagePriceDollar(vesselStoppageTariffDetail, voyage, dwellingHour);
+            decimal priceDCS = CalculateCleaningServicePriceDollar(cleaningServiceTariffDetail, dwellingDay);
+            discountPercent = CalculateDiscount(voyage, vesselStoppage.ATA.Value, ref priceDVS, ref priceDCS);
 
             sumPriceD += priceDVS + priceDCS;
 
@@ -111,7 +111,7 @@ public class InvoiceCalculator : IInvoiceCalculator
                 VATPercent = Convert.ToByte(vatTariff?.Rate),
                 StoppageIssuedBy = vesselStoppage?.CreatedBy?.UserName,
                 Currency = currency,
-                DiscountPercent = discountTariff != null ? (byte)(discountTariff.DiscountPercent * 100) : null
+                DiscountPercent = (byte)discountPercent
             };
             preInvoiceDetails.Add(preInvoiceDetail);
         }
@@ -132,6 +132,7 @@ public class InvoiceCalculator : IInvoiceCalculator
             SumPriceD = sumPriceD,
             SumPriceR = sumPriceR,
             SumPriceRVat = sumPriceRVat,
+            DiscountPercent = (byte)discountPercent
         };
 
         return result;
@@ -155,10 +156,12 @@ public class InvoiceCalculator : IInvoiceCalculator
             TotalDwellingHour = preInvoice.TotalDwellingHour,
             CreatedById = _httpContextAccessor.HttpContext.User?.Identity?.GetCurrentUserId(),
             CreateDate = DateTime.Now,
+            DiscountPercent = preInvoice.DiscountPercent,
         };
         try
         {
             await _neginDbContext.Invoices.AddAsync(newInvoice);
+            await _neginDbContext.SaveChangesAsync();
         }
         catch (Exception ex)
         {
@@ -294,7 +297,7 @@ public class InvoiceCalculator : IInvoiceCalculator
     #endregion
 
     #region Pricing
-    private decimal CalculateVesselStoppagePriceDollar(VesselStoppageTariffDetails vesselStoppageTariffDetail, DiscountTariff? discountTariff, Voyage voyage, uint dwellingHour, DateTime ata)
+    private decimal CalculateVesselStoppagePriceDollar(VesselStoppageTariffDetails vesselStoppageTariffDetail, Voyage voyage, uint dwellingHour)
     {
         decimal priceDVS = 0;
         if (dwellingHour <= vesselStoppageTariffDetail?.NormalHour)
@@ -307,27 +310,24 @@ public class InvoiceCalculator : IInvoiceCalculator
             var normalH = dwellingHour - extraH;
             priceDVS = Math.Round((Convert.ToDecimal((normalH * vesselStoppageTariffDetail?.NormalPrice * voyage.Vessel?.GrossTonage) / 100) + Convert.ToDecimal((extraH * vesselStoppageTariffDetail?.ExtraPrice * voyage.Vessel?.GrossTonage) / 100)), 2);
         }
-        priceDVS = CalculateDiscountAsync(discountTariff, voyage, ata, priceDVS);
         return priceDVS;
     }
-    private decimal CalculateCleaningServicePriceDollar(CleaningServiceTariffDetails cleaningServiceTariffDetail, DiscountTariff? discountTariff, Voyage voyage, uint dwellingDay, DateTime ata)
+    private decimal CalculateCleaningServicePriceDollar(CleaningServiceTariffDetails cleaningServiceTariffDetail, uint dwellingDay)
     {
-        decimal priceDCS = 0;
-        priceDCS = Math.Round(Convert.ToDecimal(dwellingDay * cleaningServiceTariffDetail?.Price), 2);
-        priceDCS = CalculateDiscountAsync(discountTariff, voyage, ata, priceDCS);
-        return priceDCS;
+        return Math.Round(Convert.ToDecimal(dwellingDay * cleaningServiceTariffDetail?.Price), 2);
     }
 
-    private decimal CalculateDiscountAsync(DiscountTariff? discountTariff,Voyage voyage, DateTime ata, decimal priceD)
+    private double CalculateDiscount(Voyage voyage, DateTime ata,ref decimal priceDVS, ref decimal priceDCS)
     {
-        if (discountTariff != null)
+        if (voyage.Vessel?.FlagId == 207 && voyage.Vessel.GrossTonage <= 1000)
         {
-            if (voyage.Vessel?.FlagId == discountTariff.FlagId && voyage.Vessel?.GrossTonage <= discountTariff.ToGrossTonage)
-            {
-                priceD = Math.Round(priceD - (priceD * Convert.ToDecimal(discountTariff.DiscountPercent)), 2);
-            }
+            DiscountTariff? discountTariff =  _neginDbContext.DiscountTariffs.AsNoTracking()
+                                            .Where(c => c.EffectiveDate <= ata).OrderBy(c => c.EffectiveDate).LastOrDefault();
+            priceDVS = Math.Round(priceDVS - (priceDVS * Convert.ToDecimal(discountTariff?.DiscountPercent)), 2);
+            priceDCS = Math.Round(priceDCS - (priceDCS * Convert.ToDecimal(discountTariff?.DiscountPercent)), 2);
+            return discountTariff != null ? discountTariff.DiscountPercent * 100 : 0;
         }
-        return priceD;
+        return 0;
     }
     private ulong CalculatePriceRial(Voyage voyage, Currency currency, decimal priceD)
     {

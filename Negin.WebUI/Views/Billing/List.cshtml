@@ -2,135 +2,118 @@
     ViewData["Title"] = Model.Voyages.PageInfo.Title;
 }
 @model Negin.WebUI.Models.ViewModels.InvoiceViewModel
+@inject IUrlHelper UrlHelper;
 
 <div class="row g-xl-4">
-    <div class="col-lg-6 col-xxl-4">
-        <div class="card h-100">
-            <div class="card-body p-9">
-                <div class="fs-2hx fw-bold">@Model.ActiveVoyages</div>
-                <div class="fs-4 fw-semibold text-gray-400 mb-7">Active Voyages</div>
-                <div class="d-flex flex-wrap">
-                    <!--begin::Chart-->
-                    <div class="d-flex flex-center h-100px w-100px me-9 mb-5">
-                        <canvas id="kt_voyage_list_chart1" width="100" height="100" style="display: block; box-sizing: border-box; height: 100px; width: 100px;"></canvas>
-                    </div>
-                    <!--end::Chart-->
-                    <!--begin::Labels-->
-                    <div class="d-flex flex-column justify-content-center flex-row-fluid pe-11 mb-5">
-                        <!--begin::Label-->
-                        <div class="d-flex fs-6 fw-semibold align-items-center mb-3">
-                            <div class="bullet bg-primary me-3"></div>
-                            <div class="text-gray-400">InProcess</div>
-                            <div class="ms-auto fw-bold text-gray-700">@Model.InProcess</div>
-                        </div>
-                        <!--end::Label-->
-                        <!--begin::Label-->
-                        <div class="d-flex fs-6 fw-semibold align-items-center mb-3">
-                            <div class="bullet bg-success me-3"></div>
-                            <div class="text-gray-400">Gone</div>
-                            <div class="ms-auto fw-bold text-gray-700">@Model.Gone</div>
-                        </div>
-                        <!--end::Label-->
-                        <!--begin::Label-->
-                        <div class="d-flex fs-6 fw-semibold align-items-center">
-                            <div class="bullet bg-gray-300 me-3"></div>
-                            <div class="text-gray-400">WaitForVessel</div>
-                            <div class="ms-auto fw-bold text-gray-700">@Model.WaitForVessel</div>
-                        </div>
-                        <!--end::Label-->
-                    </div>
-                    <!--end::Labels-->
+    <div class="card">
+        <div class="card-header border-0 pt-6" data-select2-id="select2-data-132-bv4b">
+            <!--begin::Card title-->
+            <div class="card-title">
+                <!--begin::Search-->
+                <div class="d-flex align-items-center position-relative my-1">
+                    <!--begin::Svg Icon | path: icons/duotune/general/gen021.svg-->
+                    <span class="svg-icon svg-icon-1 position-absolute ms-6">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect opacity="0.5" x="17.0365" y="15.1223" width="8.15546" height="2" rx="1" transform="rotate(45 17.0365 15.1223)" fill="currentColor"></rect>
+                            <path d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                    <!--end::Svg Icon-->
+                    <input type="text" id="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search vessel" value="@Model.Voyages.PageInfo.Filter">
+                </div>
+                <!--end::Search-->
+            </div>
+            <!--begin::Card title-->
+        </div>
+        <div class="card-body p-10" style="padding-top:10px !important">
+            <!--begin::Table-->
+            <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                <div class="table-responsive">
+                    <table class="table align-middle table-row-dashed fs-6 gy-4" data-paging="false" data-info="false" data-responsive="true">
+                        <!--begin::Table head-->
+                        <thead>
+                            <!--begin::Table row-->
+                            <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                                <th class="w-220px" data-priority="1">Vessel Name / Voyage No In</th>
+                                <th>Owner</th>
+                                <th class="min-w-175px">Agent</th>
+                                <th class="w-70px">Status</th>
+                                <th data-priority="2"></th>
+                            </tr>
+                            <!--end::Table row-->
+                        </thead>
+                        <!--end::Table head-->
+                        <!--begin::Table body-->
+                        <tbody class="text-dark fw-bold">
+                            @foreach (Voyage voyage in Model.Voyages.Data)
+                            {
+                                <tr class="h-60px">
+                                    <td>
+                                        @voyage.Vessel?.Name / @voyage.VoyageNoIn
+                                    </td>
+                                    <td class="text-gray-400">@voyage.Owner?.ShippingLineName</td>
+                                    <td class="text-gray-400">@voyage.Agent?.ShippingLineName</td>
+                                    <td>
+                                        @{
+                                            var firstVesselStoppage = voyage.VesselStoppages.LastOrDefault();
+                                        }
+                                        @if(firstVesselStoppage != null)
+                                        {
+                                            <partial name="../Shared/_VesselStoppageStatus.cshtml" for="@firstVesselStoppage"></partial>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        @if (voyage.VesselStoppages?.Where(c => c.Status == VesselStoppage.VesselStoppageStatus.Gone).Count() > 0)
+                                        {
+                                            <a href="/Billing/CreateInvoice?voyageId=@voyage.Id" class="btn btn-bg-light btn-active-color-primary btn-sm">Create Invoice</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <!--end::Table body-->
+                    </table>
+                    <ul class="pagination">
+                        <li id="previous" class="page-item previous"><a href="@UrlHelper.Action("List", new { pageNumber = Model.Voyages.PageInfo.PageNumber-1, filter=Model.Voyages.PageInfo.Filter })" class="page-link"><i class="previous"></i></a></li>
+                        @for (int i = 1; i <= Model.Voyages.PageInfo.PageCount; i++)
+                        {
+
+                            <li class="page-item @(i == Model.Voyages.PageInfo.PageNumber ? "active" : "")">
+                                <a class="page-link " href="@UrlHelper.Action("List", new { pageNumber = i,filter=@Model.Voyages.PageInfo.Filter })">@i</a>
+                            </li>
+
+                        }
+                        <li id="next" class="page-item next"><a href="@UrlHelper.Action("List", new { pageNumber = Model.Voyages.PageInfo.PageNumber+1, filter=Model.Voyages.PageInfo.Filter })" class="page-link"><i class="next"></i></a></li>
+                    </ul>
                 </div>
             </div>
+            <!--end::Table-->
         </div>
     </div>
-    <div class="col-lg-6 col-xxl-4">
-        <div class="card h-100">
-            <div class="card-body p-9">
-                <div class="fs-2hx fw-bold">@Model.VesselStoppageCount</div>
-                <div class="fs-4 fw-semibold text-gray-400 mb-7">Ready for Invoicing</div>
-                <div class="d-flex flex-wrap">
-                    <!--begin::Chart-->
-                    <div class="d-flex flex-center h-100px w-100px me-9 mb-5">
-                        <canvas id="kt_voyage_list_chart2" width="100" height="100" style="display: block; box-sizing: border-box; height: 100px; width: 100px;"></canvas>
-                    </div>
-                    <!--end::Chart-->
-                    <!--begin::Labels-->
-                    <div class="d-flex flex-column justify-content-center flex-row-fluid pe-11 mb-5">
-                        <!--begin::Label-->
-                        <div class="d-flex fs-6 fw-semibold align-items-center mb-3">
-                            <div class="bullet bg-primary me-3"></div>
-                            <div class="text-gray-400">Invoiced</div>
-                            <div class="ms-auto fw-bold text-gray-700">@Model.Invoiced</div>
-                        </div>
-                        <!--end::Label-->
-                        <!--begin::Label-->
-                        <div class="d-flex fs-6 fw-semibold align-items-center mb-3">
-                            <div class="bullet bg-gray-300 me-3"></div>
-                            <div class="text-gray-400">Not Invoiced</div>
-                            <div class="ms-auto fw-bold text-gray-700">@(Model.VesselStoppageCount - Model.Invoiced)</div>
-                        </div>
-                        <!--end::Label-->
-                    </div>
-                    <!--end::Labels-->
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6 col-xxl-4">
-        <div class="card h-100">
-            <div class="card-body p-9">
-                <div class="fs-2hx fw-bold">@Model.Invoiced</div>
-                <div class="fs-4 fw-semibold text-gray-400 mb-7">Invoiced</div>
-                <div class="d-flex flex-wrap">
-                    <!--begin::Chart-->
-                    <div class="d-flex flex-center h-100px w-100px me-9 mb-5">
-                        <canvas id="kt_voyage_list_chart3" width="100" height="100" style="display: block; box-sizing: border-box; height: 100px; width: 100px;"></canvas>
-                    </div>
-                    <!--end::Chart-->
-                    <!--begin::Labels-->
-                    <div class="d-flex flex-column justify-content-center flex-row-fluid pe-11 mb-5">
-                        <!--begin::Label-->
-                        <div class="d-flex fs-6 fw-semibold align-items-center mb-3">
-                            <div class="bullet bg-primary me-3"></div>
-                            <div class="text-gray-400">Confirmed</div>
-                            <div class="ms-auto fw-bold text-gray-700">@Model.Confirmed</div>
-                        </div>
-                        <!--end::Label-->
-                        <!--begin::Label-->
-                        <div class="d-flex fs-6 fw-semibold align-items-center">
-                            <div class="bullet bg-gray-300 me-3"></div>
-                            <div class="text-gray-400">Not Confirmed</div>
-                            <div class="ms-auto fw-bold text-gray-700">@(Model.Invoiced - Model.Confirmed)</div>
-                        </div>
-                        <!--end::Label-->
-                    </div>
-                    <!--end::Labels-->
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="voyageList" class="row g-xl-4">
-    <partial name="Shared/_VoyageInvoice.cshtml" for="@Model.Voyages"></partial>
+
 </div>
 
 @section Scripts{
-    <script src="~/assets/plugins/doughnutchart.js"></script>
     <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script type="text/javascript">
-        $(document).ready(function(){
-            var data1 = [@Model.InProcess, @Model.Gone, @Model.WaitForVessel];
-            var data2 = [@Model.Invoiced, 0, @(Model.VesselStoppageCount - Model.Invoiced)];
-            var data3 = [@Model.Confirmed, 0, @(Model.Invoiced - Model.Confirmed)]
-            KTUtil.onDOMContentLoaded(function () {
-                KTDoughnutList.init(data1, $('#kt_voyage_list_chart1'), ['InProcess', 'Gone', 'WaitForVessel']);
-                KTDoughnutList.init(data2, $('#kt_voyage_list_chart2'), ['Invoiced', '', 'NotInvoiced']);
-                KTDoughnutList.init(data3, $('#kt_voyage_list_chart3'), ['Confirmed', '', 'NotConfirmed']);
+        $(document).ready(function () {
+            $('#search').keydown(function (event) {
+                if (event.which == 13) {
+                    location = '/Billing/List/?filter=' + $('#search').val();
+                }
             });
+
+            if (@Model.Voyages.PageInfo.PageNumber >= @Model.Voyages.PageInfo.PageCount) {
+                $('#next').addClass("disabled")
+            }
+            if (@Model.Voyages.PageInfo.PageNumber <= 1) {
+                $('#previous').addClass("disabled")
+            }
         })
     </script>
+
 }
 
 @section Links{

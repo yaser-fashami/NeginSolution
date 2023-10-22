@@ -1,4 +1,5 @@
 ﻿using Negin.Core.Domain.Aggregates.Billing;
+using Negin.Core.Domain.KeylessEntities;
 using Negin.Framework.Exceptions;
 using Negin.Framework.Pagination;
 
@@ -11,4 +12,6 @@ public interface IInvoiceRepository
     Task<BLMessage> CancelInvoice(ulong id);
     Task<BLMessage> ConfirmInvoice(ulong id);
     Task<int> InvoiceConfirmedCount();
+    DataForDashboardChart1_Proc[] GetSumPriceProc(string year);
+    Task<IList<int>> GetExistYear();
 }

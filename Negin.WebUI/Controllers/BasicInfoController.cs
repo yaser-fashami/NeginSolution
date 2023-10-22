@@ -35,7 +35,7 @@ namespace Negin.WebUI.Controllers
         }
 
         #region Vessel
-        [DefaultBreadcrumb("Home")]
+        [Breadcrumb("Vessel")]
 		public async Task<IActionResult> List(int pageNumber = 1, int pageCount = 10, string filter = "")
         {
             var model = await _vesselRepository.GetPaginationVesselsAsync(pageNumber, pageCount, filter);
@@ -129,7 +129,7 @@ namespace Negin.WebUI.Controllers
 		#endregion
 
 		#region ShippingLineCompany
-		[Breadcrumb("ShippingLines")]
+		[Breadcrumb("ShippingLines", FromAction = "List", FromController = typeof(DashboardController))]
 		public async Task<IActionResult> ShippingLineList(int pageNumber = 1, int pageCount = 10, string filter = "")
         {
             var model = await _shippingLineCompanyRepository.GetPaginationShippingLineCompaniesAsync(pageNumber, pageCount, filter);
@@ -235,7 +235,7 @@ namespace Negin.WebUI.Controllers
         #endregion
 
         #region Voyage
-        [Breadcrumb("Voyages")]
+        [Breadcrumb("Voyages", FromAction = "List", FromController = typeof(DashboardController))]
         public IActionResult VoyageList(int pageNumber = 1, int pageCount = 10, string filter = "")
         {
             var model = _voyageRepository.GetPaginationVoyagesAsync(pageNumber, pageCount, filter).Result;
@@ -333,7 +333,7 @@ namespace Negin.WebUI.Controllers
         #endregion
 
         #region Currencies
-        [Breadcrumb("Currencies")]
+        [Breadcrumb("Currencies", FromAction = "List", FromController = typeof(DashboardController))]
         public IActionResult CurrencyList(int pageNumber = 1, int pageCount = 10)
 		{
 			var model = _basicInfoRepository.GetPaginationCurrenciesAsync(pageNumber, pageCount).Result;
@@ -375,7 +375,7 @@ namespace Negin.WebUI.Controllers
         #endregion
 
         #region VesselStoppageTariff
-        [Breadcrumb("VesselStoppageTariffs")]
+        [Breadcrumb("VesselStoppageTariffs", FromAction = "List", FromController = typeof(DashboardController))]
         public IActionResult VesselStoppageTariffList(int pageNumber = 1, int pageCount = 10, string filter = "")
 		{
 			var model = _basicInfoRepository.GetPaginationVesselStoppageTariffAsync(pageNumber, pageCount, filter).Result;
@@ -442,7 +442,7 @@ namespace Negin.WebUI.Controllers
 		#endregion
 
 		#region CleaningServiceTariff
-		[Breadcrumb("CleaningServiceTariffs")]
+		[Breadcrumb("CleaningServiceTariffs", FromAction = "List", FromController = typeof(DashboardController))]
 		public IActionResult CleaningServiceTariffList(int pageNumber = 1, int pageCount = 10, string filter = "")
 		{
 			var model = _basicInfoRepository.GetPaginationCleaningServiceTariffAsync(pageNumber, pageCount, filter).Result;

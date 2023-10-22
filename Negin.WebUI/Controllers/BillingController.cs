@@ -35,25 +35,10 @@ public class BillingController : Controller
         var model = new InvoiceViewModel
         {
             Voyages = voyages,
-            ActiveVoyages = voyages.Data.Count(),
-            Gone = voyages.Data.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.Gone).Count(),
-            InProcess = voyages.Data.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.InProcess).Count(),
-            WaitForVessel = voyages.Data.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.WaitForVessel).Count(),
-            VesselStoppageCount = voyages.Data.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.Gone ||
-                                                                                                c.Status == VesselStoppage.VesselStoppageStatus.Invoiced).Count(),
-            Invoiced = voyages.Data.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.Invoiced).Count(),
-            Confirmed = _invoiceRepository.InvoiceConfirmedCount().Result
         };
 
         ViewData["ActiveLink"] = "invoice";
         return View(model);
-    }
-
-    public IActionResult VoyageList(int pageNumber = 1, int pageCount = 10, string filter = "") 
-    {
-        var model = _voyageRepository.GetPaginationVoyagesForBillingAsync(pageNumber, pageCount, filter).Result;
-        model.PageInfo.Filter = filter;
-        return PartialView("Shared/_VoyageInvoice", model); 
     }
 
     [Authorize(Roles ="admin")]
@@ -101,7 +86,7 @@ public class BillingController : Controller
     [Authorize(Roles = "admin")]
     public BLMessage Invoicing()
     {
-        BLMessage result;
+        BLMessage result = null;
         try
         {
             var preInvoiceStr = HttpContext.Session.GetString("PreInvoice");
@@ -112,11 +97,14 @@ public class BillingController : Controller
             else
             {
                 var preInvoice = JsonConvert.DeserializeObject<PreInvoiceDto>(preInvoiceStr);
-                result = _invoiceCalculator.Invoicing(preInvoice).Result;
-                if (result.State == true)
+                if (preInvoice != null)
                 {
-                    HttpContext.Session.Remove("PreInvoice"); 
-                }
+                    result = _invoiceCalculator.Invoicing(preInvoice).Result;
+                    if (result.State == true)
+                    {
+                        HttpContext.Session.Remove("PreInvoice");
+                    }
+                }    
             }
         }
         catch (Exception)
@@ -128,7 +116,7 @@ public class BillingController : Controller
         return result;
     }
 
-    [Breadcrumb("Issued", FromAction = "List", FromController = typeof(BasicInfoController))]
+    [Breadcrumb("Issued", FromAction = "List", FromController = typeof(DashboardController))]
     public IActionResult IssuedInvoiceList(int pageNumber = 1, int pageSize = 10, string filter = "")
     {
         var invoices = _invoiceRepository.GetPaginationInvoiceAsync(pageNumber, pageSize, filter).Result;

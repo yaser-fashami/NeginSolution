@@ -37,7 +37,7 @@ public class AccountController : Controller
 				var currentUser = _userManager.FindByNameAsync(userName).Result;
 				currentUser.LastLogInDate = DateTime.Now;
 				await _userManager.UpdateAsync(currentUser);
-				return Redirect("/BasicInfo/List");
+				return Redirect("/Dashboard/List");
             }
             ModelState.AddModelError("", "Invalid user name or password");
         }

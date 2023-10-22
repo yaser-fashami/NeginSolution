@@ -7,6 +7,7 @@ using Negin.Core.Domain.Aggregates.Billing;
 using Negin.Core.Domain.Aggregates.Operation;
 using Negin.Core.Domain.Entities;
 using Negin.Core.Domain.Entities.Basic;
+using Negin.Core.Domain.KeylessEntities;
 using Negin.Framework.Utilities;
 using Negin.Infra.Data.Sql.Configurations;
 
@@ -44,6 +45,7 @@ public class NeginDbContext : IdentityDbContext<User>
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<VesselStoppageInvoiceDetail> VesselStoppageInvoiceDetails { get; set; }
     public DbSet<CleaningServiceInvoiceDetail> CleaningServiceInvoiceDetails { get; set; }
+    public DbSet<DataForDashboardChart1_Proc> DataForDashboardChart1_Proc { get; set; }
     #endregion
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -76,6 +78,8 @@ public class NeginDbContext : IdentityDbContext<User>
         builder.ApplyConfiguration(new DiscountTariffConfig());
 		builder.ApplyConfiguration(new VatTariffConfig());
 
+		builder.Entity<DataForDashboardChart1_Proc>()
+			.HasNoKey();
 
 		var user = new User() { Id = Guid.NewGuid().ToString(), UserName="admin", PasswordHash = Util.GetHashString("123"), IsActived = true };
 

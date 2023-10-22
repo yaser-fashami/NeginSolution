@@ -12,5 +12,5 @@ public class PreInvoiceDetailDto
     public byte? VATPercent { get; set; }
     public string StoppageIssuedBy { get; set; }
     public Currency Currency { get; set; }
-    public byte? DiscountPercent { get; set; }
+    public byte DiscountPercent { get; set; }
 }

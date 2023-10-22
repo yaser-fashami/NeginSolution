@@ -51,7 +51,7 @@ public class BasicInfoRepository : IBasicInfoRepository
 
 	public async Task<PagedData<Currency>> GetPaginationCurrenciesAsync(int pageNumber = 1, int pageSize = 10)
 	{
-		var currnecies = _neginDbContext.Currencies.AsNoTracking();
+		var currnecies = _neginDbContext.Currencies.OrderByDescending(c => c.Date).AsNoTracking();
 
 		PagedData<Currency> result = new()
 		{
@@ -61,8 +61,7 @@ public class BasicInfoRepository : IBasicInfoRepository
 				PageSize = pageSize,
 				TotalCount = await currnecies.CountAsync()
 			},
-			Data = await currnecies.OrderByDescending(x => x.Date)
-								.ToPagination(pageNumber, pageSize)
+			Data = await currnecies.ToPagination(pageNumber, pageSize)
 								.ToListAsync()
 		};
 

@@ -11,6 +11,7 @@ using Negin.Core.Domain.Aggregates.Basic;
 using Negin.Core.Domain.Aggregates.Operation;
 using Negin.Core.Domain.Entities.Basic;
 using Negin.Framework.JoinExtentions;
+using Negin.Core.Domain.Dtos;
 
 namespace Negin.Infra.Data.Sql.EFRepositories;
 
@@ -96,12 +97,14 @@ public class VoyageRepository : IVoyageRepository
 
         var voyages = _neginDbContext.Voyages
             .Include(v => v.Vessel)
-            .Include(s => s.VesselStoppages).ThenInclude(i => i.VesselStoppageInvoiceDetail).ThenInclude(i=>i.Invoice).Include(o => o.Owner).Include(a => a.Agent).AsNoTracking()
+            .Include(s => s.VesselStoppages).ThenInclude(i => i.VesselStoppageInvoiceDetail).ThenInclude(i => i.Invoice)
+            .Include(o => o.Owner).Include(a => a.Agent).AsNoTracking()
                             .Where(c => c.IsDelete == false)
                             .Where(c => noFilter || c.Vessel.Name.Contains(filter)
                                                  || c.VoyageNoIn.Contains(filter)
                                                  || c.Owner.ShippingLineName.Contains(filter)
                                                  || c.Agent.ShippingLineName.Contains(filter));
+
 
         PagedData<Voyage> result = new()
         {
@@ -111,7 +114,7 @@ public class VoyageRepository : IVoyageRepository
                 PageSize = pageSize,
                 TotalCount = await voyages.CountAsync()
             },
-            Data = await voyages.OrderBy(x => x.Vessel.Name)
+            Data = await voyages.OrderByDescending(c=>c.CreateDate)
                         .ToPagination(pageNumber, pageSize)
                         .ToListAsync()
         };
@@ -386,4 +389,29 @@ public class VoyageRepository : IVoyageRepository
         }
     }
 
+    public async Task<DashboardDto> GetAllVoyageForDashboard()
+    {
+        var voyages = await _neginDbContext.Voyages
+                        .Include(v => v.Vessel)
+                        .Include(s => s.VesselStoppages).ThenInclude(i => i.VesselStoppageInvoiceDetail).ThenInclude(i => i.Invoice)
+                        .Include(o => o.Owner).Include(a => a.Agent).AsNoTracking()
+                            .Where(c => c.IsDelete == false)
+                            .ToListAsync();
+
+        voyages.ForEach(v => { SetStatus(v.VesselStoppages); });
+
+        DashboardDto result = new()
+        {
+            ActiveVoyages = (uint)voyages.Count,
+            Gone = (uint)voyages.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.Gone ||
+                                                                                c.Status == VesselStoppage.VesselStoppageStatus.Invoiced).Count(),
+            InProcess = (uint)voyages.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.InProcess).Count(),
+            WaitForVessel = (uint)voyages.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.WaitForVessel).Count(),
+            VesselStoppageCount = (uint)voyages.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.Gone ||
+                                                                                                c.Status == VesselStoppage.VesselStoppageStatus.Invoiced).Count(),
+            Invoiced = (uint)voyages.SelectMany(c => c.VesselStoppages).Where(c => c.Status == VesselStoppage.VesselStoppageStatus.Invoiced).Count()
+        };
+
+        return result;
+    }
 }

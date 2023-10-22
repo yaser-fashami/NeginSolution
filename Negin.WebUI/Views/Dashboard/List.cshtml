@@ -1,0 +1,311 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+@model Negin.WebUI.Models.ViewModels.DashboardViewModel
+
+<div class="row g-xl-4 px-0">
+    <div class="col-lg-6 col-xxl-4">
+        <div class="card h-100">
+            <div class="card-body p-9">
+                <div class="fs-2hx fw-bold">@Model.ActiveVoyages</div>
+                <div class="fs-4 fw-semibold text-gray-400 mb-7">Active Voyages</div>
+                <div class="d-flex flex-wrap">
+                    <!--begin::Chart-->
+                    <div class="d-flex flex-center h-100px w-100px me-9 mb-5">
+                        <canvas id="kt_voyage_list_chart1" width="100" height="100" style="display: block; box-sizing: border-box; height: 100px; width: 100px;"></canvas>
+                    </div>
+                    <!--end::Chart-->
+                    <!--begin::Labels-->
+                    <div class="d-flex flex-column justify-content-center flex-row-fluid pe-11 mb-5">
+                        <!--begin::Label-->
+                        <div class="d-flex fs-6 fw-semibold align-items-center mb-3">
+                            <div class="bullet bg-primary me-3"></div>
+                            <div class="text-gray-400">InProcess</div>
+                            <div class="ms-auto fw-bold text-gray-700">@Model.InProcess</div>
+                        </div>
+                        <!--end::Label-->
+                        <!--begin::Label-->
+                        <div class="d-flex fs-6 fw-semibold align-items-center mb-3">
+                            <div class="bullet bg-success me-3"></div>
+                            <div class="text-gray-400">Gone</div>
+                            <div class="ms-auto fw-bold text-gray-700">@Model.Gone</div>
+                        </div>
+                        <!--end::Label-->
+                        <!--begin::Label-->
+                        <div class="d-flex fs-6 fw-semibold align-items-center">
+                            <div class="bullet bg-gray-300 me-3"></div>
+                            <div class="text-gray-400">WaitForVessel</div>
+                            <div class="ms-auto fw-bold text-gray-700">@Model.WaitForVessel</div>
+                        </div>
+                        <!--end::Label-->
+                    </div>
+                    <!--end::Labels-->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xxl-4">
+        <div class="card h-100">
+            <div class="card-body p-9">
+                <div class="fs-2hx fw-bold">@Model.VesselStoppageCount</div>
+                <div class="fs-4 fw-semibold text-gray-400 mb-7">Ready for Invoicing</div>
+                <div class="d-flex flex-wrap">
+                    <!--begin::Chart-->
+                    <div class="d-flex flex-center h-100px w-100px me-9 mb-5">
+                        <canvas id="kt_voyage_list_chart2" width="100" height="100" style="display: block; box-sizing: border-box; height: 100px; width: 100px;"></canvas>
+                    </div>
+                    <!--end::Chart-->
+                    <!--begin::Labels-->
+                    <div class="d-flex flex-column justify-content-center flex-row-fluid pe-11 mb-5">
+                        <!--begin::Label-->
+                        <div class="d-flex fs-6 fw-semibold align-items-center mb-3">
+                            <div class="bullet bg-primary me-3"></div>
+                            <div class="text-gray-400">Invoiced</div>
+                            <div class="ms-auto fw-bold text-gray-700">@Model.Invoiced</div>
+                        </div>
+                        <!--end::Label-->
+                        <!--begin::Label-->
+                        <div class="d-flex fs-6 fw-semibold align-items-center mb-3">
+                            <div class="bullet bg-gray-300 me-3"></div>
+                            <div class="text-gray-400">Not Invoiced</div>
+                            <div class="ms-auto fw-bold text-gray-700">@(Model.VesselStoppageCount - Model.Invoiced)</div>
+                        </div>
+                        <!--end::Label-->
+                    </div>
+                    <!--end::Labels-->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xxl-4">
+        <div class="card h-100">
+            <div class="card-body p-9">
+                <div class="fs-2hx fw-bold">@Model.Invoiced</div>
+                <div class="fs-4 fw-semibold text-gray-400 mb-7">Invoiced</div>
+                <div class="d-flex flex-wrap">
+                    <!--begin::Chart-->
+                    <div class="d-flex flex-center h-100px w-100px me-9 mb-5">
+                        <canvas id="kt_voyage_list_chart3" width="100" height="100" style="display: block; box-sizing: border-box; height: 100px; width: 100px;"></canvas>
+                    </div>
+                    <!--end::Chart-->
+                    <!--begin::Labels-->
+                    <div class="d-flex flex-column justify-content-center flex-row-fluid pe-11 mb-5">
+                        <!--begin::Label-->
+                        <div class="d-flex fs-6 fw-semibold align-items-center mb-3">
+                            <div class="bullet bg-primary me-3"></div>
+                            <div class="text-gray-400">Confirmed</div>
+                            <div class="ms-auto fw-bold text-gray-700">@Model.Confirmed</div>
+                        </div>
+                        <!--end::Label-->
+                        <!--begin::Label-->
+                        <div class="d-flex fs-6 fw-semibold align-items-center">
+                            <div class="bullet bg-gray-300 me-3"></div>
+                            <div class="text-gray-400">Not Confirmed</div>
+                            <div class="ms-auto fw-bold text-gray-700">@(Model.Invoiced - Model.Confirmed)</div>
+                        </div>
+                        <!--end::Label-->
+                    </div>
+                    <!--end::Labels-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card row g-xl-4 p-5">
+    <div class="card-header col-lg-12 pb-3">
+        <!--begin::Title-->
+        <h3 class="card-title align-items-start flex-column">
+            <span class="card-label fw-bold text-gray-800">Invoices issued by month</span>
+            <span class="text-gray-400 mt-1 fw-semibold fs-6">SumPrice / month</span>
+        </h3>
+        <!--end::Title-->
+        <!--begin::Toolbar-->
+        <div class="card-toolbar">
+            <select id="chart1YearSelect" class="form-select form-select-solid">
+            @foreach (var year in Model.Years)
+            {
+                <option value=@year>Year @year</option>
+            }
+            </select>
+
+       </div>
+
+        <!--end::Toolbar-->
+    </div>
+    <div id="chartdiv"></div>
+</div>
+@section Links{
+    <style>
+        #chartdiv {
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+}
+@section Scripts{
+    <script src="~/assets/plugins/doughnutchart.js"></script>
+    <script src="~/assets/plugins/amcharts5/index.js"></script>
+    <script src="~/assets/plugins/amcharts5/xy.js"></script>
+    <script src="~/assets/plugins/amcharts5/animated.js"></script>
+    <script src="~/assets/js/dashboardchart.js"></script>
+
+    <script type="text/javascript">
+        var chart1Data;
+        $(document).ready(function () {
+            var data1 = [@Model.InProcess, @Model.Gone, @Model.WaitForVessel];
+            var data2 = [@Model.Invoiced, 0, @(Model.VesselStoppageCount - Model.Invoiced)];
+            var data3 = [@Model.Confirmed, 0, @(Model.Invoiced - Model.Confirmed)]
+            KTUtil.onDOMContentLoaded(function () {
+                KTDoughnutList.init(data1, $('#kt_voyage_list_chart1'), ['InProcess', 'Gone', 'WaitForVessel']);
+                KTDoughnutList.init(data2, $('#kt_voyage_list_chart2'), ['Invoiced', '', 'NotInvoiced']);
+                KTDoughnutList.init(data3, $('#kt_voyage_list_chart3'), ['Confirmed', '', 'NotConfirmed']);
+            });
+
+            $('#chart1YearSelect').on('change', function(){
+                location.href = '/Dashboard/List?year=' + $('#chart1YearSelect').val()
+            })
+            var yearValue = (new URL(location.href)).searchParams.get('year');
+            $("#chart1YearSelect").val(yearValue == null ? '1402' : yearValue);
+
+            chart1Data = [{
+                month: "FARVARDIN",
+                Rial: @(Model.Chart1Data[0].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[0].SumPriceD ?? 0)
+            }, {
+                month: "ORDIBEHESHT",
+                Rial: @(Model.Chart1Data[1].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[1].SumPriceD ?? 0)
+            }, {
+                month: "KHORDAD",
+                Rial: @(Model.Chart1Data[2].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[2].SumPriceD ?? 0)
+            }, {
+                month: "TIR",
+                Rial: @(Model.Chart1Data[3].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[3].SumPriceD ?? 0)
+            }, {
+                month: "MORDAD",
+                Rial: @(Model.Chart1Data[4].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[4].SumPriceD ?? 0)
+            }, {
+                month: "SHAHRIVAR",
+                Rial: @(Model.Chart1Data[5].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[5].SumPriceD ?? 0)
+            }, {
+                month: "MEHR",
+                Rial: @(Model.Chart1Data[6].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[6].SumPriceD ?? 0)
+            }, {
+                month: "ABAN",
+                Rial: @(Model.Chart1Data[7].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[7].SumPriceD ?? 0)
+            }, {
+                month: "AZAR",
+                Rial: @(Model.Chart1Data[8].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[8].SumPriceD ?? 0)
+            }, {
+                month: "DEY",
+                Rial: @(Model.Chart1Data[9].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[9].SumPriceD ?? 0)
+            }, {
+                month: "BAHMAN",
+                Rial: @(Model.Chart1Data[10].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[10].SumPriceD ?? 0)
+            }, {
+                month: "ESFAND",
+                Rial: @(Model.Chart1Data[11].SumPriceR ?? 0),
+                Dollar: @(Model.Chart1Data[11].SumPriceD ?? 0)
+            }];
+
+            xAxis.data.setAll(chart1Data);
+
+            makeSeriesAndAxis("Rials", "Rial");
+            makeSeriesAndAxis("Dollars", "Dollar");
+
+            
+        })
+        function makeSeriesAndAxis(name, fieldName) {
+            var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+                renderer: am5xy.AxisRendererY.new(root, {
+                })
+            }));
+
+
+            var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+                maxDeviation: 0.3,
+                renderer: am5xy.AxisRendererY.new(root, {
+                    strokeOpacity: 0.5
+                })
+            }));
+            var label = am5.Label.new(root, {
+                text: name,
+                y: am5.p100,
+                centerX: am5.p0,
+                x: am5.p50,
+                centerY: am5.p0,
+            })
+
+            yAxis.children.unshift(
+                label
+            );
+
+
+            // Create series
+            // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
+            var series = chart.series.push(am5xy.ColumnSeries.new(root, {
+                name: name,
+                xAxis: xAxis,
+                yAxis: yAxis,
+                valueYField: fieldName,
+                sequencedInterpolation: true,
+                categoryXField: "month",
+            }));
+
+            series.columns.template.setAll({ 
+                cornerRadiusTL: 5,
+                cornerRadiusTR: 5,
+                strokeOpacity: 0,
+                shadowColor: am5.color(0x000000),
+                shadowBlur: 10,
+                shadowOffsetX: 2,
+                shadowOffsetY: 2
+            });
+            //series.columns.template.adapters.add("fill", function (fill, target) {
+            //    return chart.get("colors").getIndex(series.columns.indexOf(target));
+            //});
+
+            //series.columns.template.adapters.add("stroke", function (stroke, target) {
+            //    return chart.get("colors").getIndex(series.columns.indexOf(target));
+            //});
+
+            yAxis.get("renderer").labels.template.set("fill", series.get("fill"));
+
+            series.columns.template.setAll({
+                tooltipText: "{categoryX}: {valueY} {name}",
+                width: am5.percent(90),
+                tooltipY: 0,
+            });
+
+            series.bullets.push(function () {
+                return am5.Bullet.new(root, {
+                    locationY: 0,
+                    sprite: am5.Label.new(root, {
+                        text: "{valueY}",
+                        centerY: 0,
+                        centerX: am5.p50,
+                        populateText: true
+                    })
+                });
+            });
+            legend.data.push(series);
+
+            series.data.setAll(chart1Data);
+
+            // Make stuff animate on load
+            // https://www.amcharts.com/docs/v5/concepts/animations/
+            series.appear(1000);
+        }
+
+    </script>
+
+}

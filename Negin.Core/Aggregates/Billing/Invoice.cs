@@ -2,7 +2,6 @@
 using Negin.Core.Domain.Aggregates.Operation;
 using Negin.Core.Domain.Entities;
 using Negin.Core.Domain.Entities.Basic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Negin.Core.Domain.Aggregates.Billing;
 
@@ -18,6 +17,8 @@ public class Invoice : BaseAuditableEntity<ulong>
     public ulong SumPriceR { get; set; }
     public decimal SumPriceD { get; set; }
     public ulong SumPriceRVat { get; set; }
+    public byte DiscountPercent { get; set; }
+
 
     public virtual ICollection<VesselStoppageInvoiceDetail> VesselStoppageInvoiceDetails { get; set; }
     public virtual ICollection<CleaningServiceInvoiceDetail> CleaningServiceInvoiceDetails { get; set; }

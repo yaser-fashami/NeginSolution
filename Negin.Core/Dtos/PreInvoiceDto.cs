@@ -21,4 +21,5 @@ public class PreInvoiceDto
     public ulong SumPriceR { get; set; }
     public decimal SumPriceD { get; set; }
     public ulong SumPriceRVat { get; set; }
+    public byte DiscountPercent { get; set; }
 }

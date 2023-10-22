@@ -7,8 +7,15 @@
     <SignAssembly>True</SignAssembly>
 	<Title>Negin Sulotion</Title>
 	<Authors>Yaser Fashami</Authors>
-	<Version>1.0.8</Version>
+	<Version>1.2.0</Version>
   </PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Views\Billing\Shared\**" />
+	  <Content Remove="Views\Billing\Shared\**" />
+	  <EmbeddedResource Remove="Views\Billing\Shared\**" />
+	  <None Remove="Views\Billing\Shared\**" />
+	</ItemGroup>
 
   <ItemGroup>
     <None Include="wwwroot\sass\vendors\plugins\mixins\_select2.scss" />

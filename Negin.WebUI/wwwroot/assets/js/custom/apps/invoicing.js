@@ -1,8 +1,8 @@
 
 $("#invoicing_btn").click(function () {
     Swal.fire({
-        text: "Are you sure you want to issue this invoice?",
         icon: "warning",
+        title:"Are you sure you want to issue this invoice?",
         showCancelButton: !0,
         buttonsStyling: !1,
         confirmButtonText: "Yes, do it!",

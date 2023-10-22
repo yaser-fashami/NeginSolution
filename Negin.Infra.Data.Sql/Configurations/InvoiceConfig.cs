@@ -16,6 +16,7 @@ internal class InvoiceConfig : IEntityTypeConfiguration<Invoice>
         builder.Property(x => x.Status).IsRequired().HasColumnType("tinyint");
         builder.Property(x => x.IsPaied).IsRequired().HasDefaultValue(false);
         builder.Property(x => x.TotalDwellingHour).IsRequired().HasColumnType("int");
+        builder.Property(x => x.DiscountPercent).IsRequired();
 
         #region Navigation
         builder.HasMany(c => c.VesselStoppageInvoiceDetails).WithOne(d => d.Invoice).HasForeignKey(s => s.InvoiceId);

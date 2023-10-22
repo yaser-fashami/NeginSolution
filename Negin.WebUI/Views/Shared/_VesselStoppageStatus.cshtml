@@ -1,0 +1,22 @@
+﻿@{
+    Layout = null;
+}
+@model VesselStoppage
+
+@if (Model.Status == VesselStoppage.VesselStoppageStatus.Gone)
+{
+    <span class="badge py-3 px-4 fs-7 badge-light-success">@Model.Status</span>
+}
+else if (Model.Status == VesselStoppage.VesselStoppageStatus.InProcess)
+{
+    <span class="badge py-3 px-4 fs-7 badge-light-primary">@Model.Status</span>
+}
+else if (Model.Status == VesselStoppage.VesselStoppageStatus.WaitForVessel)
+{
+    <span class="badge py-3 px-4 fs-7 badge-light-warning">@Model.Status</span>
+}
+else if (Model.Status == VesselStoppage.VesselStoppageStatus.Invoiced)
+{
+    <span class="badge py-3 px-4 fs-7 badge-light-info">@Model.Status</span>
+}
+

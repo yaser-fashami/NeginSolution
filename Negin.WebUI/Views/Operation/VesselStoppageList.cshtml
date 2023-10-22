@@ -97,22 +97,7 @@
                                 <td><div class="badge badge-light fw-bold">@Html.Raw(vesselStoppage.ETD != null ? @vesselStoppage.ETD.ToShamsiDateString(vesselStoppage.ETDDayOfTheWeek) : "")</div></td>
                                 <td><div class="badge badge-dark fw-bold">@Html.Raw(vesselStoppage.ATD != null ? @vesselStoppage.ATD.ToShamsiDateString(vesselStoppage.ATDDayOfTheWeek) : "")</div></td>
                                 <td>
-                                @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.Gone)
-                                {
-                                        <span class="badge py-3 px-4 fs-7 badge-light-success">@vesselStoppage.Status</span>
-                                }
-                                else if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.InProcess)
-                                {
-                                        <span class="badge py-3 px-4 fs-7 badge-light-primary">@vesselStoppage.Status</span>
-                                }
-                                else if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.WaitForVessel)
-                                {
-                                        <span class="badge py-3 px-4 fs-7 badge-light-warning">@vesselStoppage.Status</span>
-                                }
-                                else if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.Invoiced)
-                                {
-                                    <span class="badge py-3 px-4 fs-7 badge-light-info">@vesselStoppage.Status</span>
-                                }
+                                    <partial name="../Shared/_VesselStoppageStatus.cshtml" for="@vesselStoppage"></partial>
                                 </td>
                                 <td>@vesselStoppage.OriginPort?.PortName - @vesselStoppage.OriginPort?.PortSymbol</td>
                                 <td>@vesselStoppage.PreviousPort?.PortName - @vesselStoppage.PreviousPort?.PortSymbol</td>

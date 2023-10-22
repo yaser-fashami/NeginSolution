@@ -178,7 +178,7 @@
                                                                 <span>VesselStoppage Cost</span>
                                                             </td>
                                                                 <td class="pt-6">@preInvoiceDetail.VesselStoppageInvoiceDetail.DwellingHour h</td>
-                                                                <td class="pt-6">@if (preInvoiceDetail.DiscountPercent != null && preInvoiceDetail.DiscountPercent > 0)
+                                                                <td class="pt-6">@if (preInvoiceDetail.DiscountPercent != 0)
                                                                     {
                                                                         <span>(Discount: @preInvoiceDetail.DiscountPercent%) </span>
                                                                     } $@preInvoiceDetail.VesselStoppageInvoiceDetail.PriceD </td>
@@ -200,7 +200,7 @@
                                                             </td>
                                                                 <td class="pt-6">@preInvoiceDetail.CleaningServiceInvoiceDetail.DwellingHour h (@Model.TotalDwellingDays days)</td>
                                                                 <td class="pt-6">
-                                                                    @if (preInvoiceDetail.DiscountPercent != null && preInvoiceDetail.DiscountPercent > 0)
+                                                                    @if (preInvoiceDetail.DiscountPercent != 0)
                                                                     {
                                                                         <span>(Discount: @preInvoiceDetail.DiscountPercent%)</span>
                                                                     } $@preInvoiceDetail.CleaningServiceInvoiceDetail.PriceD </td>

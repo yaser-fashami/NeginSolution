@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Negin.Core.Domain.Aggregates.Billing;
 using Negin.Core.Domain.Interfaces;
+using Negin.Core.Domain.KeylessEntities;
 using Negin.Framework.Exceptions;
 using Negin.Framework.Pagination;
+using Negin.Framework.Utilities;
 using Negin.Infrastructure;
 
 namespace Negin.Infra.Data.Sql.EFRepositories;
@@ -63,6 +65,17 @@ public class InvoiceRepository : IInvoiceRepository
         return result;
     }
 
+    public async Task<IList<int>> GetExistYear()
+    {
+        IList<PersianDate> persianDates = new List<PersianDate>();
+        var miladi = await _neginDBcontext.Invoices.Select(c => c.InvoiceDate).ToListAsync();
+        foreach (var date in miladi)
+        {
+            persianDates.Add(date.MiladiToPersianDate());
+        }
+        return persianDates.Select(c => c.year).Distinct().ToList();
+    }
+
     public async Task<Invoice> GetInvoiceDetailsById(ulong id)
     {
         return await _neginDBcontext.Invoices.Include(c => c.CreatedBy)
@@ -97,10 +110,17 @@ public class InvoiceRepository : IInvoiceRepository
                 PageSize = pageSize,
                 TotalCount = await invoices.CountAsync()
             },
-            Data = await invoices.OrderBy(c => c.InvoiceNo).ToPagination(pageNumber, pageSize).ToListAsync()
+            Data = await invoices.OrderByDescending(c => c.Id).ToPagination(pageNumber, pageSize).ToListAsync()
         };
 
         return result;
+    }
+
+    public DataForDashboardChart1_Proc[] GetSumPriceProc(string year)
+    {
+        return _neginDBcontext.Set<DataForDashboardChart1_Proc>()
+            .FromSqlInterpolated($"EXEC GetDataForDashboardChart1 {year}")
+            .ToArray();
     }
 
     public async Task<int> InvoiceConfirmedCount()
