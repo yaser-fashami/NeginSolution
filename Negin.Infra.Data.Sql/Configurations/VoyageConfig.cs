@@ -10,13 +10,11 @@ internal class VoyageConfig : IEntityTypeConfiguration<Voyage>
 	{
 		builder.ToTable("Voyages", "Basic");
 		builder.HasKey(x => x.Id);
-		builder.Property(x => x.VoyageNoIn).IsRequired().IsUnicode(false).HasMaxLength(20);
-		builder.Property(x => x.VoyageNoOut).IsRequired().IsUnicode(false).HasMaxLength(20);
 		builder.Property(x => x.VesselId).IsRequired();
 		builder.Property(x => x.OwnerId).IsRequired();
 		builder.Property(x => x.AgentId).IsRequired();
 
-		builder.HasIndex(x => new { x.VoyageNoIn, x.VesselId}).IsUnique();
+		builder.HasIndex(x => new { x.OwnerId, x.VesselId}).IsUnique();
 
 		#region Navigation
 		builder.HasOne(c => c.Owner).WithMany(d => d.OwnerVoyages).HasForeignKey(s => s.OwnerId);

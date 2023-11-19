@@ -11,11 +11,11 @@ namespace Negin.Core.Domain.Interfaces;
 public interface IVoyageRepository
 {
     Task<PagedData<Voyage>> GetPaginationVoyagesAsync(int pageNumber = 1, int pageSize = 10, string filter = "");
-    Task<PagedData<Voyage>> GetPaginationVoyagesForBillingAsync(int pageNumber = 1, int pageSize = 10, string filter = "");
+    Task<PagedData<Tuple<VesselStoppage,Voyage>>> GetPaginationDataForBillingAsync(int pageNumber = 1, int pageSize = 10, string filter = "");
     Task<PagedData<VesselStoppage>> GetPaginationVesselStoppagesAsync(ulong voyageId,int pageNumber = 1, int pageSize = 10, string filter = "");
     Task<PagedData<VesselStoppage>> GetPaginationVesselStoppagesForInvoiceAsync(ulong voyageId, int pageNumber = 1, int pageSize = 10);
     Task<Voyage> GetVoyageById(ulong id);
-    Task<IList<Voyage>> GetVoyageByVesselId(ulong vesselId);
+    Task<Voyage> GetVoyageByVesselId(ulong vesselId);
     Task<SqlException> CreateVoyageAsync(Voyage newVoyage);
     Task<SqlException> UpdateVoyageAsync(Voyage v);
     BLMessage ToggleVoyageStatus(ulong id);

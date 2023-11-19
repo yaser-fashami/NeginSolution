@@ -14,8 +14,9 @@ internal class VesselStoppageConfig : IEntityTypeConfiguration<VesselStoppage>
 		builder.Property(x => x.ATA).HasColumnType("smalldatetime");
 		builder.Property(x => x.ETD).HasColumnType("smalldatetime");
 		builder.Property(x => x.ATD).HasColumnType("smalldatetime");
+        builder.Property(x => x.VoyageNoIn).IsRequired().IsUnicode(false).HasMaxLength(20);
 
-		#region Navigation
-		#endregion
-	}
+        #region Navigation
+        #endregion
+    }
 }

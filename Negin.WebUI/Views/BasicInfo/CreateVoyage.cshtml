@@ -21,15 +21,6 @@
 			<div class="card-body border-top p-9">
 				<!--begin::Input group-->
 				<div class="row mb-6">
-					<!--begin::Col-->
-					<div class="col-lg-4">
-						<div class="input-group input-group-solid mb-5">
-							<span class="input-group-text required">Voyage Number In</span>
-							<input type="text" asp-for="Voyage.VoyageNoIn" maxlength="20" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 hasMaxlength">
-						</div>
-					</div>
-					<!--end::Col-->
-					<!--begin::Col-->
 					<div class="col-lg-4">
 						<div class="input-group input-group-solid mb-5">
 							<span class="input-group-text required">Vessel</span>
@@ -59,23 +50,6 @@
 								</select>
 							</div>
 						</div>
-					</div>
-					<!--end::Col-->
-
-				</div>
-				<!--end::Input group-->
-				<!--begin::Input group-->
-				<div class="row mb-6">
-					<!--begin::Col-->
-					<div class="col-lg-4">
-						<div class="input-group input-group-solid mb-5">
-							<span class="input-group-text required">Voyage Number Out</span>
-							<input type="text" asp-for="Voyage.VoyageNoOut" maxlength="20" class="form-control form-control-lg form-control-solid mb-3 mb-lg-0 hasMaxlength">
-						</div>
-					</div>
-					<!--end::Col-->
-					<!--begin::Col-->
-					<div class="col-lg-4">
 					</div>
 					<!--end::Col-->
 					<!--begin::Col-->
@@ -108,9 +82,6 @@
 	<!--end::Content-->
 </div>
 
-@section Links{
-	<link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" />
-}
 
 @section Scripts{
 	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
@@ -118,10 +89,6 @@
 	<script type="text/javascript">
 		$('button[type="reset"]').click(function () {
 			$('select').val(null).trigger("change");
-		});
-		$('.hasMaxlength').maxlength({
-			warningClass: "badge badge-warning",
-			limitReachedClass: "badge badge-danger"
 		});
 
 		$(document).ready(function () {

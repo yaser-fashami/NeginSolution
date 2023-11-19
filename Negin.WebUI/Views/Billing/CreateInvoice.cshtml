@@ -13,7 +13,7 @@
                 <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3 ">
                     <!--begin::Title-->
                     <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">
-                        @Model.Voyage.Vessel?.Name / @Model.Voyage.VoyageNoIn
+                        @Model.Voyage.Vessel?.Name
                     </h1>
                     <!--end::Title-->
                     <span class="fw-semibold fs-7 my-0 pt-1 text-gray-400">Select only Gone VesselStoppage</span>
@@ -40,6 +40,14 @@
                                                 <input class="form-check-input" type="checkbox" name="vesselStoppages" value="@vesselStoppage.Id" />
                                             </div>
                                             <div class="flex-grow-1">
+                                                <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
+                                                    VoyageNoIn
+                                                </h2>
+                                                <div class="fw-semibold opacity-50">
+                                                    @vesselStoppage.VoyageNoIn
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-lg-20">
                                                 <h2 class="d-flex align-items-center fs-3 fw-bold flex-wrap">
                                                     Origin Port
                                                 </h2>

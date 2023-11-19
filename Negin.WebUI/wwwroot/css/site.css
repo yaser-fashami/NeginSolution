@@ -103,3 +103,26 @@ body {
 }
 
 
+
+
+
+body {
+    --sb-track-color: #c0bdc5;
+    --sb-thumb-color: #2ecc40;
+    --sb-size: 8px;
+    scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+}
+
+    body::-webkit-scrollbar {
+        width: var(--sb-size)
+    }
+
+    body::-webkit-scrollbar-track {
+        background: var(--sb-track-color);
+        border-radius: 2px;
+    }
+
+    body::-webkit-scrollbar-thumb {
+        background: var(--sb-thumb-color);
+        border-radius: 1px;
+    }

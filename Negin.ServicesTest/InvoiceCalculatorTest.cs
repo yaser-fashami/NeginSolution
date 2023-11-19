@@ -36,6 +36,7 @@ public class InvoiceCalculatorTest
         var result = _sut.CalculateAsync(20004, vesselStoppagesId).Result;
 
         Assert.Equal((uint)83, result.TotalDwellingHour);
-        Assert.Equal((decimal)554.78, result.SumPriceD);
+        Assert.Equal((decimal)604.71, result.SumPriceD);
+        Assert.Equal((ulong)249637674, result.SumPriceR);
     }
 }

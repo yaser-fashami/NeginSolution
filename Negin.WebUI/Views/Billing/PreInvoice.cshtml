@@ -133,6 +133,7 @@
                                         <thead>
                                             <tr class="border-bottom fs-6 fw-bold text-muted">
                                                 <th></th>
+                                                <th>VoyageNoIn</th>
                                                 <th class="min-w-150px pb-2">Actual Time Arrival</th>
                                                 <th class="min-w-150px pb-2">Actual Time Departure</th>
                                                 <th class="text-end">Status</th>
@@ -141,6 +142,7 @@
                                         <tbody>
                                             <tr class="fw-bold text-gray-700 fs-5 text-end">
                                                 <td class="pt-7"><span class="badge badge-circle badge-outline badge-dark">@j</span></td>
+                                                <td class="text-start pt-8 fs-7">@preInvoiceDetail.VesselStoppage.VoyageNoIn</td>
                                                 <td class="d-flex align-items-center pt-6">
                                                     <div class="badge badge-dark fw-bold">@Html.Raw(preInvoiceDetail.VesselStoppage.ATA != null ? preInvoiceDetail.VesselStoppage.ATA.Value.MiladiToShamsi().ToShamsiDateString(preInvoiceDetail.VesselStoppage.ATADayOfTheWeek) : "")</div>
                                                 </td>
@@ -152,7 +154,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="4">
+                                                <td colspan="5">
                                                     <table class="table mb-3">
                                                     <thead>
                                                         <tr class="border-bottom fs-6 fw-bold text-muted">
@@ -324,8 +326,8 @@
                 <div class="border border-dashed border-gray-300 card-rounded h-lg-100 min-w-md-350px p-9 bg-lighten">
                     <!--begin::Labels-->
                     <div class="mb-8">
-                        <span class="fw-semibold">Vessel/VoyageNoIn : </span>
-                        <span class="badge badge-light-primary me-2">@Model.Voyage?.Vessel?.Name / @Model.Voyage?.VoyageNoIn</span>
+                        <span class="fw-semibold">Vessel : </span>
+                        <span class="badge badge-light-primary me-2">@Model.Voyage?.Vessel?.Name </span>
                     </div>
                     <!--end::Labels-->
                     <!--begin::Title-->

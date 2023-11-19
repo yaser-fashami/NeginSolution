@@ -62,7 +62,8 @@ public class VesselStoppageService : IVesselStoppageService
             ETD = vesselStoppage.ETD,
             OriginPortId = vesselStoppage.OriginPortId,
             PreviousPortId = vesselStoppage.PreviousPortId,
-            NextPortId = vesselStoppage.NextPortId
+            NextPortId = vesselStoppage.NextPortId,
+            VoyageNoIn = vesselStoppage.VoyageNoIn
         };
         v.ETA = v.ETA?.ShamsiToMiladi();
         v.ATA = v.ATA?.ShamsiToMiladi();

@@ -4,7 +4,6 @@
 @inject IUrlHelper UrlHelper;
 @model PagedData<VesselStoppage>
 
-<link href="~/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
 <div class="card">
 <!--begin::Card header-->
 <div class="card-header border-0 pt-6 px-15">
@@ -20,7 +19,7 @@
                 </svg>
             </span>
             <!--end::Svg Icon-->
-            <input type="text" id="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search port" value="@Model.PageInfo.Filter">
+            <input type="text" id="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search Voyage" value="@Model.PageInfo.Filter">
         </div>
         <!--end::Search-->
     </div>
@@ -39,7 +38,7 @@
                 </select>
             <!--end::Filter-->
             <!--begin::Add Vessel Stoppage-->
-                <a type="button" class="btn btn-primary ms-4 min-w-lg-225px" href="/Operation/AddVesselStoppage?vesselName=@ViewBag.VesselName&voyageId=@ViewBag.VoyageId&voyageNoIn=@ViewBag.VoyageNoIn">
+                <a type="button" class="btn btn-primary ms-4 min-w-lg-225px" href="/Operation/AddVesselStoppage?vesselName=@ViewBag.VesselName&voyageId=@ViewBag.VoyageId">
                 <!--begin::Svg Icon | path: icons/duotune/arrows/arr075.svg-->
                 <span class="svg-icon svg-icon-2">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -74,10 +73,11 @@
                 <thead>
                     <!--begin::Table row-->
                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                            <th class="min-w-200px" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="left" title="Estimated Time Arrival" data-priority="1">ETA</th>
-                        <th class="min-w-200px" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="left" title="Actual Time Arrival">ATA</th>
-                        <th class="min-w-200px" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="left" title="Estimated Time Departure">ETD</th>
-                        <th class="min-w-200px" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="left" title="Actual Time Departure">ATD</th>
+                        <th class="min-w-150px">Voyage No In</th>
+                        <th class="min-w-150px" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="left" title="Estimated Time Arrival" data-priority="1">ETA</th>
+                        <th class="min-w-150px" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="left" title="Actual Time Arrival">ATA</th>
+                        <th class="min-w-150px" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="left" title="Estimated Time Departure">ETD</th>
+                        <th class="min-w-150px" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="left" title="Actual Time Departure">ATD</th>
                         <th class="min-w-50px">Status</th>
                         <th class="min-w-200px">OriginPort</th>
                         <th>PreviousPort</th>
@@ -92,6 +92,7 @@
                     @foreach (VesselStoppage vesselStoppage in Model.Data)
                     {
                             <tr>
+                                <td>@vesselStoppage.VoyageNoIn</td>
                                 <td><div class="badge badge-light fw-bold">@Html.Raw(vesselStoppage.ETA != null ? @vesselStoppage.ETA.ToShamsiDateString(vesselStoppage.ETADayOfTheWeek) : "")</div></td>
                                 <td><div class="badge badge-dark fw-bold">@Html.Raw(vesselStoppage.ATA != null ? @vesselStoppage.ATA.ToShamsiDateString(vesselStoppage.ATADayOfTheWeek) : "")</div></td>
                                 <td><div class="badge badge-light fw-bold">@Html.Raw(vesselStoppage.ETD != null ? @vesselStoppage.ETD.ToShamsiDateString(vesselStoppage.ETDDayOfTheWeek) : "")</div></td>
@@ -106,11 +107,12 @@
                                 <td class="text-end">
                                     @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.WaitForVessel || vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.InProcess)
                                     {
-                                        <a href="/Operation/EditVesselStoppage?vesselName=@ViewBag.VesselName&id=@vesselStoppage.Id&voyageNoIn=@ViewBag.VoyageNoIn" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Edit"><i class="bi bi-pencil-square fs-4"></i></a>
+                                        <a href="/Operation/EditVesselStoppage?vesselName=@ViewBag.VesselName&id=@vesselStoppage.Id" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Edit"><i class="bi bi-pencil-square fs-4"></i></a>
                                     }
                                     @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.Gone)
                                     {
                                         <a href="/Billing/PreInvoice?voyageId=@ViewBag.VoyageId&vesselStoppages=@vesselStoppage?.Id" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Pre Invoice"><i class="bi bi-coin fs-2"></i></a>
+                                        <a href="/Operation/EditVesselStoppage?vesselName=@ViewBag.VesselName&id=@vesselStoppage.Id" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Edit"><i class="bi bi-pencil-square fs-4"></i></a>
                                     }
                                 </td>
                                 <!--end::Action=-->
@@ -139,8 +141,6 @@
 <!--end::Card body-->
 </div>
 
-<script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
-<script src="~/assets/js/custom/apps/user-management/users/list/tableVessel.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         var w = $('#kt-datatable-responsive').DataTable({
@@ -155,7 +155,7 @@
 
         $('#search').keydown(function (event) {
             if (event.which == 13) {
-                $('#show').data('filter', $('#search').val()).trigger('click');
+                $('#vessels').data('filter', $('#search').val()).trigger('change');
             }
         });
         $('th:last-child').addClass("sorting_disabled").removeClass("sorting").removeClass("sorting_asc");
@@ -216,7 +216,7 @@
         const s = document.querySelector('[data-kt-datatable-responsive-filter="status"]');
         $(s).on("change", (s) => {
             let o = s.target.value;
-            if ("all" === o){o = ""} w.column(4).search(o).draw()
+            if ("all" === o){o = ""} w.column(5).search(o).draw()
         });
     })
 </script>

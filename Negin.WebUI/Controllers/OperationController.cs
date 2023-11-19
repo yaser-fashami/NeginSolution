@@ -25,7 +25,7 @@ public class OperationController : Controller
     [Breadcrumb("VesselStoppages")]
     public IActionResult List()
     {
-        var model = _vesselRepository.GetAllVessels().Result;
+        var model = _vesselRepository.GetVesselsAssignedVoyage().Result;
         ViewData["ActiveLink"] = "vesselStoppage";
 
         return View("SelectVesselStoppage", model);
@@ -37,24 +37,22 @@ public class OperationController : Controller
         return Json(_voyageRepository.GetVoyageByVesselId(vesselId).Result);
     }
 
-    public IActionResult VesselStoppageList(string vesselName, ulong voyageId, string voyageNoIn, int pageNumber = 1, int pageCount = 10, string filter = "")
+    public IActionResult VesselStoppageList(string vesselName, ulong voyageId, int pageNumber = 1, int pageCount = 10, string filter = "")
     {
         var model = _voyageRepository.GetPaginationVesselStoppagesAsync(voyageId, pageNumber, pageCount, filter).Result;
         ViewBag.VesselName = vesselName;
         ViewBag.VoyageId = voyageId;
-        ViewBag.VoyageNoIn = voyageNoIn;
         return View(model);
     }
 
     [Authorize(Roles = "admin")]
     [Breadcrumb("AddVesselStoppage", FromAction = "List", FromController = typeof(OperationController))]
-    public IActionResult AddVesselStoppage(string vesselName, ulong voyageId, string voyageNoIn)
+    public IActionResult AddVesselStoppage(string vesselName, ulong voyageId)
     {
         ViewData["ActiveLink"] = "vesselStoppage";
         ViewBag.VoyageId = voyageId;
         ViewBag.Ports = _voyageRepository.GetAllPorts().Result;
         ViewBag.VesselName = vesselName;
-        ViewBag.VoyageNoIn = voyageNoIn;
         return View();
     }
 
@@ -86,7 +84,7 @@ public class OperationController : Controller
 
     [Authorize(Roles = "admin")]
     [Breadcrumb("EditVesselStoppage", FromAction = "List", FromController = typeof(OperationController))]
-    public IActionResult EditVesselStoppage(string vesselName, ulong id, string voyageNoIn, ulong voyageId)
+    public IActionResult EditVesselStoppage(string vesselName, ulong id, ulong voyageId)
     {
         ViewData["ActiveLink"] = "vesselStoppage";
         ViewBag.VesselStoppageId = id;
@@ -94,7 +92,6 @@ public class OperationController : Controller
         ViewBag.Ports = _voyageRepository.GetAllPorts().Result;
         var model = _voyageRepository.GetVesselStoppageByVoyageId(id).Result;
         ViewBag.VesselName = vesselName;
-        ViewBag.VoyageNoIn = voyageNoIn;
         return View(model);
     }
 
@@ -120,7 +117,6 @@ public class OperationController : Controller
         ViewBag.VoyageId = v.VoyageId;
         ViewBag.Ports = _voyageRepository.GetAllPorts().Result;
         ViewBag.VesselName = formCollection["vesselName"];
-        ViewBag.VoyageNoIn = formCollection["voyageNoIn"];
         return View(v);
     }
 }

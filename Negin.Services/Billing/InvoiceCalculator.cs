@@ -45,6 +45,7 @@ public class InvoiceCalculator : IInvoiceCalculator
         decimal sumPriceD = 0;
         double discountPercent = 0;
         List<PreInvoiceDetailDto> preInvoiceDetails = new();
+        Currency currency = null;
 
         foreach (var vesselStoppage in vesselStoppages)
         {
@@ -56,9 +57,11 @@ public class InvoiceCalculator : IInvoiceCalculator
             var cleaningServiceTariff = PrepareCleaningServiceTariff(vesselStoppage.ATA.Value).Result;
             var vesselStoppageTariffDetail = PrepareVesselStoppageTariffDetails(voyage, vesselStoppageTariff);
             var cleaningServiceTariffDetail = PrepareCleaningServiceTariffDetails(voyage, cleaningServiceTariff);
-            
-            Currency currency = await PrepareCurrentCurrencyRateAsync(vesselStoppage);
 
+            if (currency == null)
+            {
+                currency = await PrepareCurrentCurrencyRateAsync(vesselStoppage);
+            }
             decimal priceDVS = CalculateVesselStoppagePriceDollar(vesselStoppageTariffDetail, voyage, dwellingHour);
             decimal priceDCS = CalculateCleaningServicePriceDollar(cleaningServiceTariffDetail, dwellingDay);
             discountPercent = CalculateDiscount(voyage, vesselStoppage.ATA.Value, ref priceDVS, ref priceDCS);
@@ -129,7 +132,7 @@ public class InvoiceCalculator : IInvoiceCalculator
             PreInvoiceDetails = preInvoiceDetails,
             TotalDwellingHour = (uint)totalDwellingHour,
             TotalDwellingDays = (uint)totalDwellingDay,
-            SumPriceD = sumPriceD,
+            SumPriceD = sumPriceD + RialVatToDollarVat(currency, sumPriceRVat, voyage),
             SumPriceR = sumPriceR,
             SumPriceRVat = sumPriceRVat,
             DiscountPercent = (byte)discountPercent
@@ -340,6 +343,19 @@ public class InvoiceCalculator : IInvoiceCalculator
             return Convert.ToUInt64(priceD * currency.ForeignDollerRate);
         }
 
+    }
+    private decimal RialVatToDollarVat(Currency currency, ulong sumPriceRVat, Voyage voyage)
+    {
+        decimal result;
+        if (voyage.Vessel?.FlagId == 207)
+        {
+            result = (decimal)sumPriceRVat / currency.PersianDollerRate;
+        }
+        else
+        {
+            result = (decimal)sumPriceRVat / currency.ForeignDollerRate;
+        }
+        return decimal.Round(result, 2);
     }
     #endregion
 

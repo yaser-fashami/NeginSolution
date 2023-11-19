@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = Model.Voyages.PageInfo.Title;
+    ViewData["Title"] = Model.Items.PageInfo.Title;
 }
 @model Negin.WebUI.Models.ViewModels.InvoiceViewModel
 @inject IUrlHelper UrlHelper;
@@ -19,7 +19,7 @@
                         </svg>
                     </span>
                     <!--end::Svg Icon-->
-                    <input type="text" id="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search vessel" value="@Model.Voyages.PageInfo.Filter">
+                    <input type="text" id="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search VesselStoppages" value="@Model.Items.PageInfo.Filter">
                 </div>
                 <!--end::Search-->
             </div>
@@ -37,6 +37,7 @@
                                 <th class="w-220px" data-priority="1">Vessel Name / Voyage No In</th>
                                 <th>Owner</th>
                                 <th class="min-w-175px">Agent</th>
+                                <th>ATA</th>
                                 <th class="w-70px">Status</th>
                                 <th data-priority="2"></th>
                             </tr>
@@ -44,28 +45,27 @@
                         </thead>
                         <!--end::Table head-->
                         <!--begin::Table body-->
+                        @{
+                            int v = 0;
+                        }
                         <tbody class="text-dark fw-bold">
-                            @foreach (Voyage voyage in Model.Voyages.Data)
+                            @foreach (Tuple<VesselStoppage, Voyage> tuple in Model.Items.Data)
                             {
                                 <tr class="h-60px">
                                     <td>
-                                        @voyage.Vessel?.Name / @voyage.VoyageNoIn
+                                        <span>@tuple.Item2.Vessel?.Name /</span>
+                                        <span>@tuple.Item1.VoyageNoIn</span>
                                     </td>
-                                    <td class="text-gray-400">@voyage.Owner?.ShippingLineName</td>
-                                    <td class="text-gray-400">@voyage.Agent?.ShippingLineName</td>
+                                    <td class="text-gray-400">@tuple.Item2.Owner?.ShippingLineName</td>
+                                    <td class="text-gray-400">@tuple.Item2.Agent?.ShippingLineName</td>
+                                    <td><span class="badge badge-dark fw-bold">@Html.Raw(tuple.Item1.ATA.Value.MiladiToShamsi().ToShamsiDateString(tuple.Item1.ATADayOfTheWeek))</span></td>
                                     <td>
-                                        @{
-                                            var firstVesselStoppage = voyage.VesselStoppages.LastOrDefault();
-                                        }
-                                        @if(firstVesselStoppage != null)
-                                        {
-                                            <partial name="../Shared/_VesselStoppageStatus.cshtml" for="@firstVesselStoppage"></partial>
-                                        }
+                                        <partial name="../Shared/_VesselStoppageStatus.cshtml" for="@tuple.Item1"></partial>
                                     </td>
                                     <td class="text-end">
-                                        @if (voyage.VesselStoppages?.Where(c => c.Status == VesselStoppage.VesselStoppageStatus.Gone).Count() > 0)
+                                        @if (tuple.Item1.Status != VesselStoppage.VesselStoppageStatus.Invoiced)
                                         {
-                                            <a href="/Billing/CreateInvoice?voyageId=@voyage.Id" class="btn btn-bg-light btn-active-color-primary btn-sm">Create Invoice</a>
+                                            <a href="/Billing/CreateInvoice?voyageId=@tuple.Item2.Id" class="btn btn-bg-light btn-active-color-primary btn-sm">Create Invoice</a>
                                         }
                                     </td>
                                 </tr>
@@ -74,16 +74,16 @@
                         <!--end::Table body-->
                     </table>
                     <ul class="pagination">
-                        <li id="previous" class="page-item previous"><a href="@UrlHelper.Action("List", new { pageNumber = Model.Voyages.PageInfo.PageNumber-1, filter=Model.Voyages.PageInfo.Filter })" class="page-link"><i class="previous"></i></a></li>
-                        @for (int i = 1; i <= Model.Voyages.PageInfo.PageCount; i++)
+                        <li id="previous" class="page-item previous"><a href="@UrlHelper.Action("List", new { pageNumber = Model.Items.PageInfo.PageNumber-1, filter=Model.Items.PageInfo.Filter })" class="page-link"><i class="previous"></i></a></li>
+                        @for (int i = 1; i <= Model.Items.PageInfo.PageCount; i++)
                         {
 
-                            <li class="page-item @(i == Model.Voyages.PageInfo.PageNumber ? "active" : "")">
-                                <a class="page-link " href="@UrlHelper.Action("List", new { pageNumber = i,filter=@Model.Voyages.PageInfo.Filter })">@i</a>
+                            <li class="page-item @(i == Model.Items.PageInfo.PageNumber ? "active" : "")">
+                                <a class="page-link " href="@UrlHelper.Action("List", new { pageNumber = i,filter=@Model.Items.PageInfo.Filter })">@i</a>
                             </li>
 
                         }
-                        <li id="next" class="page-item next"><a href="@UrlHelper.Action("List", new { pageNumber = Model.Voyages.PageInfo.PageNumber+1, filter=Model.Voyages.PageInfo.Filter })" class="page-link"><i class="next"></i></a></li>
+                        <li id="next" class="page-item next"><a href="@UrlHelper.Action("List", new { pageNumber = Model.Items.PageInfo.PageNumber+1, filter=Model.Items.PageInfo.Filter })" class="page-link"><i class="next"></i></a></li>
                     </ul>
                 </div>
             </div>
@@ -105,10 +105,10 @@
                 }
             });
 
-            if (@Model.Voyages.PageInfo.PageNumber >= @Model.Voyages.PageInfo.PageCount) {
+            if (@Model.Items.PageInfo.PageNumber >= @Model.Items.PageInfo.PageCount) {
                 $('#next').addClass("disabled")
             }
-            if (@Model.Voyages.PageInfo.PageNumber <= 1) {
+            if (@Model.Items.PageInfo.PageNumber <= 1) {
                 $('#previous').addClass("disabled")
             }
         })

@@ -276,39 +276,6 @@ namespace Negin.WebUI.Controllers
 			return View(model);
 		}
 
-        [Authorize(Roles = "admin")]
-        [Breadcrumb("EditVoyage", FromAction = "VoyageList", FromController = typeof(BasicInfoController))]
-        public IActionResult EditVoyage(ulong id)
-		{
-            VoyageViewModel model = PrepareVoyageViewModel();
-			model.Voyage = _voyageRepository.GetVoyageById(id).Result;
-			model.AgentsOfOwnerList = _shippingLineCompanyRepository.GetAgentsOfOwnerAsync(model.Voyage.OwnerId).Result;
-            return View(model);
-		}
-
-		[HttpPost]
-        [Authorize(Roles = "admin")]
-        [Breadcrumb("EditVoyage", FromAction = "VoyageList", FromController = typeof(BasicInfoController))]
-		public IActionResult EditVoyage(VoyageViewModel input)
-		{
-			if (ModelState.IsValid)
-			{
-				var result = _voyageRepository.UpdateVoyageAsync(input.Voyage).Result;
-				if (result.State)
-				{
-					return RedirectToAction("VoyageList");
-				}
-				else
-				{
-					ModelState.AddModelError("", result.Message ?? string.Empty);
-				}
-			}
-
-			VoyageViewModel model = PrepareVoyageViewModel();
-			model.Voyage = _voyageRepository.GetVoyageById(input.Voyage.Id).Result;
-			model.AgentsOfOwnerList = _shippingLineCompanyRepository.GetAgentsOfOwnerAsync(model.Voyage.OwnerId).Result;
-			return View(model);
-		}
 
         [Authorize(Roles = "admin")]
         public BLMessage ToggleVoyageStatus(ulong id)
@@ -325,7 +292,7 @@ namespace Negin.WebUI.Controllers
 		{
 			ViewData["ActiveLink"] = "voyage";
 			VoyageViewModel model = new VoyageViewModel();
-			model.VesselList = _vesselRepository.GetAllVessels().Result;
+			model.VesselList = _vesselRepository.GetVesselsNotAssignedVoyage().Result;
 			model.OwnerShippinglineList = _shippingLineCompanyRepository.GetOwnersAsync().Result;
 			return model;
 		}

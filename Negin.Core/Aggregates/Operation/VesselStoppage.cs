@@ -21,6 +21,8 @@ public class VesselStoppage : BaseAuditableEntity<ulong>
     public Port? PreviousPort { get; set; }
     public uint? NextPortId { get; set; }
     public Port? NextPort { get; set; }
+    public string VoyageNoIn { get; set; }
+
 
     public virtual VesselStoppageInvoiceDetail? VesselStoppageInvoiceDetail { get; set; }
     public virtual CleaningServiceInvoiceDetail? CleaningServiceInvoiceDetail { get; set; }

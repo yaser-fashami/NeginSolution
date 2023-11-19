@@ -12,6 +12,9 @@ using Negin.Core.Domain.Aggregates.Operation;
 using Negin.Core.Domain.Entities.Basic;
 using Negin.Framework.JoinExtentions;
 using Negin.Core.Domain.Dtos;
+using System.Linq;
+using Microsoft.IdentityModel.Tokens;
+using Negin.Core.Domain.Aggregates.Billing;
 
 namespace Negin.Infra.Data.Sql.EFRepositories;
 
@@ -33,8 +36,6 @@ public class VoyageRepository : IVoyageRepository
 
 		var voyage = new Voyage()
         {
-            VoyageNoIn = newVoyage.VoyageNoIn,
-            VoyageNoOut = newVoyage.VoyageNoOut,
             VesselId = newVoyage.VesselId,
             OwnerId = newVoyage.OwnerId,
             AgentId = newVoyage.AgentId,
@@ -69,9 +70,7 @@ public class VoyageRepository : IVoyageRepository
             .Include(o => o.Owner)
             .Include(a => a.Agent)
             .Include(s => s.VesselStoppages).AsNoTracking()
-                            .Where(c => noFilter || c.VoyageNoIn.Contains(filter)
-                                                 || c.VoyageNoOut.Contains(filter)
-                                                 || c.Owner.ShippingLineName.Contains(filter)
+                            .Where(c => noFilter || c.Owner.ShippingLineName.Contains(filter)
                                                  || c.Agent.ShippingLineName.Contains(filter)
                                                  || c.Vessel.Name.Contains(filter));
 
@@ -91,35 +90,42 @@ public class VoyageRepository : IVoyageRepository
         return result;
     }
 
-    public async Task<PagedData<Voyage>> GetPaginationVoyagesForBillingAsync(int pageNumber = 1, int pageSize = 10, string filter = "")
+    public async Task<PagedData<Tuple<VesselStoppage,Voyage>>> GetPaginationDataForBillingAsync(int pageNumber = 1, int pageSize = 10, string filter = "")
     {
         bool noFilter = string.IsNullOrWhiteSpace(filter);
 
-        var voyages = _neginDbContext.Voyages
-            .Include(v => v.Vessel)
-            .Include(s => s.VesselStoppages).ThenInclude(i => i.VesselStoppageInvoiceDetail).ThenInclude(i => i.Invoice)
-            .Include(o => o.Owner).Include(a => a.Agent).AsNoTracking()
-                            .Where(c => c.IsDelete == false)
-                            .Where(c => noFilter || c.Vessel.Name.Contains(filter)
-                                                 || c.VoyageNoIn.Contains(filter)
-                                                 || c.Owner.ShippingLineName.Contains(filter)
-                                                 || c.Agent.ShippingLineName.Contains(filter));
+        var vesselStoppages = _neginDbContext.VesselStoppages
+                .Include(c => c.Voyage).ThenInclude(c => c.Vessel)
+                .Include(c => c.Voyage).ThenInclude(c => c.Owner)
+                .Include(c => c.Voyage).ThenInclude(c => c.Agent)
+                .Include(c => c.VesselStoppageInvoiceDetail).AsNoTracking()
+                    .Where(c => noFilter || c.Voyage.Vessel.Name.Contains(filter)
+                                            || c.VoyageNoIn.Contains(filter)
+                                            || c.Voyage.Owner.ShippingLineName.Contains(filter)
+                                            || c.Voyage.Agent.ShippingLineName.Contains(filter));
 
 
-        PagedData<Voyage> result = new()
+        List<Tuple<VesselStoppage, Voyage>> list = new List<Tuple<VesselStoppage, Voyage>>();
+        
+        foreach (VesselStoppage vesselStoppage in await vesselStoppages.OrderByDescending(c => c.CreateDate).ToListAsync())
+        {
+            vesselStoppage.SetStatus();
+            if(vesselStoppage.Status != VesselStoppage.VesselStoppageStatus.Invoiced)
+            {
+                list.Add(new Tuple<VesselStoppage, Voyage>(vesselStoppage, vesselStoppage.Voyage));
+            }
+        }
+        PagedData<Tuple<VesselStoppage, Voyage>> result = new()
         {
             PageInfo = new()
             {
                 PageNumber = pageNumber,
                 PageSize = pageSize,
-                TotalCount = await voyages.CountAsync()
+                TotalCount = list.Count
             },
-            Data = await voyages.OrderByDescending(c=>c.CreateDate)
-                        .ToPagination(pageNumber, pageSize)
-                        .ToListAsync()
+            Data = list
         };
 
-        result.Data.ForEach(v => { SetStatus(v.VesselStoppages); });
         return result;
     }
 
@@ -133,8 +139,6 @@ public class VoyageRepository : IVoyageRepository
         {
 			v = (Voyage)Util.TrimAllStringFields(v);
 
-            voyage.VoyageNoIn = v.VoyageNoIn;
-            voyage.VoyageNoOut = v.VoyageNoOut;
             voyage.VesselId = v.VesselId;
             voyage.OwnerId = v.OwnerId;
             voyage.AgentId = v.AgentId;
@@ -162,15 +166,15 @@ public class VoyageRepository : IVoyageRepository
         var result = new BLMessage() { State = false };
         try
         {
-            var voyage = _neginDbContext.Voyages.Include(c=>c.VesselStoppages).SingleOrDefault(c => c.Id == id);
+            var voyage = _neginDbContext.Voyages.Include(c => c.VesselStoppages).ThenInclude(c=>c.VesselStoppageInvoiceDetail)
+                .Include(c => c.Vessel).SingleOrDefault(c => c.Id == id);
             if (voyage != null)
             {
-                var vesselStoppages = _neginDbContext.VesselStoppages.Include(c => c.Voyage).Where(c => c.VoyageId == id).ToList();
-                vesselStoppages.ForEach(c =>
+                foreach (VesselStoppage vesselStoppage in voyage.VesselStoppages)
                 {
-                    c.SetStatus();
-                });
-                if (!vesselStoppages.Any(c=>c.Status == VesselStoppage.VesselStoppageStatus.Gone || c.Status == VesselStoppage.VesselStoppageStatus.InProcess))
+                    vesselStoppage.SetStatus();
+                }
+                if (!voyage.VesselStoppages.Any(c=>c.Status == VesselStoppage.VesselStoppageStatus.Gone || c.Status == VesselStoppage.VesselStoppageStatus.InProcess))
                 {
                     if (voyage.VesselStoppages != null && !voyage.VesselStoppages.Any(c => c.ATA != null && c.ATD == null))
                     {
@@ -178,7 +182,7 @@ public class VoyageRepository : IVoyageRepository
                         _neginDbContext.Voyages.Update(voyage);
                         _neginDbContext.SaveChanges();
                         result.State = true;
-                        result.Message = "VoyageNoIn: " + voyage.VoyageNoIn;
+                        result.Message = "Vessel: " + voyage?.Vessel?.Name;
                     }
                 }
                 else
@@ -201,9 +205,9 @@ public class VoyageRepository : IVoyageRepository
         return await _neginDbContext.Voyages.Include(c => c.Vessel).AsNoTracking().SingleAsync(c => c.Id == id);
     }
 
-    public async Task<IList<Voyage>> GetVoyageByVesselId(ulong vesselId)
+    public async Task<Voyage> GetVoyageByVesselId(ulong vesselId)
     {
-        return await _neginDbContext.Voyages.AsNoTracking().Where(c => c.IsDelete == false).Where(c => c.VesselId == vesselId).ToListAsync();
+        return await _neginDbContext.Voyages.AsNoTracking().Where(c => c.IsDelete == false).FirstOrDefaultAsync(c => c.VesselId == vesselId);
     }
 
     public async Task<IList<Port>> GetAllPorts()
@@ -220,7 +224,8 @@ public class VoyageRepository : IVoyageRepository
                                         .Where(c => noFilter
                                             || c.OriginPort.PortName.Contains(filter) || c.OriginPort.PortSymbol.Contains(filter)
                                             || c.PreviousPort.PortName.Contains(filter) || c.PreviousPort.PortSymbol.Contains(filter)
-                                            || c.NextPort.PortName.Contains(filter) || c.NextPort.PortSymbol.Contains(filter));
+                                            || c.NextPort.PortName.Contains(filter) || c.NextPort.PortSymbol.Contains(filter)
+                                            || c.VoyageNoIn.Contains(filter));
 
 
         PagedData<VesselStoppage> result = new()
@@ -293,6 +298,7 @@ public class VoyageRepository : IVoyageRepository
             OriginPortId = newVesselStoppage.OriginPortId,
             PreviousPortId = newVesselStoppage.PreviousPortId,
             NextPortId = newVesselStoppage.NextPortId,
+            VoyageNoIn = newVesselStoppage.VoyageNoIn,
             CreatedById = _httpContextAccessor.HttpContext.User.Identity?.GetCurrentUserId(),
             CreateDate = DateTime.Now
         };
@@ -312,7 +318,10 @@ public class VoyageRepository : IVoyageRepository
 
     public async Task<VesselStoppage> GetVesselStoppageByVoyageId(ulong id)
     {
-        var vesselStoppage = await _neginDbContext.VesselStoppages.Include(c => c.OriginPort).Include(c => c.PreviousPort).Include(c => c.NextPort).AsNoTracking().SingleOrDefaultAsync(c => c.Id == id);
+        var vesselStoppage = await _neginDbContext.VesselStoppages
+            .Include(c => c.OriginPort).Include(c => c.PreviousPort).Include(c => c.NextPort).AsNoTracking()
+            .SingleOrDefaultAsync(c => c.Id == id);
+
         if (vesselStoppage != null)
         {
             if (vesselStoppage.ETA.HasValue)
@@ -359,6 +368,7 @@ public class VoyageRepository : IVoyageRepository
             vesselStoppage.OriginPortId = v.OriginPortId;
             vesselStoppage.PreviousPortId = v.PreviousPortId;
             vesselStoppage.NextPortId = v.NextPortId;
+            vesselStoppage.VoyageNoIn = v.VoyageNoIn;
             vesselStoppage.ModifiedById = _httpContextAccessor.HttpContext.User.Identity?.GetCurrentUserId();
             vesselStoppage.ModifiedDate = DateTime.Now;
 

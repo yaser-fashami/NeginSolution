@@ -98,8 +98,7 @@ public class InvoiceRepository : IInvoiceRepository
                                                 || c.InvoiceNo.Contains(filter)
                                                 || c.Voyage.Vessel.Name.Contains(filter)
                                                 || c.Voyage.Agent.ShippingLineName.Contains(filter)
-                                                || c.Voyage.Owner.ShippingLineName.Contains(filter)
-                                                || c.Voyage.VoyageNoIn.Contains(filter));
+                                                || c.Voyage.Owner.ShippingLineName.Contains(filter));
 
 
         PagedData<Invoice> result = new PagedData<Invoice>()

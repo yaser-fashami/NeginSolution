@@ -37,7 +37,6 @@
                             <th>Invoice Date</th>
                             <th class="min-w-70px">State</th>
                             <th class="w-110px">Vessel Name</th>
-                            <th class="w-110px">VoyageNoIn</th>
                             <th class="w-150px">Agent</th>
                             <th>Owner</th>
                             <th data-priority="2" class="text-end">Action</th>
@@ -70,9 +69,6 @@
                                 </td>
                                 <td>
                                     @invoice.Voyage?.Vessel?.Name 
-                                </td>
-                                <td>
-                                    @invoice.Voyage?.VoyageNoIn
                                 </td>
                                 <td>
                                     @invoice.Voyage?.Agent?.ShippingLineName

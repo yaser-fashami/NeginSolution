@@ -26,15 +26,15 @@ public class BillingController : Controller
     }
 
     [Breadcrumb("Issuing")]
-    public IActionResult List(int pageNumber = 1, int pageCount = 10, string filter = "")
+    public async Task<IActionResult> List(int pageNumber = 1, int pageCount = 10, string filter = "")
     {
-        var voyages = _voyageRepository.GetPaginationVoyagesForBillingAsync(pageNumber, pageCount, filter).Result;
+        var voyages = await _voyageRepository.GetPaginationDataForBillingAsync(pageNumber, pageCount, filter);
         voyages.PageInfo.Title = "Invoices";
         voyages.PageInfo.Filter = filter;
 
         var model = new InvoiceViewModel
         {
-            Voyages = voyages,
+            Items = voyages,
         };
 
         ViewData["ActiveLink"] = "invoice";

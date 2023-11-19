@@ -13,6 +13,7 @@ public interface IVesselRepository
     Task<IEnumerable<Country>> GetAllCountries();
     Task<IEnumerable<VesselType>> GetAllVesselTypes();
     Task<Vessel> GetVesselById(ulong id);
-    Task<IList<Vessel>> GetAllVessels();
+    Task<IList<Vessel>> GetVesselsAssignedVoyage();
+    Task<IList<Vessel>> GetVesselsNotAssignedVoyage();
     Task DeleteVesselById(ulong id);
 }

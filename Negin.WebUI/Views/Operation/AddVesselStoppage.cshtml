@@ -14,21 +14,21 @@
     </div>
     <!--end::Card header-->
     <div class="card-body py-4">
-        <div class="col-3" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title=" In this form you can add a stoppage for this vessel/voyage number in">
-            <div class="card shadow-sm parent-hover">
-                <div class="card-body d-flex align-items">
-                    <span class="">
-                        <img src="~/assets/media/images/boat-with-containers.png" style="width:25px" />
-                    </span>
-                    <span class="ms-3 mt-2 text-gray-700 parent-hover-primary fs-6 fw-bold">
-                        @ViewBag.VesselName / @ViewBag.VoyageNoIn
-                    </span>
+        <form id="kt_account_profile_details_form" class="form fv-plugins-bootstrap5 fv-plugins-framework" asp-controller="Operation" asp-action="AddVesselStoppage" method="post" autocomplete="off">
+            <div class="col-5" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title=" In this form you can add a stoppage for this vessel">
+                <div class="card shadow-sm parent-hover">
+                    <div class="card-body d-flex align-items">
+                        <span class="">
+                            <img src="~/assets/media/images/boat-with-containers.png" style="width:25px" />
+                        </span>
+                        <span class="ms-3 mt-2 text-gray-700 parent-hover-primary fs-6 fw-bold">
+                            @ViewBag.VesselName / 
+                        </span>
+                        <span class="ms-3"><input type="text" name="voyageNoIn" class="form-control  h-30px hasMaxlength" maxlength="20" placeholder="Enter VoyageNoIn" /></span>
+                    </div>
                 </div>
             </div>
-        </div>
         <div class="separator separator-content my-15"><span class="w-150px">Dates and Times</span></div>
-
-        <form id="kt_account_profile_details_form" class="form fv-plugins-bootstrap5 fv-plugins-framework" asp-controller="Operation" asp-action="AddVesselStoppage" method="post">
             <!--begin::Input group-->
             <div class="row">
                 <div class="col-lg-3">
@@ -111,12 +111,12 @@
                 <button type="submit" class="btn btn-primary" id="kt_account_profile_details_submit">Save Changes</button>
             </div>
             <input type="hidden" value="@ViewBag.VesselName" name="vesselName" />
-            <input type="hidden" value="@ViewBag.VoyageNoIn" name="voyageNoIn" />
         </form>
     </div>
 </div>
 
 @section Links{
+    <link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" />
     <link href="~/assets/css/timepicker.min.css" rel="stylesheet" />
     <link href="~/css/datepicker/persiandatepicker-dark.css" rel="stylesheet" />
 }
@@ -129,6 +129,10 @@
     <script type="text/javascript">
         $(function(){
             $('#operation').addClass("show");
+            $('.hasMaxlength').maxlength({
+                warningClass: "badge badge-warning",
+                limitReachedClass: "badge badge-danger"
+            });
 
             $('#eta,#ata,#etd,#atd').persianDatepicker({
                 theme: 'dark',

@@ -167,8 +167,18 @@ public class VesselRepository : IVesselRepository
         }  
     }
 
-	public async Task<IList<Vessel>> GetAllVessels()
+	public async Task<IList<Vessel>> GetVesselsAssignedVoyage()
 	{
-		return await _neginDbContext.Vessels.AsNoTracking().ToListAsync();
+        return await _neginDbContext.Voyages.Include(v => v.Vessel).AsNoTracking().Select(v => v.Vessel).Distinct().ToListAsync();
 	}
+
+    public async Task<IList<Vessel>> GetVesselsNotAssignedVoyage()
+    {
+		var assignedVesselsIds = await _neginDbContext.Voyages.Include(v => v.Vessel).AsNoTracking().Select(v => v.Vessel.Id).Distinct().ToListAsync();
+
+        var result = await _neginDbContext.Vessels.AsNoTracking().ToListAsync();
+        result.RemoveAll(i => assignedVesselsIds.Any(c => c == i.Id));
+
+        return result;
+    }
 }

@@ -6,7 +6,7 @@
 <div class="card">
     <!--begin::Card header-->
     <div class="card-body py-7 row">
-        <div class="col-lg-6">
+        <div class="col-lg-6 align-content-lg-center">
             <img data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="left" title="After select a Vessel and 'VoyageNumberIn' press show vessel stoppage button (Green button!)" src="~/assets/media/images/boat-with-containers.png" style="width:60px" />
             <div class="mb-5">
                 <div class="fv-row fv-plugins-icon-container overflow-hidden flex-grow-1">
@@ -18,9 +18,10 @@
                         }
                     </select>
                 </div>
+                <input type="hidden" id="voyageId" />
             </div>
         </div>
-        <div class="col-lg-6">
+@*        <div class="col-lg-6">
             <img src="~/assets/media/images/123.png" style="width:50px;margin-bottom:10px" />
             <label class="fw-bold fs-lg-4">Voyage Number In</label>
             <div class="fv-row fv-plugins-icon-container overflow-hidden flex-grow-1">
@@ -41,7 +42,7 @@
                 </button>
             </div>
         </div>
-    </div>
+*@    </div>
 </div>
 
 <div id="vesselStoppageList" style="padding:0;visibility:hidden;">
@@ -50,56 +51,91 @@
 
 @section Links{
     <link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" />
+    <link href="~/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
 }
 
 @section Scripts{
     <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <script src="~/assets/js/custom/apps/user-management/users/list/tableVessel.js"></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $('#operation').addClass("show");
             $('#vessels').val(null);
-            $('#voyageNumbers').val(null);
+            //$('#voyageNumbers').val(null);
 
-            $('#vessels').change(function(){
+     //       $('#vessels').change(function(){
+     //           $.ajax({
+     //               url: '/Operation/GetVoyageNoIn',
+     //               type: 'GET',
+     //               data:{vesselId: $('#vessels').val()},
+     //               success: function(res){
+     //                   $('#voyageNumbers').prop('disabled', false);
+     //                   $('#voyageNumbers').empty();
+					//	for(var i=0;i<res.length;i++){
+					//		$('#voyageNumbers').append('<option value="' + res[i].id + '">' + res[i].voyageNoIn + '</option>')
+					//	}
+					//}
+
+     //           })
+     //       });
+
+            $('#vessels').change(function () {
+                var filter = $(this).data('filter');
+                var pageNumber = $(this).data('pageNumber');
+
                 $.ajax({
                     url: '/Operation/GetVoyageNoIn',
                     type: 'GET',
                     data:{vesselId: $('#vessels').val()},
                     success: function(res){
-                        $('#voyageNumbers').prop('disabled', false);
-                        $('#voyageNumbers').empty();
-						for(var i=0;i<res.length;i++){
-							$('#voyageNumbers').append('<option value="' + res[i].id + '">' + res[i].voyageNoIn + '</option>')
-						}
-					}
+                		$('#voyageId').val(res.id);
+                        $('#vesselStoppageList').hide();
+                        $('.tooltip-inner, .tooltip-arrow').hide();
 
-                })
-            });
-
-            $('#show').click(function(input){
-                $('#vesselStoppageList').fadeOut();
-                var filter = $(this).data('filter');
-                var pageNumber = $(this).data('pageNumber');
-                if ($('#vessels').val() != '' && $('#voyageNumbers').val() != null) {
-                    $.ajax({
-                        url: '/Operation/VesselStoppageList',
-                        type: 'GET',
-                        data: { vesselName: $('#select2-vessels-container').text(), voyageId: $('#voyageNumbers').val(), voyageNoIn: $('#select2-voyageNumbers-container').text(),pageNumber: pageNumber , filter: filter },
-                        async: false,
-                        success: function(res){
-                            $('#vesselStoppageList').html(res);
-                                  setTimeout(function () {
-                                      $('#vesselStoppageList').css('visibility', 'visible')
-                                      $('#vesselStoppageList').hide();
-                                      $('#vesselStoppageList').fadeIn();
-                                  }, 500);
+                        $.ajax({
+                            url: '/Operation/VesselStoppageList',
+                            type: 'GET',
+                            data: { vesselName: $('#select2-vessels-container').text(), voyageId: $('#voyageId').val(), pageNumber: pageNumber, filter: filter },
+                            async: false,
+                            success: function (res2) {
+                                $('#vesselStoppageList').html(res2);
+                                $('#vesselStoppageList').css('visibility', 'initial')
+                                $('#vesselStoppageList').fadeIn(1000);
+                            }
+                        });
+                        if (filter != '') {
+                            $('#search').val(filter);
                         }
-                    });
-                }
-                if(filter != ''){
-                    $('#search').val(filter);
-                }
+                    }
+                });
             });
+
+
+            //$('#show').click(function(input){
+            //    $('#vesselStoppageList').fadeOut();
+            //    var filter = $(this).data('filter');
+            //    var pageNumber = $(this).data('pageNumber');
+            //    if ($('#vessels').val() != '' && $('#voyageNumbers').val() != null) {
+            //        $.ajax({
+            //            url: '/Operation/VesselStoppageList',
+            //            type: 'GET',
+            //            data: { vesselName: $('#select2-vessels-container').text(), voyageId: $('#voyageNumbers').val(), voyageNoIn: $('#select2-voyageNumbers-container').text(),pageNumber: pageNumber , filter: filter },
+            //            async: false,
+            //            success: function(res){
+            //                $('#vesselStoppageList').html(res);
+            //                      setTimeout(function () {
+            //                          $('#vesselStoppageList').css('visibility', 'visible')
+            //                          $('#vesselStoppageList').hide();
+            //                          $('#vesselStoppageList').fadeIn();
+            //                      }, 500);
+            //            }
+            //        });
+            //    }
+            //    if(filter != ''){
+            //        $('#search').val(filter);
+            //    }
+            //});
         })
     </script>
 }
