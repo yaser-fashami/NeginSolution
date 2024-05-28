@@ -1,0 +1,124 @@
+﻿@model CreateLoadingDischargeViewModel
+
+<div class="card mb-5">
+    <!--begin::Card header-->
+    <div class="card-header cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_profile_details" aria-expanded="true" aria-controls="kt_account_profile_details">
+        <!--begin::Card title-->
+        <div class="card-title">
+            <h3 class="fw-bold m-0">Add @ViewData["Title"]</h3>
+        </div>
+        <!--end::Card title-->
+    </div>
+    <!--end::Card header-->
+    <div class="card-body py-4">
+        <div class="row mt-5">
+            <div class="col-lg-4">
+                <div class="input-group input-group mb-5">
+                    <span class="input-group-text required">@ViewData["Title"] Tonage</span>
+                    <input type="number" class="form-control" aria-label="Tonage" aria-describedby="basic-addon1" min="0" data-val="true" data-val-required="The Tonage field is required." id="tonage" value="">
+                    <span class="input-group-text">Ton</span>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="input-group input-group">
+                    <span class="input-group-text required">Cargo Type</span>
+                    <span class="input-group-text p-0" style="width:80%">
+                        <select id="loadingDischargeTariffDetail" type="text" class="form-select form-select-solid border-start" data-control="select2" data-hide-search="true" data-placeholder="Select a LoadingDischargeTariffDetail..." data-val="true">
+                            <option value="">Select a LoadingDischargeTariffDetail...</option>
+                            @foreach (var tariffDetals in Model.LoadingDischargeTariffDetails)
+                            {
+                                <option value="@tariffDetals.Id">@tariffDetals.Goods</option>
+                            }
+                        </select>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-2 col-form-label">
+                <label class="required fw-semibold fs-6 required">Use port crane? </label>
+            </div>
+            <div class="col-lg-8 fv-row fv-plugins-icon-container">
+                <div class="d-flex align-items-center mt-3">
+                    <!--begin::Option-->
+                    <label class="form-check form-check-custom form-check-inline form-check-solid me-5">
+                        <input class="form-check-input" name="hasCrane" type="radio" value="true">
+                        <span class="fw-semibold ps-2 fs-6">Yes</span>
+                    </label>
+                    <!--end::Option-->
+                    <!--begin::Option-->
+                    <label class="form-check form-check-custom form-check-inline form-check-solid">
+                        <input class="form-check-input" name="hasCrane" type="radio" value="false" checked="checked">
+                        <span class="fw-semibold ps-2 fs-6">No</span>
+                    </label>
+                    <!--end::Option-->
+                </div>
+            </div>
+        </div>
+        <div class="row mb-5">
+            <div class="col-lg-2 col-form-label">
+                <label class="required fw-semibold fs-6 required">Have you Inventory? </label>
+            </div>
+            <div class="col-lg-8 fv-row fv-plugins-icon-container">
+                <div class="d-flex align-items-center mt-3">
+                    <!--begin::Option-->
+                    <label class="form-check form-check-custom form-check-inline form-check-solid me-5">
+                        <input class="form-check-input" name="hasInventory" type="radio" value="true">
+                        <span class="fw-semibold ps-2 fs-6">Yes</span>
+                    </label>
+                    <!--end::Option-->
+                    <!--begin::Option-->
+                    <label class="form-check form-check-custom form-check-inline form-check-solid">
+                        <input class="form-check-input" name="hasInventory" type="radio" value="false" checked="checked">
+                        <span class="fw-semibold ps-2 fs-6">No</span>
+                    </label>
+                    <!--end::Option-->
+                </div>
+            </div>
+        </div>
+        <div id="messages" class="text-danger text-start"></div>
+    </div>
+    <div class="card-footer d-flex justify-content-end py-6 px-9">
+        <a href="/Operation/LoadingAndDischarge" class="btn btn-light btn-active-light-primary me-2">Back</a>
+        <button type="button" id="btn_reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
+        <button type="button" id="btn_submit" class="btn btn-primary">Save Changes</button>
+    </div>
+    <input type="hidden" name="method" value="@Model.Method"/>
+    <input type="hidden" name="vesselStoppageId" value="@Model.VesselStoppageId"/>
+</div>
+
+@section Scripts{
+<script type="text/javascript">
+        $(document).ready(function(){
+            $('#btn_submit').click(function () {
+                var loadingDischarhe = {
+                    vesselStoppageId: $('input[name="vesselStoppageId"]'). val(),
+                    method: $('input[name="method"]').val(),
+                    tonage: $('#tonage').val(),
+                    loadingDischargeTariffDetailId: $('#loadingDischargeTariffDetail').val(),
+                    hasCrane: $('input[name="hasCrane"]:checked').val(),
+                    hasInventory: $('input[name="hasInventory"]:checked').val()
+                }
+               
+                $.ajax({
+                    url: '/Operation/AddLoadingDischarge',
+                    type: 'POST',
+                    data: loadingDischarhe,
+                    success: function(res){
+                        if(res.state == true){
+                            window.location = "/Operation/LoadingAndDischarge"
+                        }else{
+                            $('#messages').text(res.message);
+                        }
+                    }
+                })
+            })
+
+            $('#btn_reset').click(function(){
+                $('#tonage').val(null);
+                $('#loadingDischargeTariffDetail').val(null).trigger("change");
+                $(":radio[value=false]").prop('checked', true);
+            })
+        })
+</script>
+}

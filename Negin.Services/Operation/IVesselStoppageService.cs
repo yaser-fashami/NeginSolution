@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Negin.Core.Domain.Aggregates.Basic;
-using Negin.Core.Domain.Aggregates.Operation;
+using Negin.Core.Domain.Entities.Operation;
 using Negin.Framework.Exceptions;
 using Negin.Framework.Pagination;
 

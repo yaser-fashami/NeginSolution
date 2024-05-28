@@ -8,5 +8,6 @@ public record DashboardDto
     public uint WaitForVessel { get; set; }
     public uint VesselStoppageCount { get; set; }
     public uint Invoiced { get; set; }
+    public uint NotInvoiced { get; set; }
 
 }

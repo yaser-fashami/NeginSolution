@@ -1,6 +1,5 @@
 ﻿
 using DataAnnotationsExtensions;
-using Negin.Core.Domain.Aggregates.Basic;
 
 namespace Negin.Core.Domain.Entities.Basic;
 
@@ -17,6 +16,7 @@ public class ShippingLineCompany: BaseAudit_SoftDeleteable_Entity<uint>
 	public string? Description { get; set; }
 	public bool IsOwner { get; set; }
 	public bool IsAgent { get; set; } 
+	public bool IsPorterage { get; set; } 
 
 	public virtual ICollection<AgentShippingLine>? Agents { get; set; }
 	public virtual ICollection<Voyage>? OwnerVoyages { get; set; }

@@ -8,4 +8,5 @@ public class ShippingLineViewModel
 
 	public IList<ShippingLineCompany>? AgentList { get; set; }
 	public IList<uint>? AgentAssigned { get; set; }
+    public  bool HasPorterage { get; set; }
 }

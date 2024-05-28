@@ -64,9 +64,17 @@ public static class DateTimeExtension
 	{
 		return $"{dayOfWeek?.PersianDayOfWeek()} {dateTime?.Year}/{dateTime?.Month}/{dateTime?.Day} <br/>  ساعت: {dateTime?.Hour}:{dateTime?.Minute}";
 	}
+	public static string ToInlineShamsiDateString(this DateTime? dateTime, System.DayOfWeek? dayOfWeek)
+	{
+		return $"{dayOfWeek?.PersianDayOfWeek()} {dateTime?.Year}/{dateTime?.Month}/{dateTime?.Day}  ساعت: {dateTime?.Hour}:{dateTime?.Minute}";
+	}
 	public static string ToMiladiDateString(this DateTime dateTime)
 	{
         return $"{dateTime.DayOfWeek} {dateTime.Day}/{dateTime.Month}/{dateTime.Year} <br/> At {dateTime.Hour}:{dateTime.Minute}";
+	}
+	public static string ToInlineMiladiDateString(this DateTime dateTime)
+	{
+        return $"{dateTime.DayOfWeek} {dateTime.Day}/{dateTime.Month}/{dateTime.Year} at {dateTime.Hour}:{dateTime.Minute}";
 	}
 
     public static string ToShortShamsiDateString(this DateTime dateTime)

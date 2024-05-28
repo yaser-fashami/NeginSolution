@@ -1,14 +1,23 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Protocols;
+using Negin.Core.Domain.Interfaces;
 using Negin.Infrastructure;
+using Negin.Services.ApplicationServices;
 using Negin.Services.Billing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Negin.ServicesTest;
 
 public class InvoiceCalculatorTest
 {
     private readonly IInvoiceCalculator _sut;
-    public InvoiceCalculatorTest()
+    private readonly IAppVersionService _appVersionService;
+
+    public InvoiceCalculatorTest(IAppVersionService appVersionService)
     {
         var context = new DefaultHttpContext();
         context.Request.Scheme = "http";
@@ -16,14 +25,15 @@ public class InvoiceCalculatorTest
         context.Request.Path = new PathString("/path");
         var accessor = new HttpContextAccessor();
         accessor.HttpContext = context;
-
+        //Mock<IConfigurationSection> mockSection = new Mock<IConfigurationSection>();
+        //var appVersionservice = new ConfigurationSourceExtensions
         var options = new DbContextOptionsBuilder<NeginDbContext>()
             .UseSqlServer("Server=.; Initial Catalog=NeginDB; User ID=sa; Password=1qaz!QAZ; Encrypt=false;")
             .Options;
 
         var ctx = new NeginDbContext(options);
-        _sut = new InvoiceCalculator(ctx, accessor);
-
+        _sut = new InvoiceCalculator(ctx, accessor, appVersionService);
+        _appVersionService = appVersionService;
     }
 
     [Fact]

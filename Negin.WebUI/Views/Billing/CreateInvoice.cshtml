@@ -13,7 +13,7 @@
                 <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3 ">
                     <!--begin::Title-->
                     <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">
-                        @Model.Voyage.Vessel?.Name
+                        @Model.Voyage.Vessel?.Name / @Model.Voyage.Owner.ShippingLineName
                     </h1>
                     <!--end::Title-->
                     <span class="fw-semibold fs-7 my-0 pt-1 text-gray-400">Select only Gone VesselStoppage</span>
@@ -26,7 +26,7 @@
         <div class="card pt-10">
             <!--begin::Body-->
             <div class="card-body">
-                <form asp-controller="Billing" asp-action="PreInvoice" method="get">
+                <form asp-controller="Billing" asp-action="PreInvoice" method="post">
                     <div class="mb-2">
                         <input type="hidden" name="voyageId" value="@Model.Voyage.Id" />
                         @foreach (var vesselStoppage in Model.VesselStoppages.Data)
@@ -79,6 +79,12 @@
                                                         ATA:
                                                         <span class="badge badge-dark">@Html.Raw(vesselStoppage.ATA != null ? @vesselStoppage.ATA.ToShamsiDateString(vesselStoppage.ATADayOfTheWeek) : "")</span>
                                                     </td>
+                                                    <td>
+                                                        @if (vesselStoppage.StartStorm != null && vesselStoppage.EndStorm != null)
+                                                        {
+                                                            <img src="~/assets/media/images/rain.gif" style="width:30px" />
+                                                        }
+                                                    </td>
                                                     <td class="fs-6 fw-bold text-gray-800 py-0 text-end">
                                                         ATD:
                                                         <span class="badge badge-dark">@Html.Raw(vesselStoppage.ATD != null ? @vesselStoppage.ATD.ToShamsiDateString(vesselStoppage.ATDDayOfTheWeek) : "")</span>
@@ -86,7 +92,7 @@
                                                 </tr>
 
                                                 <tr class="">
-                                                    <td class="py-0" colspan="2">
+                                                    <td class="py-0" colspan="3">
                                                         <div class="progress mb-5 mt-1" role="progressbar" aria-label="Basic example" aria-valuenow="@vesselStoppage.Percentage" aria-valuemin="0" aria-valuemax="100" style="height:17px">
                                                             <div class="progress-bar fs-7 fw-bolder " style="width:@vesselStoppage.Percentage%;background-color:#20c997">@vesselStoppage.Percentage % - Gone!</div>
                                                         </div>
@@ -132,17 +138,23 @@
                                     <div class="ms-5 table-responsive w-lg-300px">
                                         <table class="table align-middle">
                                             <tr>
-                                                <td class="fs-6 fw-bold text-gray-800 py-0 min-w-150px">
-                                                    ATA:
+                                                <td class="fs-6 fw-bold text-gray-800 py-0 ">
+                                                    ATA:<br/>
                                                     <span class="badge badge-dark">@Html.Raw(vesselStoppage.ATA != null ? @vesselStoppage.ATA.ToShamsiDateString(vesselStoppage.ATADayOfTheWeek) : "")</span>
                                                 </td>
-                                                <td class="fs-6 fw-bold text-gray-800 py-0 text-end min-w-150px">
-                                                    ATD:
-                                                    <span class="badge badge-dark">@Html.Raw(vesselStoppage.ATD != null ? @vesselStoppage.ATD.ToShamsiDateString(vesselStoppage.ATDDayOfTheWeek) : "")</span>
+                                                <td>
+                                                    @if (vesselStoppage.StartStorm != null && vesselStoppage.EndStorm != null)
+                                                    {
+                                                        <img src="~/assets/media/images/rain.gif" style="width:30px" />
+                                                    }
+                                                </td>
+                                                <td class="fs-6 fw-bold text-gray-800 py-0 text-end">
+                                                    ATD:<br/>
+                                                    <span class="badge badge-dark min-h-30px">@Html.Raw(vesselStoppage.ATD != null ? @vesselStoppage.ATD.ToShamsiDateString(vesselStoppage.ATDDayOfTheWeek) : "------")</span>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="py-0" colspan="2">
+                                                <td class="py-0" colspan="3">
                                                         <div class="progress mb-10 mt-1" role="progressbar" aria-label="Basic example" aria-valuenow="@vesselStoppage.Percentage" aria-valuemin="0" aria-valuemax="100" style="height:17px">
                                                         @if (@vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.InProcess)
                                                         {

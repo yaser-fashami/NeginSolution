@@ -46,13 +46,21 @@
 							</label>
 						</div>
 
-						<div class="form-check form-check-custom form-check-solid form-check-sm">
+						<div class="form-check form-check-custom form-check-solid form-check-sm mb-2">
 							<input id="chk_agent" class="form-check-input" type="checkbox" asp-for="ShippingLineCompany.IsAgent" checked />
 							<label class="form-check-label" for="">
 								Agent
 							</label>
 						</div>
-
+						@if (Model.HasPorterage)
+						{
+							<div class="form-check form-check-custom form-check-warning form-check-solid form-check-sm">
+								<input id="chk_porterage" class="form-check-input" type="checkbox" asp-for="ShippingLineCompany.IsPorterage" />
+								<label class="form-check-label" for="">
+									Porterage
+								</label>
+							</div>
+						}
 					</div>
 					<!--end::Col-->
 					<!--begin::Col-->
@@ -218,6 +226,22 @@
 				$('#agentWarn').slideDown(500);
 			}
 		});
+		$('#chk_porterage').click(function () {
+			if ($('#chk_porterage').is(':checked')) {
+				$('#chk_owner').prop('checked', false);
+				$('#chk_agent').prop('checked', false);
+				$('#chk_owner').prop('disabled', 'disabled');
+				$('#chk_agent').prop('disabled', 'disabled');
+				$('#agentlist, #agentWarn').css('display', 'none');
+			}else{
+				$('#chk_owner').prop('disabled', '');
+				$('#chk_agent').prop('disabled', '');
+				$('#chk_owner').prop('checked', true);
+				$('#chk_agent').prop('checked', true);
+				$('#agentWarn').css('display', 'Initial');
+				$('#agentlist').css('display', 'none');
+			}
+		})
 		$('button[type="reset"]').click(function () {
 			$('select').val(null).trigger("change");
 		});

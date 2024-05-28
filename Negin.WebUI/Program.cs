@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Negin.Core.Domain.Entities;
 using Negin.Core.Domain.Interfaces;
 using Negin.Infra.Data.Sql.EFRepositories;
 using Negin.Infrastructure;
 using Negin.Services.ApplicationServices;
+using Negin.Services.BasicInfo;
 using Negin.Services.Billing;
 using Negin.Services.Operation;
 using SmartBreadcrumbs.Extensions;
@@ -22,14 +22,22 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
     options.JsonSerializerOptions.WriteIndented = true;
 });
 
-string conStr;
+string conStr = string.Empty;
 if (builder.Environment.IsDevelopment())
 {
     conStr = builder.Configuration.GetConnectionString("DevelopmentConnection");
 }
 else
 {
-    conStr = builder.Configuration.GetConnectionString("NeginDbContextConnection");
+    var beneficiary = builder.Configuration.GetSection("Beneficiary").Value;
+    if (beneficiary == Beneficiary.Negin.ToString())
+    {
+        conStr = builder.Configuration.GetConnectionString("NeginDbContextConnection");
+    }
+    else if (beneficiary == Beneficiary.SinaOil.ToString())
+    {
+        conStr = builder.Configuration.GetConnectionString("SinaOilDbContextConnection");
+    }
 }
 
 builder.Services.AddDbContext<NeginDbContext>(c => c.UseSqlServer(conStr));
@@ -70,13 +78,12 @@ builder.Services.AddBreadcrumbs(Assembly.GetExecutingAssembly(), options =>
 #region IOC
 builder.Services.AddSingleton<IAppVersionService, AppVersionService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddScoped<IVesselRepository, VesselRepository>();
-builder.Services.AddScoped<IShippingLineCompanyRepository, ShippingLineCompanyRepository>();
-builder.Services.AddScoped<IVoyageRepository, VoyageRepository>();
 builder.Services.AddScoped<IVesselStoppageService, VesselStoppageService>();
 builder.Services.AddScoped<IBasicInfoRepository, BasicInfoRepository>();
 builder.Services.AddScoped<IInvoiceCalculator, InvoiceCalculator>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IBasicInfoService, BasicInfoService>();
+builder.Services.AddScoped<IOperationRepository, OperationRepository>();
 
 #endregion
 

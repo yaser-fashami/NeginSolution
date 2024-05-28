@@ -1,0 +1,36 @@
+﻿@model PageInfo
+@inject IUrlHelper UrlHelper;
+
+@{
+    bool has3Point = false;
+}
+<ul class="pagination">
+    <li id="previous" class="page-item previous"><a href="@UrlHelper.Action(Model.PageName, new { pageNumber = Model.PageNumber-1, filter=Model.Filter,  invoiced = Model.Specification })" class="page-link"><i class="previous"></i></a></li>
+    @for (int i = 1; i <= Model.PageCount; i++)
+    {
+        if (i < 5 || i == Model.PageCount || i == (Model.PageNumber + 1) || i == Model.PageNumber || i == (Model.PageNumber - 1))
+        {
+            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                <a class="page-link " href="@UrlHelper.Action(Model.PageName, new { pageNumber = i,filter=@Model.Filter, invoiced = Model.Specification })">@i</a>
+            </li>
+        }
+        else if (!has3Point)
+        {
+            has3Point = true;
+            <li class="mx-2"> ... </li>
+        }
+    }
+    <li id="next" class="page-item next"><a href="@UrlHelper.Action(Model.PageName, new { pageNumber = Model.PageNumber+1, filter=Model.Filter, invoiced = Model.Specification })" class="page-link"><i class="next"></i></a></li>
+</ul>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (@Model.PageNumber >= @Model.PageCount) {
+            $('#next').addClass("disabled")
+        }
+        if (@Model.PageNumber <= 1) {
+            $('#previous').addClass("disabled")
+        }
+    })
+</script>

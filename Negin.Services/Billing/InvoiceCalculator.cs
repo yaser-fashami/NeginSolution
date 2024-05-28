@@ -1,16 +1,16 @@
 ﻿using EntityFramework.Exceptions.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Negin.Core.Domain.Aggregates.Basic;
-using Negin.Core.Domain.Aggregates.Billing;
-using Negin.Core.Domain.Aggregates.Operation;
 using Negin.Core.Domain.Dtos;
 using Negin.Core.Domain.Entities.Basic;
+using Negin.Core.Domain.Entities.Billing;
+using Negin.Core.Domain.Entities.Operation;
+using Negin.Core.Domain.Interfaces;
 using Negin.Framework.Exceptions;
 using Negin.Framework.Utilities;
 using Negin.Infrastructure;
 using System.Text;
-using static Negin.Core.Domain.Aggregates.Billing.Invoice;
+using static Negin.Core.Domain.Entities.Billing.Invoice;
 
 namespace Negin.Services.Billing;
 
@@ -18,11 +18,13 @@ public class InvoiceCalculator : IInvoiceCalculator
 {
     private readonly NeginDbContext _neginDbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IAppVersionService _appVersionService;
 
-    public InvoiceCalculator(NeginDbContext neginDbContext, IHttpContextAccessor httpContextAccessor)
+    public InvoiceCalculator(NeginDbContext neginDbContext, IHttpContextAccessor httpContextAccessor, IAppVersionService appVersionService)
     {
         _neginDbContext = neginDbContext;
         _httpContextAccessor = httpContextAccessor;
+        _appVersionService = appVersionService;
     }
 
     public async Task<PreInvoiceDto> CalculateAsync(ulong voyageId, IEnumerable<ulong> vesselStoppagesId)
@@ -49,7 +51,7 @@ public class InvoiceCalculator : IInvoiceCalculator
 
         foreach (var vesselStoppage in vesselStoppages)
         {
-            var dwellingHour = CalculateTotalDwellingHour(vesselStoppage, out uint dwellingDay);
+            var dwellingHour = CalculateTotalDwellingHour(vesselStoppage, out uint dwellingDay, out uint stormHour);
             totalDwellingHour += dwellingHour;
             totalDwellingDay += dwellingDay;
 
@@ -72,7 +74,7 @@ public class InvoiceCalculator : IInvoiceCalculator
             ulong priceRCS = CalculatePriceRial(voyage, currency, priceDCS);
             ulong priceRVSVat = 0, priceRCSVat = 0;
 
-            VatTariff vatTariff = await _neginDbContext.VatTariffs.AsNoTracking().Where(c => c.EffectiveDate <= vesselStoppage.ATA).OrderBy(c => c.EffectiveDate).LastAsync();
+            VatTariff vatTariff = await _neginDbContext.VatTariffs.AsNoTracking().OrderBy(c => c.EffectiveDate).LastAsync();
             if (vatTariff != null)
             {
                 priceRVSVat = Convert.ToUInt64(priceRVS * vatTariff.Rate / 100);
@@ -114,7 +116,8 @@ public class InvoiceCalculator : IInvoiceCalculator
                 VATPercent = Convert.ToByte(vatTariff?.Rate),
                 StoppageIssuedBy = vesselStoppage?.CreatedBy?.UserName,
                 Currency = currency,
-                DiscountPercent = (byte)discountPercent
+                DiscountPercent = (byte)discountPercent,
+                StormHour = stormHour
             };
             preInvoiceDetails.Add(preInvoiceDetail);
         }
@@ -243,28 +246,206 @@ public class InvoiceCalculator : IInvoiceCalculator
         return result;
     }
 
+    public async Task<PreLoadingDischargeInvoiceDto> CalculateLoadingDischargeInvoiceAsync(LoadingDischargeInvoiceDto loadingDischargeDto)
+	{
+        LoadingDischarge loadingDischarge;
+        LoadingDischargeTariff loadingDischargeTariff;
+        uint perTonPrice = 0;
+        ulong loadingDischargePriceR;
+
+		try
+        {
+            loadingDischarge = await _neginDbContext.LoadingDischarges
+                                                            .Include(c => c.VesselStoppage)
+                                                            .ThenInclude(c => c.Voyage)
+                                                            .ThenInclude(c => c.Vessel)
+                                                            .ThenInclude(c => c.Flag)
+                                                            .Include(c => c.VesselStoppage)
+                                                            .ThenInclude(c => c.Voyage)
+                                                            .ThenInclude(c => c.Vessel)
+                                                            .ThenInclude(c => c.Nationality)
+                                                            .Include(c => c.VesselStoppage)
+                                                            .ThenInclude(c => c.CreatedBy)
+                                                            .Include(c => c.VesselStoppage)
+                                                            .ThenInclude(c => c.Voyage)
+                                                            .ThenInclude(c => c.Vessel)
+                                                            .ThenInclude(c => c.Type).AsNoTracking()
+                                                            .Where(c => c.Id == loadingDischargeDto.loadingDischargeId)
+                                                            .SingleAsync();
+
+
+            loadingDischargeTariff = await _neginDbContext.LoadingDischargeTariffs
+                                                        .Include(c => c.LoadingDischargeTariffDetails).AsNoTracking()
+                                                        .OrderByDescending(c => c.EffectiveDate)
+                                                        .Where(c => c.EffectiveDate <= loadingDischarge.VesselStoppage.ATA)
+                                                        .FirstAsync();
+
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+
+        var tariffPrice = loadingDischargeTariff.LoadingDischargeTariffDetails.Single(c => c.Id == loadingDischarge.LoadingDischargeTariffDetailId).Price;
+        if (loadingDischarge.Method == LoadingDischarge.LoadingDischargeMethod.LOAD)
+        {
+            perTonPrice = tariffPrice * 75/100 * 36/100;
+        }
+        else if (loadingDischarge.Method == LoadingDischarge.LoadingDischargeMethod.DISC)
+        {
+			perTonPrice = tariffPrice * 36 / 100;
+		}
+        loadingDischargePriceR = UInt64.Parse((loadingDischarge.Tonage * (double)perTonPrice).ToString());
+
+        ulong craneTariff = 0, inventoryTariff = 0, inventoryCostR = 0, discountAmount = 0;
+        if (loadingDischarge.HasCrane)
+        {
+            craneTariff = loadingDischargeTariff.LoadingDischargeTariffDetails.Where(c => c.GroupName.Contains("بارگیری")).Select(c => c.Price).Single();
+        };
+        if (loadingDischarge.HasInventory)
+        {
+            inventoryTariff = loadingDischargeTariff.LoadingDischargeTariffDetails.Where(c => c.GroupName.Contains("انبارداری")).Select(c => c.Price).Single();
+            inventoryCostR = (ulong)(inventoryTariff * loadingDischarge.Tonage);
+        }
+        ulong totalCostR = loadingDischargePriceR + craneTariff + inventoryCostR;
+        if (loadingDischargeDto.DiscountPercent > 0)
+        {
+            discountAmount = totalCostR * loadingDischargeDto.DiscountPercent / 100;
+        }
+        byte vatPercent = (byte)(await _neginDbContext.VatTariffs.OrderBy(c => c.EffectiveDate).LastAsync()).Rate;
+        ulong vatCostR = totalCostR * vatPercent / 100;
+
+        PreLoadingDischargeInvoiceDto result = new PreLoadingDischargeInvoiceDto(
+            InvoiceNo: PrepareLoadingDischargeInvoiceNumber(out DateTime date),
+            InvoiceDate: date,
+            LoadingDiascharge: loadingDischarge,
+            LoadingDischargeTariffId: loadingDischargeTariff.Id,
+            ShippingLineCompany: await _neginDbContext.ShippingLines.SingleAsync(c => c.Id == loadingDischargeDto.shippingLineCompanyId),
+            DiscountPercent: loadingDischargeDto.DiscountPercent,
+            DiscountAmount: discountAmount,
+            PerTonPrice: perTonPrice,
+            LDCostR: loadingDischargePriceR,
+            Tonage: loadingDischarge.Tonage,
+            CraneCostR: craneTariff,
+            InventoryTariffPrice: inventoryTariff,
+            InventoryCostR: inventoryCostR,
+            TotalCostR: totalCostR,
+            VesselStoppage: loadingDischarge.VesselStoppage,
+            Vessel: loadingDischarge.VesselStoppage.Voyage.Vessel,
+            VatPercent: vatPercent,
+            VatCostR: vatCostR,
+            CurrentUser: _httpContextAccessor.HttpContext.User.Identity?.Name,
+            CurrentUserEmail: _httpContextAccessor.HttpContext.User.Identity.GetCurrentUserEmail()
+        );
+
+        return result;
+    }
+
+    public async Task<BLMessage> LoadingDischargeInvoicing(PreLoadingDischargeInvoiceDto preLoadingDischargeInvoiceDto)
+    {
+        BLMessage result = new BLMessage() { State = false };
+
+        LoadingDischargeInvoice newLoadingDischargeInvoice = new()
+        {
+            InvoiceNo = preLoadingDischargeInvoiceDto.InvoiceNo,
+            InvoiceDate = preLoadingDischargeInvoiceDto.InvoiceDate,
+            LoadingDischargeId = preLoadingDischargeInvoiceDto.LoadingDiascharge.Id,
+            LoadingDischargeTariffId = preLoadingDischargeInvoiceDto.LoadingDischargeTariffId,
+            ShippingLineCompanyId = preLoadingDischargeInvoiceDto.ShippingLineCompany.Id,
+            DiscountPercent = preLoadingDischargeInvoiceDto.DiscountPercent,
+            Tonage = preLoadingDischargeInvoiceDto.Tonage,
+            LDCostR = preLoadingDischargeInvoiceDto.LDCostR,
+            CraneCostR = preLoadingDischargeInvoiceDto.CraneCostR,
+            InventoryCostR = preLoadingDischargeInvoiceDto.InventoryCostR,
+            VatPercent = preLoadingDischargeInvoiceDto.VatPercent,
+            VatCostR = preLoadingDischargeInvoiceDto.VatCostR,
+            TotalPriceR = preLoadingDischargeInvoiceDto.TotalCostR - preLoadingDischargeInvoiceDto.DiscountAmount + preLoadingDischargeInvoiceDto.VatCostR,
+            CreatedById = _httpContextAccessor.HttpContext.User?.Identity?.GetCurrentUserId(),
+            CreateDate = DateTime.Now
+        };
+
+        try
+        {
+            await _neginDbContext.LoadingDischargeInvoices.AddAsync(newLoadingDischargeInvoice);
+            await _neginDbContext.SaveChangesAsync();
+            result.State = true;
+            result.Message = preLoadingDischargeInvoiceDto?.InvoiceNo;
+        }
+        catch (Exception ex)
+        {
+            result.Message = ex.Message;
+        }
+
+        return result;
+    }
+
+
     #region Private Methods
     private string PrepareInvoiceNumber(out DateTime date)
     {
         date = DateTime.Now;
         var shamsiDate = date.MiladiToPersianDate();
         var invoiceNo = new StringBuilder();
-        invoiceNo.Append('N');
+        if (_appVersionService.Beneficiary == Beneficiary.Negin)
+        {
+            invoiceNo.Append('N');
+        }
+        else if (_appVersionService.Beneficiary == Beneficiary.SinaOil)
+        {
+            invoiceNo.Append('O');
+        }
         invoiceNo.Append(shamsiDate.year);
         invoiceNo.Append(shamsiDate.month.ToString().Length == 1 ? "0" + shamsiDate.month : shamsiDate.month);
         invoiceNo.Append('-');
         var lastInvoice = _neginDbContext.Invoices.OrderBy(c => c.Id).LastOrDefaultAsync().Result;
         var lastinvoiceNo = lastInvoice != null ? (int.Parse(lastInvoice.InvoiceNo.Substring(8, lastInvoice.InvoiceNo.Length - 8)) + 1).ToString() : "65";
+        if (shamsiDate.year > lastInvoice?.InvoiceDate.MiladiToPersianDate().year)
+        {
+            lastinvoiceNo = "1";
+        }
         invoiceNo.Append(lastinvoiceNo);
 
         return invoiceNo.ToString();
     }
 
-    private uint CalculateTotalDwellingHour(VesselStoppage vesselStoppage, out uint dwellingDay)
+	private string PrepareLoadingDischargeInvoiceNumber(out DateTime date)
+    {
+        date = DateTime.Now;
+        var shamsiDate = date.MiladiToPersianDate();
+        var invoiceNo = new StringBuilder();
+		invoiceNo.Append("NB");
+        invoiceNo.Append(shamsiDate.year);
+        invoiceNo.Append(shamsiDate.month.ToString().Length == 1 ? "0" + shamsiDate.month : shamsiDate.month);
+        invoiceNo.Append('-');
+        var lastInvoice = _neginDbContext.LoadingDischargeInvoices.OrderBy(c => c.Id).LastOrDefault();
+        var lastinvoiceNo = lastInvoice != null ? (int.Parse(lastInvoice.InvoiceNo.Substring(9, lastInvoice.InvoiceNo.Length - 9)) + 1).ToString() : "1";
+        if (shamsiDate.year > lastInvoice?.InvoiceDate.MiladiToPersianDate().year)
+        {
+            lastinvoiceNo = "1";
+        }
+        invoiceNo.Append(lastinvoiceNo);
+
+        return invoiceNo.ToString();
+    }
+
+    private uint CalculateTotalDwellingHour(VesselStoppage vesselStoppage, out uint dwellingDay, out uint stormHour)
     {
         vesselStoppage.ATADayOfTheWeek = vesselStoppage.ATA?.DayOfWeek;
+        vesselStoppage.ETADayOfTheWeek = vesselStoppage.ETA?.DayOfWeek;
         vesselStoppage.ATDDayOfTheWeek = vesselStoppage.ATD?.DayOfWeek;
+        vesselStoppage.ETDDayOfTheWeek = vesselStoppage.ETD?.DayOfWeek;
+        vesselStoppage.StartStormDayOfTheWeek = vesselStoppage.StartStorm?.DayOfWeek;
+        vesselStoppage.EndStormDayOfTheWeek = vesselStoppage.EndStorm?.DayOfWeek;
+        TimeSpan stormHours = TimeSpan.Zero;
+        stormHour = 0;
+        if (vesselStoppage.StartStorm != null && vesselStoppage.EndStorm != null)
+        {
+            stormHours = (TimeSpan)(vesselStoppage.EndStorm - vesselStoppage.StartStorm);
+            stormHour = (uint)stormHours.TotalHours;
+        }
         TimeSpan diffrence = (TimeSpan)(vesselStoppage.ATD - vesselStoppage.ATA);
+        diffrence -= stormHours;
         uint dwellingHour = (uint)Math.Ceiling(diffrence.TotalHours);
         dwellingDay = dwellingHour % 24 == 0 ? dwellingHour / 24 : (dwellingHour / 24) + 1;
         return dwellingHour;
@@ -303,7 +484,7 @@ public class InvoiceCalculator : IInvoiceCalculator
     private decimal CalculateVesselStoppagePriceDollar(VesselStoppageTariffDetails vesselStoppageTariffDetail, Voyage voyage, uint dwellingHour)
     {
         decimal priceDVS = 0;
-        if (dwellingHour <= vesselStoppageTariffDetail?.NormalHour)
+        if (dwellingHour <= vesselStoppageTariffDetail?.NormalHour || (vesselStoppageTariffDetail?.NormalHour == 1 && vesselStoppageTariffDetail?.ExtraPrice == 0))
         {
             priceDVS = Math.Round(Convert.ToDecimal((dwellingHour * vesselStoppageTariffDetail.NormalPrice * voyage.Vessel?.GrossTonage) / 100), 2);
         }
@@ -357,6 +538,7 @@ public class InvoiceCalculator : IInvoiceCalculator
         }
         return decimal.Round(result, 2);
     }
+
     #endregion
 
     #endregion

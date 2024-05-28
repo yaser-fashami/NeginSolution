@@ -179,7 +179,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.CleaningServiceTariff", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.CleaningServiceTariff", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -216,7 +216,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.ToTable("CleaningServiceTariff", "Basic");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.CleaningServiceTariffDetails", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.CleaningServiceTariffDetails", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -243,7 +243,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.ToTable("CleaningServiceTariffDetails", "Basic");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.VesselStoppageTariff", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.VesselStoppageTariff", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -280,7 +280,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.ToTable("VesselStoppageTariff", "Basic");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.VesselStoppageTariffDetails", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.VesselStoppageTariffDetails", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -312,7 +312,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.ToTable("VesselStoppageTariffDetails", "Basic");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.Voyage", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.Voyage", b =>
                 {
                     b.Property<decimal>("Id")
                         .ValueGeneratedOnAdd()
@@ -374,7 +374,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.ToTable("Voyages", "Basic");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.CleaningServiceInvoiceDetail", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Billing.CleaningServiceInvoiceDetail", b =>
                 {
                     b.Property<decimal>("Id")
                         .ValueGeneratedOnAdd()
@@ -443,7 +443,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.ToTable("CleaningServiceInvoiceDetails", "Billing");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.Invoice", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Billing.Invoice", b =>
                 {
                     b.Property<decimal>("Id")
                         .ValueGeneratedOnAdd()
@@ -494,7 +494,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.ToTable("Invoices", "Billing");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.VesselStoppageInvoiceDetail", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Billing.VesselStoppageInvoiceDetail", b =>
                 {
                     b.Property<decimal>("Id")
                         .ValueGeneratedOnAdd()
@@ -564,7 +564,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.ToTable("VesselStoppageInvoiceDetails", "Billing");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Operation.VesselStoppage", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Operation.VesselStoppage", b =>
                 {
                     b.Property<decimal>("Id")
                         .ValueGeneratedOnAdd()
@@ -1178,7 +1178,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.CleaningServiceTariff", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.CleaningServiceTariff", b =>
                 {
                     b.HasOne("Negin.Core.Domain.Entities.User", "CreatedBy")
                         .WithMany()
@@ -1193,9 +1193,9 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("ModifiedBy");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.CleaningServiceTariffDetails", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.CleaningServiceTariffDetails", b =>
                 {
-                    b.HasOne("Negin.Core.Domain.Aggregates.Basic.CleaningServiceTariff", "CleaningServiceTariff")
+                    b.HasOne("Negin.Core.Domain.Entities.Basic.CleaningServiceTariff", "CleaningServiceTariff")
                         .WithMany("CleaningServiceTariffDetails")
                         .HasForeignKey("CleaningServiceTariffId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1204,7 +1204,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("CleaningServiceTariff");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.VesselStoppageTariff", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.VesselStoppageTariff", b =>
                 {
                     b.HasOne("Negin.Core.Domain.Entities.User", "CreatedBy")
                         .WithMany()
@@ -1219,9 +1219,9 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("ModifiedBy");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.VesselStoppageTariffDetails", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.VesselStoppageTariffDetails", b =>
                 {
-                    b.HasOne("Negin.Core.Domain.Aggregates.Basic.VesselStoppageTariff", "VesselStoppageTarriff")
+                    b.HasOne("Negin.Core.Domain.Entities.Basic.VesselStoppageTariff", "VesselStoppageTarriff")
                         .WithMany("VesselStoppageTariffDetails")
                         .HasForeignKey("VesselStoppageTarrifId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1238,7 +1238,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("VesselType");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.Voyage", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.Voyage", b =>
                 {
                     b.HasOne("Negin.Core.Domain.Entities.Basic.ShippingLineCompany", "Agent")
                         .WithMany("AgentVoyages")
@@ -1277,9 +1277,9 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("Vessel");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.CleaningServiceInvoiceDetail", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Billing.CleaningServiceInvoiceDetail", b =>
                 {
-                    b.HasOne("Negin.Core.Domain.Aggregates.Basic.CleaningServiceTariff", "CleaningServiceTariff")
+                    b.HasOne("Negin.Core.Domain.Entities.Basic.CleaningServiceTariff", "CleaningServiceTariff")
                         .WithMany("CleaningServiceInvoiceDetail")
                         .HasForeignKey("CleaningServiceTariffId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1295,7 +1295,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Negin.Core.Domain.Aggregates.Billing.Invoice", "Invoice")
+                    b.HasOne("Negin.Core.Domain.Entities.Billing.Invoice", "Invoice")
                         .WithMany("CleaningServiceInvoiceDetails")
                         .HasForeignKey("InvoiceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1305,13 +1305,13 @@ namespace Negin.Infra.Data.Sql.Migrations
                         .WithMany()
                         .HasForeignKey("ModifiedById");
 
-                    b.HasOne("Negin.Core.Domain.Aggregates.Operation.VesselStoppage", "VesselStoppage")
+                    b.HasOne("Negin.Core.Domain.Entities.Operation.VesselStoppage", "VesselStoppage")
                         .WithMany()
                         .HasForeignKey("VesselStoppageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Negin.Core.Domain.Aggregates.Basic.VesselStoppageTariff", null)
+                    b.HasOne("Negin.Core.Domain.Entities.Basic.VesselStoppageTariff", null)
                         .WithMany("CleaningServiceInvoiceDetail")
                         .HasForeignKey("VesselStoppageTariffId");
 
@@ -1328,7 +1328,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("VesselStoppage");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.Invoice", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Billing.Invoice", b =>
                 {
                     b.HasOne("Negin.Core.Domain.Entities.User", "CreatedBy")
                         .WithMany()
@@ -1338,7 +1338,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                         .WithMany()
                         .HasForeignKey("ModifiedById");
 
-                    b.HasOne("Negin.Core.Domain.Aggregates.Basic.Voyage", "Voyage")
+                    b.HasOne("Negin.Core.Domain.Entities.Basic.Voyage", "Voyage")
                         .WithMany()
                         .HasForeignKey("VoyageId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1351,9 +1351,9 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("Voyage");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.VesselStoppageInvoiceDetail", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Billing.VesselStoppageInvoiceDetail", b =>
                 {
-                    b.HasOne("Negin.Core.Domain.Aggregates.Basic.CleaningServiceTariff", null)
+                    b.HasOne("Negin.Core.Domain.Entities.Basic.CleaningServiceTariff", null)
                         .WithMany("VesselStoppageInvoiceDetail")
                         .HasForeignKey("CleaningServiceTariffId");
 
@@ -1367,7 +1367,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Negin.Core.Domain.Aggregates.Billing.Invoice", "Invoice")
+                    b.HasOne("Negin.Core.Domain.Entities.Billing.Invoice", "Invoice")
                         .WithMany("VesselStoppageInvoiceDetails")
                         .HasForeignKey("InvoiceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1377,13 +1377,13 @@ namespace Negin.Infra.Data.Sql.Migrations
                         .WithMany()
                         .HasForeignKey("ModifiedById");
 
-                    b.HasOne("Negin.Core.Domain.Aggregates.Operation.VesselStoppage", "VesselStoppage")
+                    b.HasOne("Negin.Core.Domain.Entities.Operation.VesselStoppage", "VesselStoppage")
                         .WithOne("VesselStoppageInvoiceDetail")
-                        .HasForeignKey("Negin.Core.Domain.Aggregates.Billing.VesselStoppageInvoiceDetail", "VesselStoppageId")
+                        .HasForeignKey("Negin.Core.Domain.Entities.Billing.VesselStoppageInvoiceDetail", "VesselStoppageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Negin.Core.Domain.Aggregates.Basic.VesselStoppageTariff", "VesselStoppageTariff")
+                    b.HasOne("Negin.Core.Domain.Entities.Basic.VesselStoppageTariff", "VesselStoppageTariff")
                         .WithMany("VesselStoppageInvoiceDetail")
                         .HasForeignKey("VesselStoppageTariffId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1402,7 +1402,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("VesselStoppageTariff");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Operation.VesselStoppage", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Operation.VesselStoppage", b =>
                 {
                     b.HasOne("Negin.Core.Domain.Entities.User", "CreatedBy")
                         .WithMany()
@@ -1424,7 +1424,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                         .WithMany()
                         .HasForeignKey("PreviousPortId");
 
-                    b.HasOne("Negin.Core.Domain.Aggregates.Basic.Voyage", "Voyage")
+                    b.HasOne("Negin.Core.Domain.Entities.Basic.Voyage", "Voyage")
                         .WithMany("VesselStoppages")
                         .HasForeignKey("VoyageId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1576,7 +1576,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("Type");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.CleaningServiceTariff", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.CleaningServiceTariff", b =>
                 {
                     b.Navigation("CleaningServiceInvoiceDetail");
 
@@ -1585,7 +1585,7 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("VesselStoppageInvoiceDetail");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.VesselStoppageTariff", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.VesselStoppageTariff", b =>
                 {
                     b.Navigation("CleaningServiceInvoiceDetail");
 
@@ -1594,19 +1594,19 @@ namespace Negin.Infra.Data.Sql.Migrations
                     b.Navigation("VesselStoppageTariffDetails");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Basic.Voyage", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Basic.Voyage", b =>
                 {
                     b.Navigation("VesselStoppages");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Billing.Invoice", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Billing.Invoice", b =>
                 {
                     b.Navigation("CleaningServiceInvoiceDetails");
 
                     b.Navigation("VesselStoppageInvoiceDetails");
                 });
 
-            modelBuilder.Entity("Negin.Core.Domain.Aggregates.Operation.VesselStoppage", b =>
+            modelBuilder.Entity("Negin.Core.Domain.Entities.Operation.VesselStoppage", b =>
                 {
                     b.Navigation("VesselStoppageInvoiceDetail");
                 });

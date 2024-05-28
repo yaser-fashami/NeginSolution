@@ -41,7 +41,6 @@ public class AccountController : Controller
             }
             ModelState.AddModelError("", "Invalid user name or password");
         }
-
         return View();
 	}
 

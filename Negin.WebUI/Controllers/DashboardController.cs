@@ -9,19 +9,19 @@ namespace Negin.WebUI.Controllers;
 [Authorize]
 public class DashboardController : Controller
 {
-    private readonly IVoyageRepository _voyageRepository;
+    private readonly IBasicInfoRepository _basicInfoRepository;
     private readonly IInvoiceRepository _invoiceRepository;
 
-    public DashboardController(IVoyageRepository voyageRepository, IInvoiceRepository invoiceRepository)
+    public DashboardController(IBasicInfoRepository basicInfoRepository, IInvoiceRepository invoiceRepository)
     {
-        _voyageRepository = voyageRepository;
+        _basicInfoRepository = basicInfoRepository;
         _invoiceRepository = invoiceRepository;
     }
 
-    [DefaultBreadcrumb("Home")]
+    [DefaultBreadcrumb("Dashboard")]
     public async Task<IActionResult> List(string year = "1402")
     {
-        var voyages = _voyageRepository.GetAllVoyageForDashboard().Result;
+        var voyages = _basicInfoRepository.GetAllVoyageForDashboard().Result;
 
         var model = new DashboardViewModel
         {
@@ -31,6 +31,7 @@ public class DashboardController : Controller
             WaitForVessel = voyages.WaitForVessel,
             VesselStoppageCount = voyages.VesselStoppageCount,
             Invoiced = voyages.Invoiced,
+            NotInvoiced = voyages.NotInvoiced,
             Confirmed = (uint)await _invoiceRepository.InvoiceConfirmedCount(),
             Years = await _invoiceRepository.GetExistYear(),
             Chart1Data = _invoiceRepository.GetSumPriceProc(year)

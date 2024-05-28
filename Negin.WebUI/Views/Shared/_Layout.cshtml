@@ -1,13 +1,25 @@
 ﻿@using System.Security.Claims;
 @using Microsoft.AspNetCore.Identity;
-@inject Negin.Core.Domain.Interfaces.IAppVersionService AppVersionService
+@using Negin.Core.Domain.Interfaces;
+@inject IAppVersionService AppVersionService;
+
 <!DOCTYPE html>
 <html lang="en" data-theme="light" class="" data-select2-id="select2-data-125-xzci">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - NeginSolution</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	@if (AppVersionService.Beneficiary == Beneficiary.Negin)
+	{
+		<title>@ViewData["Title"] - NeginSolution</title>
+		<link rel="icon" type="image/png" sizes="32x32" href="~/assets/media/logos/NeginLogo2.png">
+		<link rel="stylesheet" href="~/css/NeginStyles.css" asp-append-version="true" />
+	}
+	@if (AppVersionService.Beneficiary == Beneficiary.SinaOil)
+	{
+		<title>@ViewData["Title"] - SinaOilSolution</title>
+		<link rel="icon" type="image/png"  href="~/assets/media/logos/SinaOilLogo2.png">
+		<link rel="stylesheet" href="~/css/SinaOilStyles.css" asp-append-version="true" />
+	}
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Negin.WebUI.styles.css" asp-append-version="true" />
 	@await RenderSectionAsync("Links", required: false)
@@ -51,7 +63,14 @@
 					<!--begin::Mobile logo-->
 					<div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
 						<a href="/" class="d-lg-none">
-							<img alt="Logo" src="~/assets/media/logos/NeginLogo3.png" class="h-50px py-5">
+							@if (AppVersionService.Beneficiary == Beneficiary.Negin)
+							{
+								<img alt="Logo" src="~/assets/media/logos/NeginLogo3.png" class="h-50px py-5">
+							}
+							@if (AppVersionService.Beneficiary == Beneficiary.SinaOil)
+							{
+								<img alt="Logo" src="~/assets/media/logos/SinaOilLogo3.png" class="h-60px py-5">
+							}
 						</a>
 					</div>
 					<!--end::Mobile logo-->
@@ -71,16 +90,6 @@
 										<!--end::Breadcrumb-->
 									</div>
 									<!--end::Page title-->
-									<!--begin::Actions-->
-									@* <div class="d-flex align-items-center gap-2 gap-lg-3">
-										<!--begin::Secondary button-->
-										<a href="#" class="btn btn-sm fw-bold bg-body btn-color-gray-700 btn-active-color-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_create_app">Rollover</a>
-										<!--end::Secondary button-->
-										<!--begin::Primary button-->
-										<a href="#" class="btn btn-sm fw-bold btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_new_target">Add Target</a>
-										<!--end::Primary button-->
-									</div> *@
-									<!--end::Actions-->
 								</div>
 								<!--end::Toolbar container-->
 							</div>
@@ -151,8 +160,16 @@
 						<div class="app-sidebar-logo" id="kt_app_sidebar_logo">
 							<!--begin::Logo image-->
 							<a href="/">
+							@if (AppVersionService.Beneficiary == Beneficiary.Negin)
+							{
 								<img alt="Logo" src="~/assets/media/logos/NeginLogo.png" class="w-250px px-6 app-sidebar-logo-default">
-								<img alt="Logo" src="~/assets/media/logos/NeginLogo2.png" class="w-75px px-6 app-sidebar-logo-minimize"> 
+								<img alt="Logo" src="~/assets/media/logos/NeginLogo2.png" class="w-75px px-6 app-sidebar-logo-minimize">
+							}
+							@if (AppVersionService.Beneficiary == Beneficiary.SinaOil)
+							{
+								<img alt="Logo" src="~/assets/media/logos/SinaOilLogo.png" class="w-250px px-3 app-sidebar-logo-default">
+								<img alt="Logo" src="~/assets/media/logos/SinaOilLogo2.png" class="w-75px px-5 app-sidebar-logo-minimize">
+							}
 							</a>
 							<!--end::Logo image-->
 							<!--begin::Sidebar toggle-->
@@ -288,6 +305,21 @@
 												<!--end:Menu link-->
 											</div>
 											<!--end:Menu item-->
+											@if (AppVersionService.Beneficiary == Beneficiary.Negin)
+											{
+												<!--begin:Menu item-->
+												<div class="menu-item">
+													<!--begin:Menu link-->
+													<a id="loadingdischargetariff" class="menu-link" href="/BasicInfo/LoadingDischargeTariffList">
+														<span class="menu-bullet">
+															<span class="bullet bullet-dot"></span>
+														</span>
+														<span class="menu-title">LoadingDischarge Tariff</span>
+													</a>
+													<!--end:Menu link-->
+												</div>
+												<!--end:Menu item-->
+											}
 										</div>
 										<!--end:Menu sub-->
 									</div>
@@ -322,6 +354,17 @@
 												<span class="menu-title">Vessel Stoppage</span>
 											</a>
 											<!--end:Menu link-->
+                                            @if (AppVersionService.Beneficiary == Beneficiary.Negin)
+											{
+												<!--begin:Menu link-->
+												<a id="loadingAndDischarge" class="menu-link" href="/Operation/LoadingAndDischarge">
+													<span class="menu-bullet">
+														<span class="bullet bullet-dot"></span>
+													</span>
+													<span class="menu-title">Loading and Discharge</span>
+												</a>
+												<!--end:Menu link-->
+											}
 										</div>
 										<!--end:Menu item-->
 										</div>
@@ -355,12 +398,12 @@
 													<span class="menu-bullet">
 														<span class="bullet bullet-dot"></span>
 													</span>
-													<span class="menu-title">Issuing Invoice</span>
+													<span class="menu-title">VesselStoppage Invoice</span>
 												</a>
 												<!--end:Menu link-->
 											</div>
 											<!--end:Menu item-->
-											<!--begin:Menu item-->
+@* 											<!--begin:Menu item-->
 											<div class="menu-item">
 												<!--begin:Menu link-->
 												<a id="issued" class="menu-link" href="/Billing/IssuedInvoiceList">
@@ -368,6 +411,18 @@
 														<span class="bullet bullet-dot"></span>
 													</span>
 													<span class="menu-title">Issued Invoice</span>
+												</a>
+												<!--end:Menu link-->
+											</div>
+											<!--end:Menu item-->
+ *@											<!--begin:Menu item-->
+											<div class="menu-item">
+												<!--begin:Menu link-->
+												<a id="loadingDischargeInvoice" class="menu-link" href="/Billing/LoadingDischargeInvoiceList">
+													<span class="menu-bullet">
+														<span class="bullet bullet-dot"></span>
+													</span>
+												<span class="menu-title">Loading & Discharge Invoice</span>
 												</a>
 												<!--end:Menu link-->
 											</div>
@@ -382,24 +437,6 @@
 							<!--end::Menu wrapper-->
 						</div>
 						<!--end::sidebar menu-->
-						<!--begin::Footer-->
-@*						<div class="app-sidebar-footer flex-column-auto pt-2 pb-6 px-6" id="kt_app_sidebar_footer">
-							<a href="https://preview.keenthemes.com/html/metronic/docs" class="btn btn-flex flex-center btn-custom btn-primary overflow-hidden text-nowrap px-0 h-40px w-100" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss-="click" data-bs-original-title="200+ in-house components and 3rd-party plugins" data-kt-initialized="1">
-								<span class="btn-label">Docs &amp; Components</span>
-								<!--begin::Svg Icon | path: icons/duotune/general/gen005.svg-->
-								<span class="svg-icon btn-icon svg-icon-2 m-0">
-									<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-										<path opacity="0.3" d="M19 22H5C4.4 22 4 21.6 4 21V3C4 2.4 4.4 2 5 2H14L20 8V21C20 21.6 19.6 22 19 22ZM12.5 18C12.5 17.4 12.6 17.5 12 17.5H8.5C7.9 17.5 8 17.4 8 18C8 18.6 7.9 18.5 8.5 18.5L12 18C12.6 18 12.5 18.6 12.5 18ZM16.5 13C16.5 12.4 16.6 12.5 16 12.5H8.5C7.9 12.5 8 12.4 8 13C8 13.6 7.9 13.5 8.5 13.5H15.5C16.1 13.5 16.5 13.6 16.5 13ZM12.5 8C12.5 7.4 12.6 7.5 12 7.5H8C7.4 7.5 7.5 7.4 7.5 8C7.5 8.6 7.4 8.5 8 8.5H12C12.6 8.5 12.5 8.6 12.5 8Z" fill="currentColor"></path>
-										<rect x="7" y="17" width="6" height="2" rx="1" fill="currentColor"></rect>
-										<rect x="7" y="12" width="10" height="2" rx="1" fill="currentColor"></rect>
-										<rect x="7" y="7" width="6" height="2" rx="1" fill="currentColor"></rect>
-										<path d="M15 8H20L14 2V7C14 7.6 14.4 8 15 8Z" fill="currentColor"></path>
-									</svg>
-								</span>
-								<!--end::Svg Icon-->
-							</a>
-						</div>
-*@						<!--end::Footer-->
 				</div>
 				<!--end::Sidebar-->
 				<!--begin::Main-->
@@ -436,19 +473,6 @@
 									Version @AppVersionService.Version
 								</span>
 								</div>
-								<!--begin::Menu-->
-@*								<ul class="menu menu-gray-600 menu-hover-primary fw-semibold order-1">
-									<li class="menu-item">
-										<a href="https://keenthemes.com" target="_blank" class="menu-link px-2">About</a>
-									</li>
-									<li class="menu-item">
-										<a href="https://devs.keenthemes.com" target="_blank" class="menu-link px-2">Support</a>
-									</li>
-									<li class="menu-item">
-										<a href="https://1.envato.market/EA4JP" target="_blank" class="menu-link px-2">Purchase</a>
-									</li>
-								</ul>
-*@								<!--end::Menu-->
 							</div>
 							<!--end::Footer container-->
 						</div>
@@ -483,8 +507,6 @@
 	<script src="~/assets/plugins/global/plugins.bundle.js"></script>
 	<script src="~/assets/js/scripts.bundle.js"></script>
 
-	@*	<script src="~/assets/js/widgets.bundle.js"></script>
-	<script src="~/assets/js/custom/widgets.js"></script>*@
 
 	<script type="text/javascript">
 		var activeLink = '@ViewData["ActiveLink"]'

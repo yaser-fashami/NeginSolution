@@ -1,12 +1,11 @@
 ﻿@{
     ViewData["Title"] = Model.PageInfo.Title;
 }
-@inject IUrlHelper UrlHelper;
 @model PagedData<VesselStoppageTariff>
 
 <div class="card">
     <!--begin::Card header-->
-    <div class="card-header border-0 pt-6" data-select2-id="select2-data-132-bv4b">
+    <div class="card-header border-0 pt-6">
         <!--begin::Card title-->
         <div class="card-title">
             <!--begin::Search-->
@@ -27,7 +26,7 @@
         <!--begin::Card toolbar-->
         <div class="card-toolbar">
             <!--begin::Toolbar-->
-            <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base" data-select2-id="select2-data-149-liu2">
+            <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
                 <!--begin::Filter-->
                 <button style="display:none" type="button" class="btn btn-light-primary me-3" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
                     <!--begin::Svg Icon | path: icons/duotune/general/gen031.svg-->
@@ -143,18 +142,7 @@
                     </tbody>
                     <!--end::Table body-->
                 </table>
-                <ul class="pagination">
-                    <li id="previous" class="page-item previous"><a href="@UrlHelper.Action("VesselStoppageTariffList", new { pageNumber = Model.PageInfo.PageNumber-1, filter=Model.PageInfo.Filter })" class="page-link"><i class="previous"></i></a></li>
-                    @for (int i = 1; i <= Model.PageInfo.PageCount; i++)
-                    {
-
-                        <li class="page-item @(i == Model.PageInfo.PageNumber ? "active" : "")">
-                            <a class="page-link " href="@UrlHelper.Action("VesselStoppageTariffList", new { pageNumber = i,filter=@Model.PageInfo.Filter })">@i</a>
-                        </li>
-
-                    }
-                    <li id="next" class="page-item next"><a href="@UrlHelper.Action("VesselStoppageTariffList", new { pageNumber = Model.PageInfo.PageNumber+1, filter=Model.PageInfo.Filter })" class="page-link"><i class="next"></i></a></li>
-                </ul>
+                <partial name="../Shared/_PagerPartial.cshtml" for="@Model.PageInfo"></partial>
             </div>
         </div>
         <!--end::Table-->
@@ -172,13 +160,6 @@
                     location = '/BasicInfo/VesselStoppageTariffList?filter=' + $('#search').val();
                 }
             });
-
-            if (@Model.PageInfo.PageNumber >= @Model.PageInfo.PageCount) {
-                $('#next').addClass("disabled")
-            }
-            if (@Model.PageInfo.PageNumber <= 1) {
-                $('#previous').addClass("disabled")
-            }
         })
     </script>
 }

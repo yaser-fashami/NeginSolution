@@ -15,41 +15,46 @@
     <!--end::Card header-->
     <div class="card-body py-4">
         <form id="kt_account_profile_details_form" class="form fv-plugins-bootstrap5 fv-plugins-framework" asp-controller="Operation" asp-action="AddVesselStoppage" method="post" autocomplete="off">
-            <div class="col-5" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title=" In this form you can add a stoppage for this vessel">
-                <div class="card shadow-sm parent-hover">
-                    <div class="card-body d-flex align-items">
+           <div class="row">
+                <div class="col-5 card shadow-sm">
+                    <div class="d-flex p-5">
                         <span class="">
-                            <img src="~/assets/media/images/boat-with-containers.png" style="width:25px" />
+                            <img src="~/assets/media/images/boat-with-containers.png" style="width:35px" />
                         </span>
-                        <span class="ms-3 mt-2 text-gray-700 parent-hover-primary fs-6 fw-bold">
+                        <span class="ms-3 mt-4 text-gray-700 parent-hover-primary fs-6 fw-bold">
                             @ViewBag.VesselName / 
                         </span>
-                        <span class="ms-3"><input type="text" name="voyageNoIn" class="form-control  h-30px hasMaxlength" maxlength="20" placeholder="Enter VoyageNoIn" /></span>
+                        <span class="mx-3 mt-2"><input type="text" name="voyageNoIn" class="form-control  h-30px hasMaxlength" maxlength="20" placeholder="Enter VoyageNoIn" /></span>
                     </div>
                 </div>
+                <div class="col-7 d-flex justify-content-end">
+                    <span data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="Storm breaker">
+                        <a href="#" class="btn btn-lg btn-secondary" data-bs-toggle="modal" data-bs-target="#kt_modal_stormBreaker"><i class="bi-cloud-rain-heavy-fill fs-1"></i></a>
+                    </span>
+                </div>
             </div>
-        <div class="separator separator-content my-15"><span class="w-150px">Dates and Times</span></div>
+            <div class="separator separator-content my-15"><span class="w-150px">Dates and Times</span></div>
             <!--begin::Input group-->
             <div class="row">
                 <div class="col-lg-3">
                     <label class="form-label fw-bolder" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="ESTIMATED TIME ARRIVAL">ETA</label>
                     <input class="form-control form-control-solid" name="ETA" placeholder="Pick date" id="eta" />
-                    <input type="text" id="etatime" name="ETATime" class="form-control form-control-solid my-3" autocomplete="off" placeholder="Pick time" />
+                    <input type="text" id="etatime" name="ETATime" class="form-control form-control-solid my-3 time" autocomplete="off" placeholder="Pick time" />
                 </div>
                 <div class="col-lg-3">
                     <label class="form-label fw-bolder" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="ACTUAL TIME ARRIVAL">ATA</label>
                     <input class="form-control form-control-solid" name="ATA" placeholder="Pick date" id="ata" />
-                    <input type="text" id="atatime" name="ATATime" class="form-control form-control-solid my-3" autocomplete="off" placeholder="Pick time" />
+                    <input type="text" id="atatime" name="ATATime" class="form-control form-control-solid my-3 time" autocomplete="off" placeholder="Pick time" />
                 </div>
                 <div class="col-lg-3">
                     <label class="form-label fw-bolder" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="ESTIMATED TIME DEPARTURE">ETD</label>
                     <input class="form-control form-control-solid" name="ETD" placeholder="Pick date" id="etd" />
-                    <input type="text" id="etdtime" name="ETDTime" class="form-control form-control-solid my-3" autocomplete="off" placeholder="Pick time" />
+                    <input type="text" id="etdtime" name="ETDTime" class="form-control form-control-solid my-3 time" autocomplete="off" placeholder="Pick time" />
                 </div>
                 <div class="col-lg-3">
                     <label class="form-label fw-bolder" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="top" title="ACTUAL TIME DEPARTURE">ATD</label>
                     <input class="form-control form-control-solid" name="ATD" placeholder="Pick date" id="atd" />
-                    <input type="text" id="atdtime" name="ATDTime" class="form-control form-control-solid my-3" autocomplete="off" placeholder="Pick time" />
+                    <input type="text" id="atdtime" name="ATDTime" class="form-control form-control-solid my-3 time" autocomplete="off" placeholder="Pick time" />
                 </div>
                 <input type="hidden" value="@ViewBag.VoyageId" asp-for="VoyageId" />
             </div>
@@ -111,13 +116,54 @@
                 <button type="submit" class="btn btn-primary" id="kt_account_profile_details_submit">Save Changes</button>
             </div>
             <input type="hidden" value="@ViewBag.VesselName" name="vesselName" />
+
+            <!--begin::Modal-->
+            <div class="modal fade" tabindex="-1" id="kt_modal_stormBreaker">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Storm Breaker</h3>
+
+                            <!--begin::Close-->
+                            <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                                <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                            </div>
+                            <!--end::Close-->
+                        </div>
+
+                        <div class="modal-body">
+                            <!--begin::Input group-->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <label class="form-label fw-bolder">beginning of the storm</label>
+                                    <input class="form-control form-control-solid" name="startStorm" placeholder="Pick date" id="startStorm" autocomplete="off" />
+                                    <input type="text" id="" name="startStormTime" class="form-control form-control-solid my-3 time" autocomplete="off" placeholder="Pick time" />
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="form-label fw-bolder">end of the storm</label>
+                                    <input class="form-control form-control-solid" name="endStorm" placeholder="Pick date" id="endStorm" autocomplete="off" />
+                                    <input type="text" id="" name="endStormTime" class="form-control form-control-solid my-3 time" autocomplete="off" placeholder="Pick time" />
+                                </div>
+                            </div>
+                            <!--end::Input group-->
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--end::Modal-->
         </form>
     </div>
 </div>
 
+
+
 @section Links{
     <link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" />
-    <link href="~/assets/css/timepicker.min.css" rel="stylesheet" />
     <link href="~/css/datepicker/persiandatepicker-dark.css" rel="stylesheet" />
 }
 
@@ -125,7 +171,6 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/assets/js/persiandatepicker.min.js"></script>
-    <script src="~/assets/js/timepicker.min.js"></script>
     <script type="text/javascript">
         $(function(){
             $('#operation').addClass("show");
@@ -133,8 +178,9 @@
                 warningClass: "badge badge-warning",
                 limitReachedClass: "badge badge-danger"
             });
+            timeInputmask();
 
-            $('#eta,#ata,#etd,#atd').persianDatepicker({
+            $('#eta,#ata,#etd,#atd,#startStorm,#endStorm').persianDatepicker({
                 theme: 'dark',
                 formatDate: "YYYY/MM/DD",
                 showGregorianDate: false,
@@ -143,10 +189,24 @@
                 cellHeight: 30,
                 fontSize: 16,
             });
-
-            $("#atatime,#atdtime,#etatime,#etdtime").timepicker();
-
         })
+
+        function timeInputmask() {
+            Inputmask({
+                "mask": "h9:m9",
+                "definitions": {
+                    "h": {
+                        validator: '[0-2]',
+                        cardinality: 1,
+                    },
+                    "m": {
+                        validator: '[0-5]',
+                        cardinality: 1,
+                    }
+                }
+            }).mask(".time");
+        }
+
     </script>
 }
 

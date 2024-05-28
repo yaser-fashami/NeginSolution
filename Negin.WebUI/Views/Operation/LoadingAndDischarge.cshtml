@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Loading & Discharge";
+}
+@model IList<VesselStoppage>
+
+<div class="card">
+    <!--begin::Card header-->
+    <div class="card-body py-7 row">
+        <div class="col-lg-6 align-content-lg-center">
+            <img data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="left" title="select a VesselStoppage for Load and Discharge" src="~/assets/media/images/123.png" style="width:60px" />
+            <div class="mt-3">
+                <div class="fv-row fv-plugins-icon-container overflow-hidden flex-grow-1">
+                    <select id="vesselStoppages" type="text" class="form-select form-select-solid border-start" data-control="select2" data-hide-search="false" data-placeholder="Select a VoyageNoIn...">
+                        <option value="">Select a VoyageNoIn...</option>
+                        @foreach (VesselStoppage vesselStoppage in Model)
+                        {
+                            <option value="@vesselStoppage.Id">
+                                <span>@vesselStoppage.VoyageNoIn - ATA: </span>
+                                <span>@Html.Raw(vesselStoppage.ATA != null ? vesselStoppage.ATA.Value.MiladiToShamsiDateString() : "")</span>
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loadAndDischargeList">
+</div>
+
+@section links{
+    <style>
+        #loadAndDischargeList{
+            padding: 0;
+            display: none;
+        }
+    </style>
+}
+
+@section Scripts{
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#vesselStoppages').change(function(){
+                var filter = $(this).data('filter');
+                var pageNumber = $(this).data('pageNumber');
+
+                $.ajax({
+                    url: '/Operation/LoadingDischargeList',
+                    type: 'GET',
+                    data: { vesselStoppageId: $('#vesselStoppages').val(), pageNumber: pageNumber, filter: filter },
+                    success: function (res) {
+                        $('#loadAndDischargeList').html(res);
+                        $('#loadAndDischargeList').fadeIn(500);
+                    }
+                })
+                if (filter != '') {
+                    $('#search').val(filter);
+                }
+            })
+        })
+
+    </script>
+}
+

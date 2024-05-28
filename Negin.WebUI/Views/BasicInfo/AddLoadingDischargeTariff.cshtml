@@ -1,0 +1,85 @@
+﻿@{
+    Layout = null;
+}
+@model List<LoadingDischargeTariffDetails>
+
+<div id="validationMessage1" class="row text-danger">
+	@ViewBag.ErrorMessage
+</div>
+
+<div class="table-responsive">
+	<table class="table border gs-7 gy-3 gx-7">
+		<thead>
+			<tr class="fw-bold fs-6 text-gray-800 border-bottom border-gray-200">
+				<th>Group Name</th>
+				<th>Goods</th>
+				<th>Price/Ton</th>
+			</tr>
+		</thead>
+		<tbody>
+			@for (int c = 0; c < Model.Count; c++)
+			{
+				string priceId = "price" + c;
+				<tr class="border fw-semibold fs-6 gs-7 gy-3 gx-7">
+					<td class="text-center">@Model[c].GroupName</td>
+					<td>@Model[c].Goods</td>
+					<td>
+						<div class="form-floating">
+							<input type="number" min="0" class="form-control form-control-solid" placeholder="Price" id="@priceId" />
+							<label class="required fw-bold text-gray-700">Price (Rial)</label>
+						</div>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+
+<!--begin::Actions-->
+<div class="d-flex justify-content-end py-6 px-9">
+	<a href="/BasicInfo/LoadingDischargeTariffList" class="btn btn-light btn-active-light-primary me-2">Back</a>
+	<button type="reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
+	<button type="submit" class="btn btn-primary" id="kt_details_submit">Save Changes</button>
+</div>
+<!--end::Actions-->
+@section Links{
+	<link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" />
+}
+
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function () {
+
+		$('#kt_details_submit').click(function () {
+			var loadingDischargeTariffDetails = [];
+			var price = "#price0";
+			@for (int i = 0; i < Model.Count; i++)
+            {
+				<text>
+					price = '';
+					price = "#price" + @i;
+                    loadingDischargeTariffDetails.push({ "GroupName": '@Html.Raw(Model[i].GroupName)', "Goods": '@Html.Raw(Model[i].Goods)', "Price": $(price).val() })
+                </text>
+            }
+
+			$.ajax({
+				url: '/BasicInfo/AddLoadingDischargeTariff',
+				type: 'POST',
+				data: { loadingDischargeTariffDetails: loadingDischargeTariffDetails, description: $('#description').val(), effectiveDate: $('#effectiveDate').val() },
+				scriptCharset: "utf-8" ,
+				contentType : 'application/x-www-form-urlencoded;charset=utf-8',
+				success: function(res){
+					if(res.message != null){
+						$('#validationMessage1').text(res.message);
+					}else{
+						location.replace('/BasicInfo/LoadingDischargeTariffList')
+					}
+				}
+			})
+		})
+
+		$('button[type="reset"]').click(function(){
+			$('input').val(null);
+		});
+
+	})
+</script>

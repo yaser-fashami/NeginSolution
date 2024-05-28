@@ -1,0 +1,15 @@
+﻿body {
+	--sb-thumb-color: #2ecc40;
+}
+
+[data-kt-app-layout=dark-sidebar] .app-sidebar {
+	background-color: #1e1e2d;
+	border-right: 0 !important;
+}
+
+[data-kt-app-layout=dark-sidebar] .app-sidebar .menu .menu-item .menu-link.active {
+	transition: color 0.2s ease;
+	background-color: #2A2A3C;
+	color: var(--kt-primary-inverse);
+}
+

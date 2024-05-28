@@ -1,0 +1,278 @@
+﻿@{
+    ViewData["Title"] = "#" + Model.InvoiceNo;
+}
+@model LoadingDischargeInvoice
+
+<div class="container">
+    <div class="row pb-5">
+        <div class="col-5 text-start">
+            <a href="/Billing/LoadingDischargeInvoiceList" class="btn btn-secondary m-1">Back</a>
+            <a href="#" id="print_btn" class="btn btn-primary m-1">Print</a>
+            @if (Model.Status == Invoice.InvoiceStatus.IsIssued)
+            {
+                <button href="#" id="confirm_btn" class="btn btn-success m-1">Confirm</button>
+                <button href="#" id="cancel_btn" class="btn btn-danger m-1">Cancel</button>
+            }
+        </div>
+        <div class="col-4 text-start">
+        </div>
+        <div class="form-check form-switch form-check-custom form-check-solid col-3 text-end">
+            <label id="GLabel" style="margin-right:0.55rem;" class="form-check-label" for="chooseCalendar">
+                Gregorian Calendar
+            </label>
+            <input style="background-color: #009ef7;" class="form-check-input h-25px w-40px" type="checkbox" id="chooseCalendar" checked />
+            <label id="PLabel" class="form-check-label text-start" for="chooseCalendar">
+                Persian Calendar
+            </label>
+        </div>
+
+    </div>
+
+    <div class="invoice page">
+        @if (Model.Status == Invoice.InvoiceStatus.IsIssued)
+        {
+            <div id="confirmStamp" style="display:none">Confirmed</div>
+            <div id="cancelStamp" style="display:none">Cancelled</div>
+        }
+        else if (Model.Status == Invoice.InvoiceStatus.IsConfirm)
+        {
+            <div id="confirmStamp">Confirmed</div>
+        }
+        else if (Model.Status == Invoice.InvoiceStatus.IsCancel)
+        {
+            <div id="cancelStamp">Cancelled</div>
+        }
+
+        <div class="invoice-company text-inverse f-w-600">
+            <img id="image" src="/assets/media/logos/logoSina.jpg" /><span class="header">Sina Port And Marine Services Company</span>
+        </div>
+        <div class="row invoice-header" style="position:relative">
+            <div class="col-12">
+                <span class="col-md-12">Invoice-no: <strong class="text-inverse">@Model.InvoiceNo</strong> &nbsp;&nbsp;</span>
+                <span class="col-md-12 ms-10">Invoice Date: <strong id="invoiceDate" class="text-inverse">@Model.InvoiceDate.MiladiToShamsiDateString()</strong> </span>
+            </div>
+        </div>
+        <div class="row invoice-header">
+            <div class="col-6 ">
+                <span class="col-md-3">Seller: <strong class="text-inverse">Sina Port And Marine Services Company</strong><br /> Address: <strong class="text-inverse">No.35 13th avenue Gandi st Tehran Iran </strong> </span>
+            </div>
+            <div class="col-6">
+                <span class="col-md-3">ID No: <strong class="text-inverse">1010114364 </strong> <br /> Economic No: <strong class="text-inverse">411-1135-5887 </strong></span>
+            </div>
+        </div>
+        <div class="row invoice-header">
+            <div class="col-12">
+                <span class="col-md-4 me-20 mb-20">Buyer: <strong class="text-inverse">@Model.ShippingLineCompany.ShippingLineName</strong> </span>
+                <span class="col-md-4 me-20">ID No: <strong class="text-inverse">@Model.ShippingLineCompany.NationalCode </strong> </span>
+                <span class="col-md-4">Economic No: <strong class="text-inverse">@Model.ShippingLineCompany.EconomicCode</strong> </span><br />
+                <span class="col-md me-20">Address: <strong class="text-inverse">@Model.ShippingLineCompany.Address</strong> </span>
+                <span class="col-md mx-20">Tel: <strong class="text-inverse">@Model.ShippingLineCompany.Tel</strong> </span>
+            </div>
+        </div>
+        <div class="row invoice-header">
+            <div class="col-12">
+                Vessel: <span class="fw-bold me-20"> @Model.LoadingDischarge.VesselStoppage.Voyage.Vessel.Name</span>
+                Vessel Tonage: <span class="fw-bold me-20">@Model.LoadingDischarge.VesselStoppage.Voyage.Vessel.GrossTonage.ToString("#,0")</span>
+                Flag: <span class="fw-bold me-20">@Model.LoadingDischarge.VesselStoppage.Voyage.Vessel.Flag.Name</span>
+                VoyageNoIn: <span class="fw-bold me-10">@Model.LoadingDischarge.VesselStoppage.VoyageNoIn</span>
+                Method: <span class="fw-bold me-10">@Model.LoadingDischarge.Method.ToString()</span><br /><br />
+                Actual Time Arrival: <span id="ataDate" class="fw-bold me-20">@Model.LoadingDischarge.VesselStoppage.ATA.Value.MiladiToShamsi().ToInlineShamsiDateString(Model.LoadingDischarge.VesselStoppage.ATA.Value.DayOfWeek)</span>
+                Actual Time Departure: <span id="atdDate" class="fw-bold">@Model.LoadingDischarge.VesselStoppage.ATD.Value.MiladiToShamsi().ToInlineShamsiDateString(Model.LoadingDischarge.VesselStoppage.ATD.Value.DayOfWeek)</span>
+            </div>
+        </div>
+        <div class="row page-break" style="border:1px solid #000;border-radius:5px;">
+            <div id="table" class="table-responsive-lg">
+                <table class="table table-striped invoice-content" style="width:100%;">
+                    <thead>
+                        <tr class="invoice-tableHeader">
+                            <th class="tect-center">Row</th>
+                            <th class="text-center">Description</th>
+                            <th class="text-center">Tonage</th>
+                            <th class="text-center">Price/Ton <sup>IRR</sup></th>
+                            <th class="text-center">Price <sup> IRR</sup></th>
+                            <th class="text-center">Comment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">1</td>
+                            <td class="text-center">Loading by coastal crane Cost</td>
+                            <td class="text-center">-</td>
+                            <td class="text-center">-</td>
+                            <td class="text-center">@(Model.LoadingDischarge.HasCrane ? @Model.CraneCostR.Value.ToString("#,0") : 0)</td>
+                            <td class="text-center"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">2</td>
+                            <td class="text-center">Loading/Discharge Cost</td>
+                            <td class="text-center">@Model.LoadingDischarge.Tonage.ToString("#,0") ton</td>
+                            <td class="text-center">@((Model.LDCostR / Model.LoadingDischarge.Tonage).ToString("#,0"))</td>
+                            <td class="text-center">@Model.LDCostR.ToString("#,0")</td>
+                            <td class="text-center">بر اساس تفاهم نامه همکاری تعاونی بندر 2-4</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">3</td>
+                            <td class="text-center">Inventory Cost</td>
+                            <td class="text-center">@(Model.LoadingDischarge.HasInventory ? @Model.LoadingDischarge.Tonage.ToString("#,0") : 0) ton</td>
+                            <td class="text-center">@((Model.InventoryCostR.Value / Model.LoadingDischarge.Tonage).ToString("#,0"))</td>
+                            <td class="text-center">@Model.InventoryCostR.Value.ToString("#,0")</td>
+                            <td class="text-center">بر اساس تفاهم نامه همکاری تعاونی بندر 2-4</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">4</td>
+                            <td class="text-center">Discount ( - )</td>
+                            <td class="text-center"></td>
+                            <td class="text-center"></td>
+                            <td class="text-center">
+                                @{
+                                    var discount = ((Model.LDCostR + Model.CraneCostR + Model.InventoryCostR) * Model.DiscountPercent / 100).Value;
+                                }
+                                @discount.ToString("#,0") (@Model.DiscountPercent %)</td>
+                            <td class="text-center"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">5</td>
+                            <td class="text-center">VAT ( + )</td>
+                            <td class="text-center"></td>
+                            <td class="text-center"></td>
+                            <td class="text-center">@Model.VatCostR.Value.ToString("#,0") (@Model.VatPercent %)</td>
+                            <td class="text-center"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="invoice-price">
+                    <div class="invoice-price-left">
+                        <div class="invoice-price-row">خواهشمند است مبلغ @Model.TotalPriceR.ToString("#,0") ریال به حساب شماره 0106003276003 نزد بانک ملی و یا حساب شبا IR740170000000106003276003 به نام شرکت توسعه خدمات دریایی و بندری سینا واریز نمایید.</div>
+                    </div>
+                    <div class="invoice-price-right">
+                        <table class="table total">
+                            <tr style="border-bottom: 1px solid #fff">
+                                <td>Sum:</td>
+                                <td>@((Model.TotalPriceR + discount - Model.VatCostR.Value).ToString("#,0")) IRR</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #fff">
+                                <td>Sum + VAT:</td>
+                                <td>@((Model.TotalPriceR + discount).ToString("#,0")) IRR</td>
+                            </tr>
+                            <tr>
+                                <td>TOTAL:<br /> <sub>(Sum - Discount + VAT)</sub></td>
+                                <td>@(Model.TotalPriceR.ToString("#,0")) IRR</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="invoice-note">Issued By: @Model.CreatedBy.UserName</div>
+    </div>
+</div>
+
+@section links {
+    <link href="~/css/invoicestyle.css" rel="stylesheet" />
+    <style>
+        .form-check-input:checked + label
+    </style>
+}
+
+@section Scripts {
+    <script src="~/lib/jquery.print/jquery.print.min.js"></script>
+    <script type="text/javascript">
+        $('#print_btn').click(function () {
+            $('.invoice').print();
+        })
+
+        $("#cancel_btn").click(function () {
+            Swal.fire({
+                text: "Are you sure you want to cancel this L/D invoice?",
+                icon: "warning",
+                showCancelButton: !0,
+                buttonsStyling: !1,
+                confirmButtonText: "Yes, do it!",
+                cancelButtonText: "No, cancel",
+                customClass: { confirmButton: "btn fw-bold btn-success", cancelButton: "btn fw-bold btn-active-light-primary" },
+            }).then(function (t) {
+                t.isConfirmed
+                    ? $.ajax({
+                        url: "/Billing/CancelLoadinDischargeInvoice",
+                        type: "GET",
+                        data: { id: '@Model.Id' },
+                        success: function (res) {
+                            if (res.state) {
+                                Swal.fire({ text: "You have cancelled this invoice!", icon: "success", buttonsStyling: !1, confirmButtonText: "Ok, got it!", customClass: { confirmButton: "btn fw-bold btn-primary" } })
+                                    .then(function () {
+                                        $('#cancelStamp').css('display', 'block');
+                                        $('#cancel_btn').prop('disabled', true);
+                                        $('#confirm_btn').prop('disabled', true);
+                                    })
+                            } else {
+                                Swal.fire({ text: res.message + "!.", icon: "warning", buttonsStyling: !1, confirmButtonText: "Ok, got it!", customClass: { confirmButton: "btn fw-bold btn-primary" } })
+                                    .then(function () {
+                                        window.location = "/Billing/LoadingDischargeInvoiceDetail?loadingDischargeInvoiceId=" + '@Model.Id';
+                                    })
+                            }
+                        },
+                    }) : () => { }
+            })
+        })
+
+        $("#confirm_btn").click(function () {
+            Swal.fire({
+                text: "Are you sure you want to confirm this L/D invoice?",
+                icon: "warning",
+                showCancelButton: !0,
+                buttonsStyling: !1,
+                confirmButtonText: "Yes, do it!",
+                cancelButtonText: "No, cancel",
+                customClass: { confirmButton: "btn fw-bold btn-success", cancelButton: "btn fw-bold btn-active-light-primary" },
+            }).then(function (t) {
+                t.isConfirmed
+                    ? $.ajax({
+                        url: "/Billing/ConfirmLoadingDischargeInvoice",
+                        type: "GET",
+                        data: { id: '@Model.Id' },
+                        success: function (res) {
+                            if (res.state) {
+                                Swal.fire({ text: "You have confirmed this invoice!", icon: "success", buttonsStyling: !1, confirmButtonText: "Ok, got it!", customClass: { confirmButton: "btn fw-bold btn-primary" } })
+                                    .then(function () {
+                                        $('#confirmStamp').css('display', 'block');
+                                        $('#confirm_btn').prop('disabled', true);
+                                        $('#cancel_btn').prop('disabled', true);
+                                    })
+                            } else {
+                                Swal.fire({ text: res.message + "!.", icon: "warning", buttonsStyling: !1, confirmButtonText: "Ok, got it!", customClass: { confirmButton: "btn fw-bold btn-primary" } })
+                                    .then(function () {
+                                        window.location = "/Billing/LoadingDischargeInvoiceDetail?loadingDischargeInvoiceId=" + '@Model.Id';
+                                    })
+                            }
+                        },
+                    }) : () => { }
+            })
+        })
+
+        $(document).ready(function () {
+            var invoiceDate = '@Model.InvoiceDate.MiladiToString()';
+            var invoicePersianDate = '@Model.InvoiceDate.MiladiToShamsiDateString()';
+            var ata = '@Model.LoadingDischarge.VesselStoppage.ATA.Value.ToInlineMiladiDateString()';
+            var ataPersian = '@Model.LoadingDischarge.VesselStoppage.ATA.Value.MiladiToShamsi().ToInlineShamsiDateString(Model.LoadingDischarge.VesselStoppage.ATA.Value.DayOfWeek)';
+            var atd = '@Model.LoadingDischarge.VesselStoppage.ATD.Value.ToInlineMiladiDateString()';
+            var atdPersian = '@Model.LoadingDischarge.VesselStoppage.ATD.Value.MiladiToShamsi().ToInlineShamsiDateString(Model.LoadingDischarge.VesselStoppage.ATD.Value.DayOfWeek)';
+
+            $('#chooseCalendar').on('change', function () {
+                if ($('#chooseCalendar').is(':checked') != true) {
+                    $('#invoiceDate').text(invoiceDate);
+                    $('#ataDate').text(ata);
+                    $('#atdDate').text(atd);
+                    $('#GLabel').css('color', '#5e6278');
+                    $('#PLabel').css('color', '#a1a5b7');
+                } else {
+                    $('#invoiceDate').text(invoicePersianDate);
+                    $('#ataDate').html(ataPersian);
+                    $('#atdDate').html(atdPersian);
+                    $('#PLabel').css('color', '#5e6278');
+                    $('#GLabel').css('color', '#a1a5b7');
+                }
+            })
+        })
+    </script>
+
+}

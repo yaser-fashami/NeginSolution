@@ -28,6 +28,7 @@ internal class ShippingLineCompanyConfig : IEntityTypeConfiguration<ShippingLine
 		builder.Property(x => x.IsDelete).IsRequired().HasDefaultValue(false);
 		builder.Property(x => x.IsOwner).IsRequired();
 		builder.Property(x => x.IsAgent).IsRequired();
+		builder.Property(x => x.IsPorterage).IsRequired().HasDefaultValue(false);
 
 		builder.HasIndex(c => c.ShippingLineName).IsUnique();
 

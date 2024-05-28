@@ -1,7 +1,4 @@
-﻿
-using Negin.Core.Domain.Aggregates.Basic;
-
-namespace Negin.Core.Domain.Entities.Basic;
+﻿namespace Negin.Core.Domain.Entities.Basic;
 
 public class VesselType : BaseEntity<byte>
 {

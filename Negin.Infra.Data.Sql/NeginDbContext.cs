@@ -2,11 +2,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Negin.Core.Domain.Aggregates.Basic;
-using Negin.Core.Domain.Aggregates.Billing;
-using Negin.Core.Domain.Aggregates.Operation;
 using Negin.Core.Domain.Entities;
 using Negin.Core.Domain.Entities.Basic;
+using Negin.Core.Domain.Entities.Billing;
+using Negin.Core.Domain.Entities.Operation;
 using Negin.Core.Domain.KeylessEntities;
 using Negin.Framework.Utilities;
 using Negin.Infra.Data.Sql.Configurations;
@@ -34,17 +33,21 @@ public class NeginDbContext : IdentityDbContext<User>
 	public DbSet<CleaningServiceTariff> CleaningServiceTariffs { get; set; }
     public DbSet<VatTariff> VatTariffs { get; set; }
     public DbSet<DiscountTariff> DiscountTariffs { get; set; }
+	public DbSet<LoadingDischargeTariff> LoadingDischargeTariffs { get; set; }
+	public DbSet<LoadingDischargeTariffDetails> LoadingDischargeTariffDetails { get; set; }
 
     #endregion
 
     #region Operation
     public DbSet<VesselStoppage> VesselStoppages { get; set; }
+	public DbSet<LoadingDischarge> LoadingDischarges { get; set; }
     #endregion
 
     #region Billing
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<VesselStoppageInvoiceDetail> VesselStoppageInvoiceDetails { get; set; }
     public DbSet<CleaningServiceInvoiceDetail> CleaningServiceInvoiceDetails { get; set; }
+	public DbSet<LoadingDischargeInvoice> LoadingDischargeInvoices { get; set; }
     public DbSet<DataForDashboardChart1_Proc> DataForDashboardChart1_Proc { get; set; }
     #endregion
 
@@ -77,9 +80,15 @@ public class NeginDbContext : IdentityDbContext<User>
         builder.ApplyConfiguration(new CleaningServiceInvoiceDetailConfig());
         builder.ApplyConfiguration(new DiscountTariffConfig());
 		builder.ApplyConfiguration(new VatTariffConfig());
+		builder.ApplyConfiguration(new LoadingDischargeTariffConfig());
+		builder.ApplyConfiguration(new LoadingDischargeTariffDetailsConfig());
+		builder.ApplyConfiguration(new LoadingDischargeConfig());
+		builder.ApplyConfiguration(new LoadingDischargeInvoiceConfig());
 
 		builder.Entity<DataForDashboardChart1_Proc>()
 			.HasNoKey();
+
+		builder.Entity<LoadingDischarge>().Property(c => c.Method).HasConversion<string>();
 
 		var user = new User() { Id = Guid.NewGuid().ToString(), UserName="admin", PasswordHash = Util.GetHashString("123"), IsActived = true };
 

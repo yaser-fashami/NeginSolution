@@ -108,7 +108,6 @@ body {
 
 body {
     --sb-track-color: #c0bdc5;
-    --sb-thumb-color: #2ecc40;
     --sb-size: 8px;
     scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
 }

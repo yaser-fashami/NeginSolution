@@ -1,7 +1,6 @@
 ﻿@{
     Layout = null;
 }
-@inject IUrlHelper UrlHelper;
 @model PagedData<VesselStoppage>
 
 <div class="card">
@@ -19,7 +18,7 @@
                 </svg>
             </span>
             <!--end::Svg Icon-->
-            <input type="text" id="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search Voyage" value="@Model.PageInfo.Filter">
+            <input type="text" id="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search VesselStoppage" value="@Model.PageInfo.Filter">
         </div>
         <!--end::Search-->
     </div>
@@ -82,7 +81,7 @@
                         <th class="min-w-200px">OriginPort</th>
                         <th>PreviousPort</th>
                         <th>NextPort</th>
-                        <th class="text-end min-w-150px sorting_disabled" data-priority="2">Actions</th>
+                        <th class="text-end min-w-150px" data-priority="2">Actions</th>
                     </tr>
                     <!--end::Table row-->
                 </thead>
@@ -91,33 +90,37 @@
                 <tbody class="text-gray-600 fw-semibold">
                     @foreach (VesselStoppage vesselStoppage in Model.Data)
                     {
-                            <tr>
-                                <td>@vesselStoppage.VoyageNoIn</td>
-                                <td><div class="badge badge-light fw-bold">@Html.Raw(vesselStoppage.ETA != null ? @vesselStoppage.ETA.ToShamsiDateString(vesselStoppage.ETADayOfTheWeek) : "")</div></td>
-                                <td><div class="badge badge-dark fw-bold">@Html.Raw(vesselStoppage.ATA != null ? @vesselStoppage.ATA.ToShamsiDateString(vesselStoppage.ATADayOfTheWeek) : "")</div></td>
-                                <td><div class="badge badge-light fw-bold">@Html.Raw(vesselStoppage.ETD != null ? @vesselStoppage.ETD.ToShamsiDateString(vesselStoppage.ETDDayOfTheWeek) : "")</div></td>
-                                <td><div class="badge badge-dark fw-bold">@Html.Raw(vesselStoppage.ATD != null ? @vesselStoppage.ATD.ToShamsiDateString(vesselStoppage.ATDDayOfTheWeek) : "")</div></td>
-                                <td>
-                                    <partial name="../Shared/_VesselStoppageStatus.cshtml" for="@vesselStoppage"></partial>
-                                </td>
-                                <td>@vesselStoppage.OriginPort?.PortName - @vesselStoppage.OriginPort?.PortSymbol</td>
-                                <td>@vesselStoppage.PreviousPort?.PortName - @vesselStoppage.PreviousPort?.PortSymbol</td>
-                                <td>@vesselStoppage.NextPort?.PortName - @vesselStoppage.NextPort?.PortSymbol</td>
-                                <!--begin::Action=-->
-                                <td class="text-end">
-                                    @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.WaitForVessel || vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.InProcess)
-                                    {
-                                        <a href="/Operation/EditVesselStoppage?vesselName=@ViewBag.VesselName&id=@vesselStoppage.Id" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Edit"><i class="bi bi-pencil-square fs-4"></i></a>
-                                    }
-                                    @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.Gone)
-                                    {
-                                        <a href="/Billing/PreInvoice?voyageId=@ViewBag.VoyageId&vesselStoppages=@vesselStoppage?.Id" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Pre Invoice"><i class="bi bi-coin fs-2"></i></a>
-                                        <a href="/Operation/EditVesselStoppage?vesselName=@ViewBag.VesselName&id=@vesselStoppage.Id" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Edit"><i class="bi bi-pencil-square fs-4"></i></a>
-                                    }
-                                </td>
-                                <!--end::Action=-->
-                            </tr>
+                        <tr>
+                            <td>@vesselStoppage.VoyageNoIn</td>
+                            <td><div class="badge badge-light fw-bold">@Html.Raw(vesselStoppage.ETA != null ? @vesselStoppage.ETA.ToShamsiDateString(vesselStoppage.ETADayOfTheWeek) : "")</div></td>
+                            <td><div class="badge badge-dark fw-bold">@Html.Raw(vesselStoppage.ATA != null ? @vesselStoppage.ATA.ToShamsiDateString(vesselStoppage.ATADayOfTheWeek) : "")</div></td>
+                            <td><div class="badge badge-light fw-bold">@Html.Raw(vesselStoppage.ETD != null ? @vesselStoppage.ETD.ToShamsiDateString(vesselStoppage.ETDDayOfTheWeek) : "")</div></td>
+                            <td><div class="badge badge-dark fw-bold">@Html.Raw(vesselStoppage.ATD != null ? @vesselStoppage.ATD.ToShamsiDateString(vesselStoppage.ATDDayOfTheWeek) : "")</div></td>
+                            <td>
+                                <partial name="../Shared/_VesselStoppageStatus.cshtml" for="@vesselStoppage"></partial>
+                                @if (vesselStoppage.StartStorm != null && vesselStoppage.EndStorm != null)
+                                {
+                                    <img src="~/assets/media/images/rain.gif" style="width:30px" />    
+                                }
+                            </td>
+                            <td>@vesselStoppage.OriginPort?.PortName - @vesselStoppage.OriginPort?.PortSymbol</td>
+                            <td>@vesselStoppage.PreviousPort?.PortName - @vesselStoppage.PreviousPort?.PortSymbol</td>
+                            <td>@vesselStoppage.NextPort?.PortName - @vesselStoppage.NextPort?.PortSymbol</td>
+                            <!--begin::Action=-->
+                            <td class="text-end">
+                                @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.WaitForVessel || vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.InProcess)
+                                {
+                                    <a href="/Operation/EditVesselStoppage?vesselName=@ViewBag.VesselName&id=@vesselStoppage.Id" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Edit"><i class="bi bi-pencil-square fs-4"></i></a>
+                                }
+                                @if (vesselStoppage.Status == VesselStoppage.VesselStoppageStatus.Gone)
+                                {
+                                    <a href="/Billing/PreInvoice?voyageId=@vesselStoppage.Voyage.Id&vesselStoppages=@vesselStoppage?.Id" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Pre Invoice"><i class="bi bi-coin fs-2"></i></a>
+                                    <a href="/Operation/EditVesselStoppage?vesselName=@ViewBag.VesselName&id=@vesselStoppage.Id" class="btn btn-icon btn-active-color-danger btn-bg-light btn-sm me-1" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-inverse" data-bs-placement="right" title="Edit"><i class="bi bi-pencil-square fs-4"></i></a>
+                                }
 
+                            </td>
+                            <!--end::Action=-->
+                        </tr>
                     }
                 </tbody>
                 <!--end::Table body-->
@@ -128,7 +131,7 @@
                 {
 
                         <li class="page-item @(i == Model.PageInfo.PageNumber ? "active" : "")">
-                            <a href="#" id="pageNumber_link" class="page-link" >@i</a>
+                            <a href="#" class="page-link pageNumber_link">@i</a>
                         </li>
 
                 }
@@ -141,6 +144,7 @@
 <!--end::Card body-->
 </div>
 
+<script src="~/js/common.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         var w = $('#kt-datatable-responsive').DataTable({
@@ -148,8 +152,13 @@
             "paging": false,
             "info": false,
             "columnDefs": [
-                { orderable: !1, targets: 0 },
+                { orderable: !0, targets: 0 },
+                { orderable: !0, targets: 1 },
+                { orderable: !0, targets: 2 },
+                { orderable: !0, targets: 3 },
+                { orderable: !0, targets: 4 },
                 { orderable: !1, targets: 5 },
+                { orderable: !1, targets: 9 },
             ],
         });
 
@@ -158,7 +167,6 @@
                 $('#vessels').data('filter', $('#search').val()).trigger('change');
             }
         });
-        $('th:last-child').addClass("sorting_disabled").removeClass("sorting").removeClass("sorting_asc");
 
         if (@Model.PageInfo.PageNumber >= @Model.PageInfo.PageCount) {
             $('#next').addClass("disabled")
@@ -167,52 +175,16 @@
             $('#previous').addClass("disabled")
         }
         $('#previous_link').click(function(){
-            $('#show').data('pageNumber', @Model.PageInfo.PageNumber-1).trigger('click');
+            $('#vessels').data('pageNumber', @Model.PageInfo.PageNumber-1).trigger('change');
         })
-        $('#pageNumber_link').click(function(){
-            $('#show').data('pageNumber', $('#pageNumber_link').text()).trigger('click');
+        $('.pageNumber_link').click(function(){
+            $('#vessels').data('pageNumber', $(this).text()).trigger('change');
         })
         $('#next_link').click(function(){
-            $('#show').data('pageNumber', @Model.PageInfo.PageNumber+1).trigger('click');
+            $('#vessels').data('pageNumber', @Model.PageInfo.PageNumber+1).trigger('change');
         })
-        
+
   
-        var x = [];
-        var e = !1;
-        var y = [];
-        var t = function (e, t) {
-            var n = {};
-            e.hasAttribute("data-bs-delay-hide") && (n.hide = e.getAttribute("data-bs-delay-hide")),
-                e.hasAttribute("data-bs-delay-show") && (n.show = e.getAttribute("data-bs-delay-show")),
-                n && (t.delay = n),
-                e.hasAttribute("data-bs-dismiss") && "click" == e.getAttribute("data-bs-dismiss") && (t.dismiss = "click");
-            var i = new bootstrap.Tooltip(e, t);
-            return (
-                t.dismiss &&
-                "click" === t.dismiss &&
-                e.addEventListener("click", function (e) {
-                    i.hide();
-                }),
-                i
-            );
-        }
-        x.slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(function (e) { t(e, {}) });
-
-        "undefined" != typeof jQuery &&
-        void 0 !== $.fn.select2 &&
-        (y.slice.call(document.querySelectorAll('[data-control="select2"], [data-kt-select2="true"]')).map(function (e) {
-            var t = { dir: document.body.getAttribute("direction") };
-            "true" == e.getAttribute("data-hide-search") && (t.minimumResultsForSearch = 1 / 0), $(e).select2(t);
-        }),
-            !1 === e &&
-            ((e = !0),
-                $(document).on("select2:open", function (e) {
-                    var t = document.querySelectorAll(".select2-container--open .select2-search__field");
-                    t.length > 0 && t[t.length - 1].focus();
-                })
-            )
-        );
-
         const s = document.querySelector('[data-kt-datatable-responsive-filter="status"]');
         $(s).on("change", (s) => {
             let o = s.target.value;

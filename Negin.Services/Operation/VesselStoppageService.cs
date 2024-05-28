@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
-using Negin.Core.Domain.Aggregates.Basic;
-using Negin.Core.Domain.Aggregates.Operation;
+using Negin.Core.Domain.Entities.Operation;
 using Negin.Core.Domain.Interfaces;
 using Negin.Framework.Exceptions;
 using Negin.Framework.Pagination;
@@ -14,23 +13,32 @@ namespace Negin.Services.Operation;
 public class VesselStoppageService : IVesselStoppageService
 {
     private readonly NeginDbContext _neginDbContext;
-    private readonly IVoyageRepository _voyageRepository;
+    private readonly IOperationRepository _operationRepository;
 
-    public VesselStoppageService(NeginDbContext neginDbContext, IVoyageRepository voyageRepository)
+    public VesselStoppageService(NeginDbContext neginDbContext, IOperationRepository operationRepository)
     {
         _neginDbContext = neginDbContext;
-        _voyageRepository = voyageRepository;
+        _operationRepository = operationRepository;
     }
 
     public BLMessage AddVesselStoppage(VesselStoppage v, IFormCollection formCollection)
     {
-        SetTimes(ref v, formCollection);
-
-        var result = ValidateVesselStoppageAsync(v).Result;
-        if (result.State)
+        BLMessage result = new();
+        if (SetTimes(ref v, formCollection))
         {
-            v = DatesShamsiToMiladi(v);
-            result = _voyageRepository.CreateVesselStoppageAsync(v).Result;
+            result = ValidateVesselStoppageAsync(v).Result;
+            ValidateStormDateTime(v, result);
+
+            if (result.State)
+            {
+                v = DatesShamsiToMiladi(v);
+                result = _operationRepository.CreateVesselStoppageAsync(v).Result;
+            }
+        }
+        else
+        {
+            result.State = false;
+            result.Message = "your time is invalid!";
         }
 
         return result;
@@ -38,12 +46,22 @@ public class VesselStoppageService : IVesselStoppageService
 
     public BLMessage UpdateVesselStoppage(VesselStoppage v, IFormCollection formCollection)
     {
-        SetTimes(ref v, formCollection);
-        var result = ValidateVesselStoppageAsync(v).Result;
-        if (result.State)
+        BLMessage result = new();
+        if(SetTimes(ref v, formCollection))
         {
-            v = DatesShamsiToMiladi(v);
-            result = _voyageRepository.UpdateVesselStoppageAsync(v).Result;
+            result = ValidateVesselStoppageAsync(v).Result;
+            ValidateStormDateTime(v, result);
+
+            if (result.State)
+            {
+                v = DatesShamsiToMiladi(v);
+                result = _operationRepository.UpdateVesselStoppageAsync(v).Result;
+            }
+        }
+        else
+        {
+            result.State = false;
+            result.Message = "your time is invalid";
         }
 
         return result;
@@ -63,12 +81,16 @@ public class VesselStoppageService : IVesselStoppageService
             OriginPortId = vesselStoppage.OriginPortId,
             PreviousPortId = vesselStoppage.PreviousPortId,
             NextPortId = vesselStoppage.NextPortId,
-            VoyageNoIn = vesselStoppage.VoyageNoIn
+            VoyageNoIn = vesselStoppage.VoyageNoIn,
+            StartStorm = vesselStoppage.StartStorm,
+            EndStorm = vesselStoppage.EndStorm,
         };
         v.ETA = v.ETA?.ShamsiToMiladi();
         v.ATA = v.ATA?.ShamsiToMiladi();
         v.ETD = v.ETD?.ShamsiToMiladi();
         v.ATD = v.ATD?.ShamsiToMiladi();
+        v.StartStorm = v.StartStorm?.ShamsiToMiladi();
+        v.EndStorm = v.EndStorm?.ShamsiToMiladi();
         return v;
     }
 
@@ -171,43 +193,121 @@ public class VesselStoppageService : IVesselStoppageService
         return result;
     }
 
-    private void SetTimes(ref VesselStoppage newVesselStoppage, IEnumerable<KeyValuePair<string, StringValues>> formCollection)
+    private static void ValidateStormDateTime(VesselStoppage v, in BLMessage result)
+    {
+        if (v.StartStorm != null && v.EndStorm == null)
+        {
+            result.State = false;
+            result.Message = "EndStorm must be filled!";
+        }
+        if (v.StartStorm == null && v.EndStorm != null)
+        {
+            result.State = false;
+            result.Message = "StartStorm must be filled!";
+        }
+        if (v.StartStorm != null && v.EndStorm != null)
+        {
+            if (v.StartStorm < v.ATA)
+            {
+                result.State = false;
+                result.Message = "StartStorm cann`t be before ATA!";
+            }
+            if (v.StartStorm > v.ATD)
+            {
+                result.State = false;
+                result.Message = "StartStorm cann`t be after ATD!";
+            }
+            if (v.EndStorm > v.ATD)
+            {
+                result.State = false;
+                result.Message = "EndtStorm cann`t be after ATD!";
+            }
+            if (v.StartStorm > v.EndStorm)
+            {
+                result.State = false;
+                result.Message = "StartStorm cann`t be after EndStorm!";
+            }
+        }
+    }
+
+    private bool SetTimes(ref VesselStoppage newVesselStoppage, IEnumerable<KeyValuePair<string, StringValues>> formCollection)
     {
         foreach (var item in formCollection)
         {
             if (item.Key.Contains("ETATime") && newVesselStoppage.ETA != null && string.IsNullOrEmpty(item.Value.First()) == false)
             {
-                newVesselStoppage.ETA = AddTimeToDate(newVesselStoppage.ETA.Value, item);
+                if (TimeSpan.TryParse(item.Value, out TimeSpan validate))
+                {
+                    newVesselStoppage.ETA = AddTimeToDate(newVesselStoppage.ETA.Value, item);
+                }
+                else
+                {
+                    return false;
+                }
             }
             if (item.Key.Contains("ATATime") && newVesselStoppage.ATA != null && string.IsNullOrEmpty(item.Value.First()) == false)
             {
-                newVesselStoppage.ATA = AddTimeToDate(newVesselStoppage.ATA.Value, item);
+                if (TimeSpan.TryParse(item.Value, out TimeSpan validate))
+                {
+                    newVesselStoppage.ATA = AddTimeToDate(newVesselStoppage.ATA.Value, item); 
+                }
+                else
+                {
+                    return false;
+                }
+
             }
             if (item.Key.Contains("ETDTime") && newVesselStoppage.ETD != null && string.IsNullOrEmpty(item.Value.First()) == false)
             {
-                newVesselStoppage.ETD = AddTimeToDate(newVesselStoppage.ETD.Value, item);
+                if (TimeSpan.TryParse(item.Value, out TimeSpan validate))
+                {
+                    newVesselStoppage.ETD = AddTimeToDate(newVesselStoppage.ETD.Value, item); 
+                }
+                else
+                {
+                    return false;
+                }
+
             }
             if (item.Key.Contains("ATDTime") && newVesselStoppage.ATD != null && string.IsNullOrEmpty(item.Value.First()) == false)
             {
-                newVesselStoppage.ATD = AddTimeToDate(newVesselStoppage.ATD.Value, item);
+                if (TimeSpan.TryParse(item.Value, out TimeSpan validate))
+                {
+                    newVesselStoppage.ATD = AddTimeToDate(newVesselStoppage.ATD.Value, item); 
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if (item.Key.Contains("StartStormTime") && newVesselStoppage.StartStorm != null && string.IsNullOrEmpty(item.Value.First()) == false)
+            {
+                if (TimeSpan.TryParse(item.Value, out TimeSpan validate))
+                {
+                    newVesselStoppage.StartStorm = AddTimeToDate(newVesselStoppage.StartStorm.Value, item); 
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if (item.Key.Contains("EndStormTime") && newVesselStoppage.EndStorm != null && string.IsNullOrEmpty(item.Value.First()) == false)
+            {
+                if (TimeSpan.TryParse(item.Value, out TimeSpan validate))
+                {
+                    newVesselStoppage.EndStorm = AddTimeToDate(newVesselStoppage.EndStorm.Value, item); 
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
+        return true;
     }
 
     private DateTime? AddTimeToDate(DateTime newVesselStoppageDate, KeyValuePair<string, StringValues> item)
     {
-        //TimeSpan time = new TimeSpan();
-        //foreach (var eta in item.Value)
-        //{
-        //    if (TimeSpan.TryParse(eta.Substring(0, eta.Length > 2 ? eta.Length - 2 : eta.Length), out time) && eta.Contains("AM"))
-        //    {
-        //        time = time.Add(new TimeSpan(-12, 0, 0));
-        //    }
-        //    else if (eta.Contains("PM"))
-        //    {
-        //        time = time.Add(new TimeSpan(12, 0, 0));
-        //    }
-        //}
         return newVesselStoppageDate + TimeSpan.Parse(item.Value);
     }
 

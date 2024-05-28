@@ -6,7 +6,7 @@
 <div class="container">
     <div class="row pb-5">
         <div class="col-5 text-start">
-            <a href="/Billing/IssuedInvoiceList" class="btn btn-secondary m-1">Back</a>
+            <a href="/Billing/List" class="btn btn-secondary m-1">Back</a>
             <a href="#" id="print_btn" class="btn btn-primary m-1">Print</a>
             @if (Model.Status == Invoice.InvoiceStatus.IsIssued)
             {
@@ -44,8 +44,9 @@
         }
 
         <div class="invoice-company text-inverse f-w-600">
-            <img src="/assets/media/logos/logoSina.jpg" /><span class="header">Sina Port And Marine Services Company</span></div>
-        <div class="row invoice-header">
+            <img src="/assets/media/logos/logoSina.jpg" /><span class="header">Sina Port And Marine Services Company</span>
+        </div>
+        <div class="row invoice-header" style="position:relative">
             <div class="col-12">
                 <span class="col-md-12">Invoice-no: <strong class="text-inverse">@Model.InvoiceNo</strong> &nbsp;&nbsp;</span>
                 <span class="col-md-12 ms-10">Invoice Date: <strong id="invoiceDate" class="text-inverse">@Model.InvoiceDate.MiladiToShamsiDateString()</strong> </span>

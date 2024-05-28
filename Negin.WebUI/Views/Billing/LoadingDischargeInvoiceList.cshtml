@@ -1,0 +1,159 @@
+﻿@{
+    ViewData["Title"] = Model.PageInfo.Title;
+}
+@model PagedData<LoadingDischarge>
+
+<div class="row g-xl-4">
+    <div class="card">
+        <div class="card-header border-0 pt-6">
+            <!--begin::Card title-->
+            <div class="card-title">
+                <!--begin::Search-->
+                <div class="d-flex align-items-center position-relative my-1">
+                    <!--begin::Svg Icon | path: icons/duotune/general/gen021.svg-->
+                    <span class="svg-icon svg-icon-1 position-absolute ms-6">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect opacity="0.5" x="17.0365" y="15.1223" width="8.15546" height="2" rx="1" transform="rotate(45 17.0365 15.1223)" fill="currentColor"></rect>
+                            <path d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                    <!--end::Svg Icon-->
+                    <input type="text" id="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search VoyageNoIn/Vessel" value="@Model.PageInfo.Filter">
+                    <!--begin::Filter-->
+                    <select id="filter" class="form-select form-select-solid w-125px ms-4" data-control="select2" data-hide-search="true" data-kt-datatable-responsive-filter="status" data-kt-initialized="1">
+                        <option value="all" selected>All</option>
+                        <option value="LOAD">Loading</option>
+                        <option value="DISC">Discharge</option>
+                    </select>
+                    <!--end::Filter-->
+                </div>
+                <!--end::Search-->
+            </div>
+            <!--begin::Card title-->
+        </div>
+        <div class="card-body p-10" style="padding-top:10px !important">
+            <!--begin::Table-->
+            <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                <div class="table-responsive">
+                    <table id="kt-datatable-responsive" class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer" data-paging="false" data-info="false" data-responsive="true">
+                        <!--begin::Table head-->
+                        <thead>
+                            <!--begin::Table row-->
+                            <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                                <th class="min-w-225px">Voyage No In / Vessel Name</th>
+                                <th>Method</th>
+                                <th class="min-w-75px">Tonage</th>
+                                <th>Cargo Type</th>
+                                <th class="min-w-50px">Crane</th>
+                                <th class="min-w-50px">Inventory</th>
+                                <th class="text-start">Status</th>
+                                <th class="min-w-125px text-end">Actions</th>
+                            </tr>
+                            <!--end::Table row-->
+                        </thead>
+                        <!--end::Table head-->
+                        <!--begin::Table body-->
+                        @{
+                            int v = 0;
+                        }
+                        <tbody class="text-dark fw-bold">
+                            @foreach (LoadingDischarge loadingDischarge in Model.Data)
+                            {
+                                <tr>
+                                    <td>@loadingDischarge.VesselStoppage.VoyageNoIn / @loadingDischarge.VesselStoppage.Voyage.Vessel.Name</td>
+                                    <td>
+                                        @if (loadingDischarge.Method == LoadingDischarge.LoadingDischargeMethod.LOAD)
+                                        {
+                                            <span class="badge py-3 px-4 fs-7 badge-light-success">LOADING</span>
+                                        }
+                                        @if (loadingDischarge.Method == LoadingDischarge.LoadingDischargeMethod.DISC)
+                                        {
+                                            <span class="badge py-3 px-3 fs-8 badge-light-danger">DISCHARGE</span>
+                                        }
+                                    </td>
+                                    <td class="text-gray-400">@loadingDischarge.Tonage</td>
+                                    <td class="text-muted">@loadingDischarge.LoadingDischargeTariffDetail.Goods</td>
+                                    <td>
+                                        @if (loadingDischarge.HasCrane)
+                                        {
+                                            <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (loadingDischarge.HasInventory)
+                                        {
+                                            <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+                                        }
+                                    </td>
+                                    <td><span class="badge py-3 px-4 fs-7 badge-light-primary">@loadingDischarge.Status.ToString()</span></td>
+                                    <td class="text-end">
+                                        @if (loadingDischarge.Status == LoadingDischarge.LoadingDischargeStatus.notInvoiced)
+                                        {
+                                            <a href="/Billing/CreateLoadingDischargeInvoice?loadingDischargeId=@loadingDischarge.Id" class="btn btn-bg-primary btn-color-white btn-active-color-dark btn-sm">Create Invoice</a>
+                                        }
+                                        @if (loadingDischarge.Status == LoadingDischarge.LoadingDischargeStatus.Invoiced)
+                                        {
+                                            <a href="/Billing/LoadingDischargeInvoiceDetail?loadingDischargeId=@loadingDischarge.Id" class="btn btn-bg-secondary btn-color-dark btn-active-color-white btn-sm" style="width:117px">Show Invoice</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <!--end::Table body-->
+                    </table>
+                    <partial name="../Shared/_PagerPartial.cshtml" for="@Model.PageInfo"></partial>
+                </div>
+            </div>
+            <!--end::Table-->
+        </div>
+    </div>
+
+</div>
+
+@section Scripts{
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <script src="~/js/common.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var w = $('#kt-datatable-responsive').DataTable({
+                "responsive": true,
+                "paging": false,
+                "info": false,
+                "columnDefs": [
+                    { orderable: !1, targets: 0 },
+                    { orderable: !1, targets: 1 },
+                    { orderable: !0, targets: 2 },
+                    { orderable: !1, targets: 3 },
+                    { orderable: !1, targets: 4 },
+                    { orderable: !1, targets: 5 },
+                    { orderable: !1, targets: 6 },
+                ],
+            });
+            const s = document.querySelector('[data-kt-datatable-responsive-filter="status"]');
+            $(s).on("change", (s) => {
+                let o = s.target.value;
+                if ("all" === o) { o = "" } w.column(1).search(o).draw()
+            });
+
+            $('#search').keydown(function (event) {
+                if (event.which == 13) {
+                    location = '/Billing/LoadingDischargeInvoiceList/?filter=' + $('#search').val();
+                }
+            });
+        })
+    </script>
+
+}
+
+@section Links{
+    <link href="~/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" />
+}

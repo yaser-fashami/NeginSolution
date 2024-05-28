@@ -1,23 +1,51 @@
 ﻿@{
     Layout = "";
 }
+@using Negin.Core.Domain.Interfaces;
+@inject IAppVersionService AppVersionService
 
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Negin Solution - LogIn</title>
+    @if (AppVersionService.Beneficiary == Beneficiary.Negin)
+    {
+        <title>Negin Solution - LogIn</title>
+        <style>
+            body{
+                background-image: url(/assets/media/images/bgLogin.jpg);
+            }
+        </style>
+    }
+    @if (AppVersionService.Beneficiary == Beneficiary.SinaOil)
+    {
+        <title>Sina Oil Solution - LogIn</title>
+        <style>
+            body {
+                background-image: url(/assets/media/images/bgLoginSinaOil.jpg);
+            }
+        </style>
+    }
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet" />
     <link href="~/css/login.css" rel="stylesheet" />
 </head>
-<body class="img js-fullheight" style="background-image: url(/assets/media/images/bgLogin.jpg);">
+<body class="img js-fullheight">
     <section class="ftco-section">
         <div class="container" style="background-color: rgb(0,0,0,0.5); border-radius:25px; padding:50px;padding-bottom:20px">
             <div class="row justify-content-center">
                 <div class="col-md-6 text-center mb-5">
-                    <h1 class="heading-section">Negin Solution TOS LogIn</h1>
+                    @if (AppVersionService.Beneficiary == Negin.Core.Domain.Interfaces.Beneficiary.Negin)
+                    {
+                        <h1 class="heading-section">Negin Solution LogIn</h1>
+                    }
+                    @if (AppVersionService.Beneficiary == Negin.Core.Domain.Interfaces.Beneficiary.SinaOil)
+                    {
+                        <h1 class="heading-section">Sina Oil Solution LogIn</h1>
+                    }
+
                     <img src="~/assets/media/logos/logo.png" />
                 </div>
             </div>
@@ -44,10 +72,7 @@
                                         <span class="checkmark"></span>
                                     </label>
                                 </div>
-@*                               <div class="w-50 text-md-right">
-                                    <a href="#" style="color: #fff">Forgot Password</a>
-                                </div>
-*@                               
+                               
                            </div>
                             <div asp-validation-summary="All" class="text-danger"></div>
                         </form>

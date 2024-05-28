@@ -2,7 +2,6 @@
     ViewData["Title"] = Model.Items.PageInfo.Title;
 }
 @model Negin.WebUI.Models.ViewModels.InvoiceViewModel
-@inject IUrlHelper UrlHelper;
 
 <div class="row g-xl-4">
     <div class="card">
@@ -20,6 +19,13 @@
                     </span>
                     <!--end::Svg Icon-->
                     <input type="text" id="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search VesselStoppages" value="@Model.Items.PageInfo.Filter">
+                    <!--begin::Filter-->
+                    <select id="filter" class="form-select form-select-solid w-150px ms-4" data-control="select2" data-hide-search="true" data-kt-datatable-responsive-filter="status" data-kt-initialized="1">
+                        <option value="all">All</option>
+                        <option value="invoiced">Invoiced</option>
+                        <option value="notInvoiced">NotInvoiced</option>
+                    </select>
+                    <!--end::Filter-->
                 </div>
                 <!--end::Search-->
             </div>
@@ -38,8 +44,8 @@
                                 <th>Owner</th>
                                 <th class="min-w-175px">Agent</th>
                                 <th>ATA</th>
-                                <th class="w-70px">Status</th>
-                                <th data-priority="2"></th>
+                                <th class="w-min-50px">Status</th>
+                                <th class="text-end" data-priority="2">Actions</th>
                             </tr>
                             <!--end::Table row-->
                         </thead>
@@ -49,23 +55,32 @@
                             int v = 0;
                         }
                         <tbody class="text-dark fw-bold">
-                            @foreach (Tuple<VesselStoppage, Voyage> tuple in Model.Items.Data)
+                            @foreach (VesselStoppage vs in Model.Items.Data)
                             {
                                 <tr class="h-60px">
                                     <td>
-                                        <span>@tuple.Item2.Vessel?.Name /</span>
-                                        <span>@tuple.Item1.VoyageNoIn</span>
+                                        <span>@vs.Voyage.Vessel?.Name /</span>
+                                        <span>@vs.VoyageNoIn</span>
                                     </td>
-                                    <td class="text-gray-400">@tuple.Item2.Owner?.ShippingLineName</td>
-                                    <td class="text-gray-400">@tuple.Item2.Agent?.ShippingLineName</td>
-                                    <td><span class="badge badge-dark fw-bold">@Html.Raw(tuple.Item1.ATA.Value.MiladiToShamsi().ToShamsiDateString(tuple.Item1.ATADayOfTheWeek))</span></td>
+                                    <td class="text-gray-400">@vs.Voyage.Owner?.ShippingLineName</td>
+                                    <td class="text-gray-400">@vs.Voyage.Agent?.ShippingLineName</td>
+                                    <td><span class="badge badge-dark fw-bold">@Html.Raw(vs.ATA.Value.MiladiToShamsi().ToShamsiDateString(vs.ATADayOfTheWeek))</span></td>
                                     <td>
-                                        <partial name="../Shared/_VesselStoppageStatus.cshtml" for="@tuple.Item1"></partial>
+                                        <partial name="../Shared/_VesselStoppageStatus.cshtml" for="@vs"></partial>
+                                        @if (vs.StartStorm != null && vs.EndStorm != null)
+                                        {
+                                            <img src="~/assets/media/images/rain.gif" style="width:30px" />
+                                        }
+
                                     </td>
                                     <td class="text-end">
-                                        @if (tuple.Item1.Status != VesselStoppage.VesselStoppageStatus.Invoiced)
+                                        @if (vs.Status != VesselStoppage.VesselStoppageStatus.Invoiced)
                                         {
-                                            <a href="/Billing/CreateInvoice?voyageId=@tuple.Item2.Id" class="btn btn-bg-light btn-active-color-primary btn-sm">Create Invoice</a>
+                                            <a href="/Billing/CreateInvoice?voyageId=@vs.Voyage.Id" class="btn btn-bg-primary btn-color-white btn-active-color-dark btn-sm">Create Invoice</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="/Billing/IssuedInvoiceDetails?id=@vs.VesselStoppageInvoiceDetail?.InvoiceId" class="btn btn-bg-secondary btn-color-dark btn-active-color-white btn-sm">Invoice Detail</a>
                                         }
                                     </td>
                                 </tr>
@@ -73,18 +88,7 @@
                         </tbody>
                         <!--end::Table body-->
                     </table>
-                    <ul class="pagination">
-                        <li id="previous" class="page-item previous"><a href="@UrlHelper.Action("List", new { pageNumber = Model.Items.PageInfo.PageNumber-1, filter=Model.Items.PageInfo.Filter })" class="page-link"><i class="previous"></i></a></li>
-                        @for (int i = 1; i <= Model.Items.PageInfo.PageCount; i++)
-                        {
-
-                            <li class="page-item @(i == Model.Items.PageInfo.PageNumber ? "active" : "")">
-                                <a class="page-link " href="@UrlHelper.Action("List", new { pageNumber = i,filter=@Model.Items.PageInfo.Filter })">@i</a>
-                            </li>
-
-                        }
-                        <li id="next" class="page-item next"><a href="@UrlHelper.Action("List", new { pageNumber = Model.Items.PageInfo.PageNumber+1, filter=Model.Items.PageInfo.Filter })" class="page-link"><i class="next"></i></a></li>
-                    </ul>
+                    <partial name="../Shared/_PagerPartial.cshtml" for="@Model.Items.PageInfo"></partial>
                 </div>
             </div>
             <!--end::Table-->
@@ -95,22 +99,42 @@
 
 @section Scripts{
     <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script type="text/javascript">
         $(document).ready(function () {
+            var invoiced = '@Model.Items.PageInfo.Specification.Split("=").Last()';
+            if (invoiced == 'True') {
+                $('#filter').val("invoiced").change();
+            }
+            if (invoiced == 'False')
+            {
+                $('#filter').val("notInvoiced").change();
+            }
+            if (invoiced == '')
+            {
+                $('#filter').val("all").change();
+            }
+           
             $('#search').keydown(function (event) {
                 if (event.which == 13) {
-                    location = '/Billing/List/?filter=' + $('#search').val();
+                    location = '/Billing/List/?filter=' + $('#search').val() + '&invoiced=' + invoiced;
                 }
             });
 
-            if (@Model.Items.PageInfo.PageNumber >= @Model.Items.PageInfo.PageCount) {
-                $('#next').addClass("disabled")
-            }
-            if (@Model.Items.PageInfo.PageNumber <= 1) {
-                $('#previous').addClass("disabled")
-            }
+            const s = document.querySelector('[data-kt-datatable-responsive-filter="status"]');
+            $(s).on("change", (s) => {
+                let o = s.target.value;
+                if ("all" === o) {
+                    location = '/Billing/List/?filter=' + $('#search').val();
+                }
+                if ("invoiced" === o) {
+                    location = '/Billing/List/?invoiced=true&filter=' + $('#search').val();
+                }
+                if ("notInvoiced" === o) {
+                    location = '/Billing/List/?invoiced=false&filter=' + $('#search').val();
+                }
+            });
+
         })
     </script>
 

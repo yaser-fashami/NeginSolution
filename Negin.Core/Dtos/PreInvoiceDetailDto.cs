@@ -1,6 +1,7 @@
-﻿using Negin.Core.Domain.Aggregates.Billing;
-using Negin.Core.Domain.Aggregates.Operation;
-using Negin.Core.Domain.Entities.Basic;
+﻿using Negin.Core.Domain.Entities.Basic;
+using Negin.Core.Domain.Entities.Billing;
+using Negin.Core.Domain.Entities.Operation;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Negin.Core.Domain.Dtos;
 
@@ -13,4 +14,6 @@ public class PreInvoiceDetailDto
     public string StoppageIssuedBy { get; set; }
     public Currency Currency { get; set; }
     public byte DiscountPercent { get; set; }
+    public uint StormHour { get; set; }
+
 }

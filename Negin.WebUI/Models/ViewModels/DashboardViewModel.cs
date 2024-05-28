@@ -10,6 +10,7 @@ public class DashboardViewModel
     public uint WaitForVessel { get; set; }
     public uint VesselStoppageCount { get; set; }
     public uint Invoiced { get; set; }
+    public uint NotInvoiced { get; set; }
     public uint Confirmed { get; set; }
     public IEnumerable<int> Years { get; set; }
     public DataForDashboardChart1_Proc[] Chart1Data { get; set; }

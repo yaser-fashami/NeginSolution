@@ -125,14 +125,21 @@
 
 .invoice-note {
 	color: #999;
-	margin-top: 30px;
+	margin-top: 10px;
 	font-size: 85%
 }
 
 .invoice > div:not(.invoice-footer) {
-	margin-bottom: 20px
+	margin-bottom: 12px
 }
 
+#table{
+	padding: 0;
+}
+
+.table {
+	margin-bottom: 0px !important;
+}
 /* Print Setup */
 @page {
 	size: A4;
@@ -145,7 +152,8 @@
 		page-break-after: avoid;
 		padding: 0.5cm;
 		margin: 0;
-		background: white;
+		background-color: white;
+		font-size: 10px;
 	}
 
 	.header {
@@ -153,31 +161,31 @@
 	}
 
 	.invoice-header {
-		padding: 10px;
+		padding: 12px;
 		font-size: 10pt !important;
 	}
 
 	.invoice-tableHeader {
-		background: #eff0f0 !important;
-		font-size: 12px !important;
+		font-size: 11px !important;
 		font-weight: bold !important;
 	}
 
 	.invoice-price .invoice-price-row {
-		display: table;
 		float: right;
 		direction: rtl;
-		font-size: 13px;
-		text-align: right
+		font-size: 10px;
+		text-align: right;
 	}
 
+
 	.invoice-price-right {
-		min-width: 300px;
-		background: #c4c4c4 !important;
+		min-width: 350px;
+		border-left: 1px dashed gray;
+		border-top: 1px dashed gray;
 	}
 
 	.total {
-		font-size: 12pt !important;
+		font-size: 11pt !important;
 		width: 40%;
 	}
 
@@ -190,10 +198,17 @@
 		text-align:center !important;
 	}
 
+	#image{
+		width:200px;
+	}
+
+	#table tr{
+		border-bottom: 1px dotted gray;
+	}
 	#confirmStamp {
 		height: 45px;
 		left: 45%;
-		top: 10%;
+		top: 7%;
 		border: 5px solid mediumseagreen;
 		border-radius: 5px;
 		color: mediumseagreen;
@@ -204,12 +219,14 @@
 		vertical-align: middle;
 		padding: 10px;
 		transform: rotate(-20deg) scale(2);
+		opacity: 0.8;
+		z-index: 5;
 	}
 
 	#cancelStamp {
 		height: 45px;
 		left: 45%;
-		top: 10%;
+		top: 7%;
 		border: 5px solid crimson;
 		border-radius: 5px;
 		color: crimson;
@@ -220,6 +237,8 @@
 		vertical-align: middle;
 		padding: 10px;
 		transform: rotate(-20deg) scale(2);
+		opacity:0.8;
+		z-index:5;
 	}
 
 }
@@ -228,7 +247,7 @@
 	#confirmStamp {
 		height: 100px;
 		left: 50%;
-		top: 31%;
+		top: 28%;
 		border: 10px solid mediumseagreen;
 		border-radius: 5px;
 		color: mediumseagreen;
@@ -252,7 +271,7 @@
 	#cancelStamp {
 		height: 100px;
 		left: 50%;
-		top: 31%;
+		top: 28%;
 		border: 10px solid crimson;
 		border-radius: 5px;
 		color: crimson;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Negin.Core.Domain.Aggregates.Basic;
+using Negin.Core.Domain.Entities.Basic;
 
 namespace Negin.Infra.Data.Sql.Configurations;
 
@@ -13,8 +13,9 @@ internal class VoyageConfig : IEntityTypeConfiguration<Voyage>
 		builder.Property(x => x.VesselId).IsRequired();
 		builder.Property(x => x.OwnerId).IsRequired();
 		builder.Property(x => x.AgentId).IsRequired();
+		builder.Property(x => x.IsActive).IsRequired().HasDefaultValue(true);
 
-		builder.HasIndex(x => new { x.OwnerId, x.VesselId}).IsUnique();
+		builder.HasIndex(x => new { x.VesselId, x.IsActive}).IsUnique();
 
 		#region Navigation
 		builder.HasOne(c => c.Owner).WithMany(d => d.OwnerVoyages).HasForeignKey(s => s.OwnerId);

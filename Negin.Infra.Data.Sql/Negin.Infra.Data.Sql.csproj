@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Remove="Configurations\VesselStoppageStatusConfig.cs" />
     <Compile Remove="EFRepositories\VesselStoppageRepository.cs" />
+    <Compile Remove="EFRepositories\VoyageRepository.cs" />
     <Compile Remove="NeginDbContextDesignTimeFactory.cs" />
   </ItemGroup>
 

@@ -9,15 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Entities\Billing\**" />
-    <Compile Remove="Entities\Operation\**" />
-    <EmbeddedResource Remove="Entities\Billing\**" />
-    <EmbeddedResource Remove="Entities\Operation\**" />
-    <None Remove="Entities\Billing\**" />
-    <None Remove="Entities\Operation\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Remove="Interfaces\IVesselStoppageRepository.cs" />
   </ItemGroup>
 

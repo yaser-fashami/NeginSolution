@@ -1,0 +1,71 @@
+﻿@{
+    ViewData["Title"] = "Create Loading / Discharge Invoice";
+}
+
+
+<div class="card mb-5 mb-xl-10">
+	<!--begin::Card header-->
+	<div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_profile_details" aria-expanded="true" aria-controls="kt_account_profile_details">
+		<!--begin::Card title-->
+		<div class="card-title m-0">
+			<h3 class="fw-bold m-0">@ViewData["Title"]</h3>
+		</div>
+		<!--end::Card title-->
+	</div>
+	<!--begin::Card header-->
+	<!--begin::Content-->
+	<div id="kt_account_settings_profile_details" class="collapse show">
+		<!--begin::Form-->
+		<form id="kt_account_profile_details_form" class="form fv-plugins-bootstrap5 fv-plugins-framework" asp-controller="Billing" asp-action="CreateLoadingDischargeInvoice" method="post">
+			<div class="card-body border-top p-9">
+				<div class="row">
+					<div class="col-8">
+					<div class="input-group input-group">
+						<span class="input-group-text required">Porterage Company</span>
+						<span class="input-group-text p-0 min-w-500px">
+							<select name="shippingLineCompanyId" type="text" class="form-select form-select-solid border-start" data-control="select2" data-hide-search="false" data-placeholder="Select a Porterage Company..." data-val="true">
+								<option value="">Select a Porterage Company...</option>
+								@foreach (ShippingLineCompany company in ViewBag.Companies)
+								{
+									<option value="@company.Id">@company.ShippingLineName</option>
+								}
+							</select>
+						</span>
+					</div>
+				</div>
+				</div>
+				<div class="row mt-9">
+					<div class="col-4">
+						<div class="input-group input-group mb-2">
+							<span class="input-group-text">Discount Percent</span>
+							<input type="number" class="form-control" name="DiscountPercent" aria-describedby="basic-addon1" min="0" max="100" value="0">
+							<span class="input-group-text">%</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div asp-validation-summary="All" class="text-danger"></div>
+			<!--begin::Actions-->
+			<div class="card-footer d-flex justify-content-end py-6 px-9">
+				<a href="/Billing/LoadingDischargeInvoiceList" class="btn btn-light btn-active-light-primary me-2">Back</a>
+				<button type="reset" class="btn btn-light btn-active-light-primary me-2">Discard</button>
+				<button type="submit" class="btn btn-primary" id="kt_account_profile_details_submit">Calculate PreInvoice</button>
+			</div>
+			<!--end::Actions-->
+			<input type="hidden" name="loadingDischargeId" value="@ViewBag.LoadingDischargeId">
+		</form>
+		<!--end::Form-->
+	</div>
+	<!--end::Content-->
+</div>
+
+@section Scripts{
+	<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+	<script type="text/javascript">
+		$('button[type="reset"]').click(function () {
+			$('select').val(null).trigger("change");
+		});
+	</script>
+}
+
